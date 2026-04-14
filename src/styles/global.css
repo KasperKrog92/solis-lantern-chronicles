@@ -349,7 +349,7 @@ main {
 
 .chapter-card__session {
   font-family: var(--font-sc);
-  font-size: 0.74rem;
+  font-size: 1.0rem;
   letter-spacing: 0.22em;
   color: var(--gold-dim);
   margin-bottom: 0.4rem;
@@ -374,14 +374,14 @@ main {
 
 .chapter-card__date {
   font-family: var(--font-sc);
-  font-size: 0.74rem;
+  font-size: 1.0rem;
   letter-spacing: 0.14em;
   color: rgba(200, 168, 75, 0.4);
   margin-bottom: 0.75rem;
 }
 
 .chapter-card__summary {
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   line-height: 1.7;
   color: rgba(200, 168, 75, 0.6);
   margin-bottom: 1rem;
@@ -404,7 +404,7 @@ main {
   padding: 0.18rem 0.55rem 0.18rem 0.25rem;
   border: 1px solid rgba(200, 168, 75, 0.22);
   font-family: var(--font-sc);
-  font-size: 0.71rem;
+  font-size: 1.0rem;
   letter-spacing: 0.14em;
   color: rgba(200, 168, 75, 0.6);
   text-decoration: none;
@@ -423,7 +423,7 @@ main {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.76rem;
+  font-size: 1.0rem;
   flex-shrink: 0;
 }
 
@@ -455,7 +455,7 @@ main {
 
 .chapter-controls__back {
   font-family: var(--font-sc);
-  font-size: 0.74rem;
+  font-size: 1.0rem;
   letter-spacing: 0.15em;
   color: rgba(200, 168, 75, 0.4);
   text-decoration: none;
@@ -493,7 +493,7 @@ main {
 
 .chapter-page-header__session {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.05rem;
   letter-spacing: 0.28em;
   color: var(--ink-faded);
   margin-bottom: 0.6rem;
@@ -510,7 +510,7 @@ main {
 
 .chapter-page-header__date {
   font-family: var(--font-sc);
-  font-size: 0.74rem;
+  font-size: 1.0rem;
   letter-spacing: 0.15em;
   color: var(--ink-faded);
 }
@@ -568,7 +568,7 @@ main {
 
 .pt-nav-btn {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.0rem;
   letter-spacing: 0.2em;
   color: rgba(200, 168, 75, 0.4);
   background: none;
@@ -589,7 +589,7 @@ main {
 
 .pt-counter {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.0rem;
   letter-spacing: 0.18em;
   color: rgba(200, 168, 75, 0.35);
 }
@@ -640,7 +640,7 @@ main {
 
 .dice-reveal__header {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.0rem;
   letter-spacing: 0.2em;
   color: var(--ink-faded);
   margin-bottom: 0.9rem;
@@ -648,7 +648,7 @@ main {
 
 .dice-reveal__roll-btn {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.0rem;
   letter-spacing: 0.2em;
   background: none;
   border: 1px solid rgba(42, 31, 14, 0.3);
@@ -714,7 +714,7 @@ main {
 
 .gm-notes__heading {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.0rem;
   letter-spacing: 0.22em;
   color: rgba(200, 168, 75, 0.5);
   margin-bottom: 1rem;
@@ -798,7 +798,7 @@ main {
 
 .character-card__meta {
   font-family: var(--font-sc);
-  font-size: 0.71rem;
+  font-size: 1.0rem;
   letter-spacing: 0.14em;
   color: rgba(200, 168, 75, 0.45);
   margin-bottom: 0.3rem;
@@ -828,7 +828,7 @@ main {
 
 .character-detail__meta {
   font-family: var(--font-sc);
-  font-size: 0.78rem;
+  font-size: 1.05rem;
   letter-spacing: 0.2em;
   color: rgba(200, 168, 75, 0.45);
   margin-bottom: 0.3rem;
@@ -836,14 +836,14 @@ main {
 
 .character-detail__player {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.0rem;
   letter-spacing: 0.15em;
   color: rgba(200, 168, 75, 0.35);
   margin-bottom: 2.5rem;
 }
 
 .character-detail__bio {
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   line-height: 1.82;
   color: rgba(200, 168, 75, 0.72);
   font-style: italic;
@@ -853,7 +853,7 @@ main {
 }
 
 .character-detail__body {
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   line-height: 1.82;
   color: rgba(200, 168, 75, 0.7);
 }
@@ -870,7 +870,7 @@ main {
 
 .character-detail__appearances h2 {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.05rem;
   letter-spacing: 0.25em;
   color: rgba(200, 168, 75, 0.4);
   margin-bottom: 1rem;
@@ -900,7 +900,7 @@ main {
 .status-badge {
   display: inline-block;
   font-family: var(--font-sc);
-  font-size: 0.68rem;
+  font-size: 1.0rem;
   letter-spacing: 0.16em;
   padding: 0.12rem 0.5rem;
   border: 1px solid;
@@ -934,7 +934,7 @@ main {
 
 .world-section__heading {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.05rem;
   letter-spacing: 0.25em;
   color: rgba(200, 168, 75, 0.4);
   margin-bottom: 1.2rem;
@@ -964,7 +964,7 @@ main {
 
 .lore-tile__category {
   font-family: var(--font-sc);
-  font-size: 0.71rem;
+  font-size: 1.0rem;
   letter-spacing: 0.2em;
   color: var(--gold-dim);
   margin-bottom: 0.35rem;
@@ -996,7 +996,7 @@ main {
 
 .lore-page__category {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.0rem;
   letter-spacing: 0.25em;
   color: var(--gold-dim);
   margin-bottom: 0.5rem;
@@ -1089,7 +1089,7 @@ main {
 .npc-card__status {
   display: inline-block;
   font-family: var(--font-sc);
-  font-size: 0.68rem;
+  font-size: 1.0rem;
   letter-spacing: 0.15em;
   padding: 0.1rem 0.45rem;
   border: 1px solid;
@@ -1102,7 +1102,7 @@ main {
 
 .npc-card__affiliation {
   font-family: var(--font-sc);
-  font-size: 0.71rem;
+  font-size: 1.0rem;
   letter-spacing: 0.12em;
   color: rgba(200, 168, 75, 0.38);
   margin-bottom: 0.6rem;
@@ -1116,7 +1116,7 @@ main {
 
 .npc-card__first-appearance {
   font-family: var(--font-sc);
-  font-size: 0.68rem;
+  font-size: 1.0rem;
   letter-spacing: 0.1em;
   color: rgba(200, 168, 75, 0.3);
   margin-top: 0.6rem;
@@ -1129,7 +1129,7 @@ main {
 .back-link {
   display: inline-block;
   font-family: var(--font-sc);
-  font-size: 0.74rem;
+  font-size: 1.0rem;
   letter-spacing: 0.2em;
   color: rgba(200, 168, 75, 0.38);
   text-decoration: none;
@@ -1167,7 +1167,7 @@ main {
   }
 
   .nav-links a {
-    font-size: 0.76rem;
+    font-size: 1.0rem;
     letter-spacing: 0.14em;
   }
 
