@@ -2,12 +2,14 @@
 name: "Marlowe Dei"
 first_appearance: "session-00"
 status: "alive"
-affiliation: "Brinegate Gate Authority"
-description: "A mid-level administrator in the Brinegate Gate Authority who handles guild registrations and has developed, over many years, a talent for not asking questions that would require him to act on the answers."
+affiliation: "The Solis Lantern"
+description: "Former waiter and cook at the Last Sound Inn, now the Solis Lantern's secretary and butler — a role he has taken to with considerable enthusiasm."
 ---
 
-Marlowe Dei has worked for the Gate Authority for fifteen years, and in that time has developed a comprehensive understanding of which regulations are structural and which are aesthetic. He processes guild registrations, commercial transit permits, and the paperwork that attaches to any formal organization operating in the border districts of Brinegate.
+Marlowe Dei spent years working as a waiter and cook at the Last Sound Inn, where he became a close friend of Wynn's and, in the quiet way of people who work in rooms full of conversations, accumulated a comprehensive picture of Brinegate's undercurrents. He is the person who suggested Wynn and her companions to Kisara when she was looking for people she could trust.
 
-He processed the Solis Lantern's founding documents without incident. He noted that one of the membership fees was paid in coins of unusual denomination and chose not to note this in the official record. He has no strong opinions about adventuring guilds, but he has strong opinions about paperwork being completed correctly, and the Solis Lantern's founding documents were completed correctly.
+When the Solis Lantern was formed, Kisara asked Marlowe to come along as the guild's secretary and butler — a role he accepted with what can only be described as excessive pleasure. He has established firm dominion over the guild kitchen, maintains the job board in his precise and slightly flourished handwriting, and talks to the herb pot on the windowsill as a matter of course.
 
-He has a daughter who wants to be an adventurer and a wife who wants the daughter to pursue something less dangerous, and he finds himself sympathetic to both positions in a way that he has found produces excellent bureaucratic instincts.
+He moves through a room like he's dancing to music nobody else can hear. People forget to be guarded around him, which means he tends to know considerably more about what is happening in the city than his cheerful demeanor suggests. He is better connected to the quiet undercurrents of Brinegate than anyone who has met him briefly would expect.
+
+He uses he/them/she pronouns, and responds with equal ease to all three.

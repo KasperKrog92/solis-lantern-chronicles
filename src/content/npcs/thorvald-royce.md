@@ -2,14 +2,12 @@
 name: "Thorvald Royce"
 first_appearance: "session-00"
 status: "alive"
-affiliation: "Brinegate Wall Garrison"
-description: "The sergeant of the watchtower station that the party slipped past on their first errand along the Wall. He is professional, patient, and has not yet connected the incident with the squirrels to anything in particular."
+affiliation: "The Last Sound Inn"
+description: "The innkeeper of the Last Sound Inn — broad-shouldered, few words, and possessed of a mechanical prosthetic arm he lost to Wall work. He has employed Wynn for years and knows most of what moves through Brinegate."
 ---
 
-Thorvald Royce has been stationed at the eastern Wall district for seven years, which is long enough to have a comprehensive understanding of who passes through his checkpoint, when, and why. He runs a methodical watch rotation and maintains the kind of calm authority that comes from having been in enough difficult situations to know which ones are actually dangerous and which ones merely feel that way.
+Thorvald Royce has run the Last Sound Inn for as long as most of Brinegate can remember. He is broad-shouldered and economical with words in the way of people who have spent years in a room full of other people's conversations, and his mechanical prosthetic arm — lost to an incident during Wall maintenance years ago — works the taps with the practiced ease of a man who has had a long time to adapt.
 
-He did not, on the night in question, identify the four people who passed his checkpoint as anything other than what they appeared to be — licensed couriers with a sealed delivery, documentation in order, moving efficiently through a corridor they had every apparent right to use.
+He has employed Wynn for years and lets her stay at the inn without charge. He knows most of what moves through Brinegate — the inn is a crossroads, and Thorvald pays the kind of quiet attention that crossroads require. His version of affection is a drink set at the end of the bar without comment. His version of concern is appearing at a door at an unusual hour with that particular set to his jaw that means he has something to say.
 
-He is aware that the squirrel incident was unusual. He filed a report under *fauna disturbance, minor*. He does not like loose ends, and the squirrel incident is a loose end of a type he does not yet have a category for.
-
-He will remember the faces, if he sees them again.
+He has a brother named Fentley, a mechanical engineer with a workshop in the craftsman quarter. They are not close. But when Thorvald has not heard from Fentley in several weeks and his door is always locked, and the city guard won't spare the people — he comes to the Solis Lantern. He doesn't say please. He doesn't need to.
