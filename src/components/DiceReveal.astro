@@ -1,23 +1,23 @@
 ---
 /**
  * DiceReveal.astro
- * A reusable skill-check reveal component for use in MDX chapter files.
+ * A skill-check reveal component for MDX chapter files.
  *
- * When the reader reaches a dice reveal in the prose:
- *   1. The card appears with character name, skill, DC, and modifier
- *   2. The reader clicks "Roll" to trigger the animation
- *   3. The d20 result animates in (random values, then settles on the roll)
- *   4. The outcome text appears
+ * The `result` prop is the actual historical roll from the session —
+ * the outcome is predetermined. The animation simulates the feel of
+ * rolling, but always lands on the specified result.
  *
- * No dice reveals are present in Session 00, but the component is complete
- * and ready to be embedded in future chapters via MDX shortcode:
+ * All interactivity is handled by initDiceReveals() in page-turner.js,
+ * which also gates forward navigation until the roll resolves.
  *
+ * Shortcode usage:
  *   <DiceReveal
  *     character="Mara"
- *     skill="Investigation"
- *     dc={12}
- *     modifier={+4}
- *     outcome="The workshop ransacking is methodical, not frantic."
+ *     skill="Insight"
+ *     dc={14}
+ *     modifier={5}
+ *     result={14}
+ *     outcome="The figure's shadow falls the wrong way. Whatever is wearing Kisara's face, it is not Kisara."
  *   />
  */
 
@@ -26,51 +26,48 @@ interface Props {
   skill: string;
   dc: number;
   modifier: number;
-  outcome: string;
+  result: number;   // Fixed historical roll (1–20)
+  outcome: string;  // Narrative text revealed after the roll
 }
 
-const { character, skill, dc, modifier, outcome } = Astro.props;
+const { character, skill, dc, modifier, result, outcome } = Astro.props;
 const modStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
 ---
 
-<div class="dice-reveal" data-outcome={outcome}>
+<div
+  class="dice-reveal"
+  data-result={result}
+  data-dc={dc}
+  data-modifier={modifier}
+>
   <div class="dice-reveal__header">
     {character} — {skill} · DC {dc} · Roll {modStr}
   </div>
-  <button class="dice-reveal__roll-btn" type="button">Roll the dice</button>
+
+  <!-- Pre-roll state: button visible, tumble hidden -->
+  <div class="dice-reveal__pre-roll">
+    <button class="dice-reveal__roll-btn" type="button">Roll the dice</button>
+  </div>
+
+  <!-- Tumbling state: shown the moment the button is clicked.
+       During tumble: only .dice-reveal__die is visible, large and centred.
+       After settling: JS adds .expanded to .dice-reveal__equation — the die
+       shrinks left and .dice-reveal__addition fades in showing the total. -->
+  <div class="dice-reveal__tumble" aria-hidden="true">
+    <div class="dice-reveal__equation">
+      <div class="dice-reveal__roll-part">
+        <div class="dice-reveal__die"></div>
+        <div class="dice-reveal__die-label"></div>
+      </div>
+      <div class="dice-reveal__addition">
+        <span class="dice-reveal__operator"></span>
+        <span class="dice-reveal__total"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Outcome: fades in 300ms after the die settles -->
   <div class="dice-reveal__result" role="status" aria-live="polite">
-    <div class="dice-reveal__die" aria-hidden="true"></div>
     <div class="dice-reveal__outcome">{outcome}</div>
   </div>
 </div>
-
-<script>
-  // Self-contained: each DiceReveal initialises independently
-  document.querySelectorAll<HTMLElement>('.dice-reveal').forEach(el => {
-    const btn     = el.querySelector<HTMLButtonElement>('.dice-reveal__roll-btn');
-    const result  = el.querySelector<HTMLElement>('.dice-reveal__result');
-    const dieEl   = el.querySelector<HTMLElement>('.dice-reveal__die');
-
-    if (!btn || !result || !dieEl) return;
-
-    btn.addEventListener('click', () => {
-      btn.disabled = true;
-
-      // Roll result (d20, 1–20)
-      const roll = Math.floor(Math.random() * 20) + 1;
-
-      // Tumbling animation: rapid random numbers for 700ms, then settle
-      let ticker = 0;
-      const interval = setInterval(() => {
-        dieEl.textContent = String(Math.floor(Math.random() * 20) + 1);
-        ticker++;
-      }, 60);
-
-      setTimeout(() => {
-        clearInterval(interval);
-        dieEl.textContent = String(roll);
-        result.classList.add('visible');
-      }, 700);
-    }, { once: true });
-  });
-</script>

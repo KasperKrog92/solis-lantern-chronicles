@@ -10,12 +10,23 @@
  *   - Word-by-word text reveal (toggleable via localStorage 'gradual-text')
  *   - Writing sound hooks via playWritingSound
  *   - A subtle page-turn animation
- *   - DiceReveal component initialisation (event listeners re-attached after
- *     each innerHTML swap, with post-roll content gating)
+ *   - DiceReveal component initialisation with post-roll content gating
+ *
+ * ── DiceReveal gating ────────────────────────────────────────────────────────
+ * When a page contains a DiceReveal that has not yet been rolled, the reader
+ * cannot advance forward (Next button disabled, arrow-right / arrow-down
+ * blocked). This is tracked via the module-level `pageGated` flag, which
+ * initDiceReveals() sets to true when it finds an unrolled reveal, and clears
+ * once the roll resolves and any post-roll prose has been revealed.
+ *
+ * Post-roll prose is collected into a .post-roll-content wrapper immediately
+ * after the .dice-reveal element. It starts at opacity 0 and fades in 800ms
+ * after the outcome text reveals. If there is no post-roll prose on the page,
+ * the gate lifts as soon as the outcome text appears.
  */
 
 import { isGradualEnabled, isSoundEnabled, initSettingsToggles } from './settings.js';
-import { playWritingSound } from './writing-sound.js';
+import { playWritingSound, playDiceRollSound, playDiceSettleSound } from './writing-sound.js';
 
 // ── State ──────────────────────────────────────────────────────────────────
 
@@ -23,6 +34,7 @@ let pages        = [];   // Array of HTML strings, one per page
 let currentPage  = 0;
 let isRevealing  = false;
 let revealTimers = [];   // Active setTimeout handles so we can cancel on nav
+let pageGated    = false; // True while a DiceReveal on the current page is unrolled
 
 // ── Entry point ────────────────────────────────────────────────────────────
 
@@ -79,7 +91,6 @@ function showPage(index, direction = 1) {
   const pageEl   = document.getElementById('pt-page');
   const counter  = document.getElementById('pt-counter');
   const prevBtn  = document.getElementById('pt-prev');
-  const nextBtn  = document.getElementById('pt-next');
 
   if (!pageEl) return;
 
@@ -97,19 +108,31 @@ function showPage(index, direction = 1) {
     counter.textContent = `${index + 1} / ${pages.length}`;
   }
 
-  // Update button disabled state
+  // Prev button: disabled on first page
   if (prevBtn) prevBtn.disabled = index === 0;
-  if (nextBtn) nextBtn.disabled = index === pages.length - 1;
 
   // ── DiceReveal ────────────────────────────────────────────────────────
   // Must run before gradual reveal so that post-roll content is hidden
   // before wrapWordsInSpans walks the tree.
+  // initDiceReveals also sets pageGated, so call updateNextBtn after.
   initDiceReveals(pageEl);
+  updateNextBtn();
 
   // ── Gradual text reveal ───────────────────────────────────────────────
   if (isGradualEnabled()) {
     revealText(pageEl);
   }
+}
+
+// ── Next button state ──────────────────────────────────────────────────────
+
+/**
+ * The Next button is disabled when we're on the last page OR when a
+ * DiceReveal on the current page has not yet been resolved.
+ */
+function updateNextBtn() {
+  const nextBtn = document.getElementById('pt-next');
+  if (nextBtn) nextBtn.disabled = currentPage === pages.length - 1 || pageGated;
 }
 
 // ── Dice reveal ────────────────────────────────────────────────────────────
@@ -120,13 +143,22 @@ function showPage(index, direction = 1) {
  * For each .dice-reveal on the page:
  *   1. Collect all DOM siblings that follow it and wrap them in a hidden
  *      .post-roll-content element — they are gated until after the roll.
- *   2. Attach a click handler to the "Roll the dice" button.
- *   3. On click: run the slowing-down die animation, settle on the
- *      canonical roll value from data-roll, show the result, then
- *      reveal the gated post-roll content (gradually if enabled).
+ *   2. Set pageGated = true so forward navigation is blocked.
+ *   3. Attach a click handler to the "Roll the dice" button.
+ *   4. On click:
+ *        - Hide the button immediately, show the tumbling die display.
+ *        - Cycle through random numbers at ~12/sec for 700ms.
+ *        - Snap to the fixed result from data-result.
+ *        - Apply a typographic success/failure treatment to the number.
+ *        - After 300ms, fade in the outcome text.
+ *        - After a further 800ms, fade in any post-roll prose and clear
+ *          pageGated (or clear it immediately if there is no post-roll prose).
  */
 function initDiceReveals(pageEl) {
   const reveals = Array.from(pageEl.querySelectorAll('.dice-reveal'));
+
+  // Reset gate for this page
+  pageGated = false;
 
   for (const reveal of reveals) {
     // ── Gate post-roll siblings ──────────────────────────────────────────
@@ -145,56 +177,116 @@ function initDiceReveals(pageEl) {
       postSiblings.forEach(el => postWrap.appendChild(el));
     }
 
-    // ── Wire up the button ───────────────────────────────────────────────
-    const btn      = reveal.querySelector('.dice-reveal__roll-btn');
-    const dieEl    = reveal.querySelector('.dice-reveal__die');
-    const resultEl = reveal.querySelector('.dice-reveal__result');
+    // ── Parse roll data ──────────────────────────────────────────────────
+    const rollResult = parseInt(reveal.dataset.result, 10);
+    const dc         = parseInt(reveal.dataset.dc, 10);
+    const modifier   = parseInt(reveal.dataset.modifier, 10);
+    const total      = rollResult + modifier;
 
-    if (!btn || !dieEl || !resultEl) continue;
+    // ── Gate forward navigation ──────────────────────────────────────────
+    pageGated = true;
 
-    const rollValue = parseInt(reveal.dataset.roll, 10) || Math.floor(Math.random() * 20) + 1;
+    // ── Wire up elements ─────────────────────────────────────────────────
+    const preRollEl  = reveal.querySelector('.dice-reveal__pre-roll');
+    const btn        = reveal.querySelector('.dice-reveal__roll-btn');
+    const tumbleEl   = reveal.querySelector('.dice-reveal__tumble');
+    const equationEl = reveal.querySelector('.dice-reveal__equation');
+    const dieEl      = reveal.querySelector('.dice-reveal__die');
+    const dieLabelEl = reveal.querySelector('.dice-reveal__die-label');
+    const operatorEl = reveal.querySelector('.dice-reveal__operator');
+    const totalEl    = reveal.querySelector('.dice-reveal__total');
+    const resultEl   = reveal.querySelector('.dice-reveal__result');
+
+    if (!btn || !tumbleEl || !dieEl || !resultEl) continue;
 
     btn.addEventListener('click', () => {
-      btn.disabled = true;
+      // Immediately replace the button with the tumbling die
+      if (preRollEl) preRollEl.style.display = 'none';
+      tumbleEl.classList.add('active');
 
-      // Slowing-down animation: rapid at first, decelerates to the final value
-      let tick = 0;
-      const totalTicks = 14;
+      // Tumbling phase: decelerating recursive setTimeout.
+      // Delay grows from 55ms → 380ms over 16 ticks (ease-out quadratic),
+      // totalling ~2.5s. Sound plays on every tick so the clacks naturally
+      // space out as the die loses momentum — no separate timing needed.
+      const totalTicks = 16;
+      const minDelay   = 55;
+      const maxDelay   = 380;
+      let   tick       = 0;
 
-      function nextTick() {
+      function runTumble() {
         dieEl.textContent = String(Math.floor(Math.random() * 20) + 1);
+        playDiceRollSound();
         tick++;
 
         if (tick < totalTicks) {
-          // Delay grows from ~50ms → ~320ms (ease-out feel)
-          const progress = tick / totalTicks;
-          const delay = 50 + progress * progress * 270;
-          setTimeout(nextTick, delay);
+          const progress = tick / (totalTicks - 1);
+          const delay    = minDelay + (maxDelay - minDelay) * progress * progress;
+          setTimeout(runTumble, delay);
         } else {
-          // Settle on the canonical roll
-          dieEl.textContent = String(rollValue);
-          resultEl.classList.add('visible');
+          // ── Die settles ──────────────────────────────────────────────────
+          playDiceSettleSound();
+          dieEl.textContent = String(rollResult);
 
-          // Reveal gated prose
-          if (postWrap) {
-            postWrap.classList.add('post-roll-visible');
-            if (isGradualEnabled()) {
-              // Small pause so the result registers before prose appears
-              setTimeout(() => revealPostRoll(postWrap), 400);
-            }
+          // Apply outcome class (drives colour on die and, later, on total)
+          if (rollResult === 20) {
+            reveal.classList.add('dice-reveal--crit-success');
+            if (dieLabelEl) dieLabelEl.textContent = 'Natural 20';
+          } else if (rollResult === 1) {
+            reveal.classList.add('dice-reveal--crit-fail');
+            if (dieLabelEl) dieLabelEl.textContent = 'Natural 1';
+          } else if (total >= dc) {
+            reveal.classList.add('dice-reveal--success');
+          } else {
+            reveal.classList.add('dice-reveal--failure');
           }
+
+          // ── Phase 2: expand equation (400ms after settle) ─────────────────
+          // If modifier is 0 the die IS the total — skip the expansion and
+          // go straight to the outcome reveal after the same pause.
+          setTimeout(() => {
+            if (modifier !== 0 && equationEl && operatorEl && totalEl) {
+              const sign = modifier > 0 ? '+' : '−';
+              operatorEl.textContent = `${sign} ${Math.abs(modifier)} =`;
+              totalEl.textContent    = String(total);
+              equationEl.classList.add('expanded');
+            }
+
+            // ── Phase 3: outcome text (400ms after expansion starts) ───────
+            // 400ms gives the CSS shrink + fade-in transitions time to play.
+            setTimeout(() => {
+              resultEl.classList.add('visible');
+
+              if (!postWrap) {
+                // No post-roll prose — lift the gate after a brief pause
+                setTimeout(() => {
+                  pageGated = false;
+                  updateNextBtn();
+                }, 400);
+              } else {
+                // After 800ms, fade in the post-roll prose and lift the gate
+                setTimeout(() => {
+                  postWrap.classList.add('post-roll-visible');
+                  if (isGradualEnabled()) {
+                    setTimeout(() => revealPostRoll(postWrap), 200);
+                  }
+                  pageGated = false;
+                  updateNextBtn();
+                }, 800);
+              }
+            }, 400);
+
+          }, 400);
         }
       }
 
-      setTimeout(nextTick, 50);
+      setTimeout(runTumble, minDelay);
+
     }, { once: true });
   }
 }
 
 /**
  * Reveal post-roll prose with the gradual word-by-word effect.
- * Uses a fresh isRevealing flag so it doesn't conflict with any
- * ongoing page reveal.
  */
 function revealPostRoll(container) {
   wrapWordsInSpans(container);
@@ -232,7 +324,7 @@ function revealText(container) {
 
   // Only reveal words that are NOT inside gated containers
   const wordEls   = Array.from(container.querySelectorAll('.word'))
-    .filter(el => !el.closest('.post-roll-content') && !el.closest('.dice-reveal__result'));
+    .filter(el => !el.closest('.post-roll-content') && !el.closest('.dice-reveal'));
   const wordCount = wordEls.length;
 
   if (wordCount === 0) {
@@ -265,8 +357,12 @@ function revealText(container) {
 /**
  * Walk text nodes in the container and wrap each whitespace-delimited word
  * in a <span class="word"> so CSS transitions can reveal them.
- * Skips text inside .post-roll-content and .dice-reveal__result —
- * those are revealed separately after their respective triggers.
+ *
+ * Skips text inside .dice-reveal (the card header, button, die number, and
+ * outcome text are all handled separately — either they appear immediately or
+ * are revealed by the roll sequence).
+ *
+ * Also skips .post-roll-content, which is revealed after the roll resolves.
  */
 function wrapWordsInSpans(container) {
   const walker = document.createTreeWalker(
@@ -275,9 +371,10 @@ function wrapWordsInSpans(container) {
     {
       acceptNode(node) {
         if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
-        // Skip already-gated content
+        // Skip all dice-reveal card content
+        if (node.parentElement?.closest('.dice-reveal'))       return NodeFilter.FILTER_REJECT;
+        // Skip gated post-roll prose (revealed separately)
         if (node.parentElement?.closest('.post-roll-content')) return NodeFilter.FILTER_REJECT;
-        if (node.parentElement?.closest('.dice-reveal__result'))  return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       },
     }
@@ -311,6 +408,9 @@ function wrapWordsInSpans(container) {
 // ── Navigation ─────────────────────────────────────────────────────────────
 
 function navigate(direction) {
+  // Block forward navigation while a DiceReveal is unrolled
+  if (direction === 1 && pageGated) return;
+
   const next = currentPage + direction;
   if (next < 0 || next >= pages.length) return;
   showPage(next, direction);

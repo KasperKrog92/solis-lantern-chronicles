@@ -18,14 +18,9 @@ function resolveHref(href: string) {
   return new URL(target, `https://example.com${SITE_BASE}`).pathname;
 }
 
-// Derive initials from name: first letter of each word, max 2 characters
+// Derive initial from first name only (matches the displayed label)
 function initials(n: string): string {
-  return n
-    .split(' ')
-    .map(w => w[0]?.toUpperCase() ?? '')
-    .filter(Boolean)
-    .join('')
-    .slice(0, 2);
+  return n.split(' ')[0][0]?.toUpperCase() ?? '';
 }
 ---
 

@@ -646,6 +646,8 @@ main {
   margin-bottom: 0.9rem;
 }
 
+/* Pre-roll: the "Roll the dice" button */
+
 .dice-reveal__roll-btn {
   font-family: var(--font-sc);
   font-size: 1.0rem;
@@ -663,34 +665,157 @@ main {
   color: var(--ink-mid);
 }
 
-.dice-reveal__roll-btn:disabled {
-  opacity: 0.4;
-  cursor: default;
-}
+/* Tumbling die — hidden until click, then shown via .active */
 
-.dice-reveal__result {
+.dice-reveal__tumble {
   display: none;
-  margin-top: 1.1rem;
+  padding: 0.6rem 0 0.25rem;
 }
 
-.dice-reveal__result.visible {
+.dice-reveal__tumble.active {
   display: block;
 }
+
+/* Equation row: centred, items align on their baselines */
+
+.dice-reveal__equation {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.75rem;
+}
+
+.dice-reveal__roll-part {
+  text-align: center;
+}
+
+/* Die number — large during tumble, shrinks left once equation expands */
 
 .dice-reveal__die {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 2.4rem;
+  font-size: 3.5rem;
   color: var(--ink);
   line-height: 1;
-  margin-bottom: 0.6rem;
+  transition: font-size 0.35s ease, color 0.3s ease;
+}
+
+.dice-reveal__equation.expanded .dice-reveal__die {
+  font-size: 1.8rem;
+}
+
+/* Crit label — "Natural 20" / "Natural 1" */
+
+.dice-reveal__die-label {
+  display: none;
+  font-family: var(--font-sc);
+  font-size: 0.85rem;
+  letter-spacing: 0.3em;
+  color: var(--ink-faded);
+  margin-top: 0.35rem;
+}
+
+.dice-reveal--crit-success .dice-reveal__die-label,
+.dice-reveal--crit-fail .dice-reveal__die-label {
+  display: block;
+}
+
+/* Addition part — "+ 5 =" and the total — fades in when expanded */
+
+.dice-reveal__addition {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  opacity: 0;
+  transition: opacity 0.35s ease 0.15s; /* 150ms delay lets the die start shrinking first */
+}
+
+.dice-reveal__equation.expanded .dice-reveal__addition {
+  opacity: 1;
+}
+
+.dice-reveal__operator {
+  font-family: var(--font-sc);
+  font-size: 1.1rem;
+  letter-spacing: 0.12em;
+  color: var(--ink-faded);
+}
+
+/* Total — the prominent outcome number, same size as the tumbling die */
+
+.dice-reveal__total {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 3.5rem;
+  line-height: 1;
+  color: var(--ink);
+}
+
+/* ── Outcome colours ──────────────────────────────────────────────────────
+
+   Before expansion (modifier=0): colour goes on the die itself.
+   After expansion:  die becomes subdued (ink-mid), colour moves to the total.
+   ────────────────────────────────────────────────────────────────────── */
+
+.dice-reveal--success .dice-reveal__die,
+.dice-reveal--crit-success .dice-reveal__die {
+  color: var(--gold);
+}
+
+.dice-reveal--failure .dice-reveal__die,
+.dice-reveal--crit-fail .dice-reveal__die {
+  color: var(--ink-faded);
+}
+
+/* Once expanded, subdue the raw die roll and highlight the total instead */
+
+.dice-reveal--success .dice-reveal__equation.expanded .dice-reveal__die,
+.dice-reveal--crit-success .dice-reveal__equation.expanded .dice-reveal__die,
+.dice-reveal--failure .dice-reveal__equation.expanded .dice-reveal__die,
+.dice-reveal--crit-fail .dice-reveal__equation.expanded .dice-reveal__die {
+  color: var(--ink-mid);
+}
+
+.dice-reveal--success .dice-reveal__total,
+.dice-reveal--crit-success .dice-reveal__total {
+  color: var(--gold);
+}
+
+.dice-reveal--failure .dice-reveal__total,
+.dice-reveal--crit-fail .dice-reveal__total {
+  color: var(--ink-faded);
+}
+
+/* Outcome text — fades in after the die settles */
+
+.dice-reveal__result {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease;
+  margin-top: 1.25rem;
+}
+
+.dice-reveal__result.visible {
+  opacity: 1;
+  visibility: visible;
 }
 
 .dice-reveal__outcome {
-  font-size: 1rem;
-  line-height: 1.7;
+  font-size: 1.35rem;
+  line-height: 1.8;
   font-style: italic;
-  color: var(--ink-mid);
+  color: var(--ink);
+}
+
+/* Post-roll prose gate — siblings after .dice-reveal, revealed on roll */
+
+.post-roll-content {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.post-roll-content.post-roll-visible {
+  opacity: 1;
 }
 
 /* ============================================================
