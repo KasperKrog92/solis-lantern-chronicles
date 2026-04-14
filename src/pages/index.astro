@@ -3,6 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CharacterChip from '../components/CharacterChip.astro';
 import { getCollection } from 'astro:content';
 
+const SITE_BASE = import.meta.env.SITE
+  ? new URL(import.meta.env.SITE).pathname.replace(/\/$/, '') || '/'
+  : '/solis-lantern-chronicles';
+const resolveHref = (href: string) => href === '/' ? SITE_BASE : `${SITE_BASE}${href}`;
+
 // Three most recent non-draft chapters
 const allChapters = await getCollection('chapters');
 const recent = allChapters
@@ -27,8 +32,8 @@ const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
       five strangers became something else. This is where their story is kept.
     </p>
     <div class="home-hero__cta">
-      <a href="/chronicle" class="btn btn--primary">Read the Chronicle</a>
-      <a href="/world" class="btn">The World</a>
+      <a href={resolveHref('/chronicle')} class="btn btn--primary">Read the Chronicle</a>
+      <a href={resolveHref('/world')} class="btn">The World</a>
     </div>
 
     {recent.length > 0 && (
@@ -41,7 +46,7 @@ const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
                 Session {String(chapter.data.session).padStart(2, '0')}
               </p>
               <h2 class="chapter-card__title">
-                <a href={`/chronicle/${chapter.id}`}>{chapter.data.title}</a>
+                <a href={resolveHref(`/chronicle/${chapter.id}`)}>{chapter.data.title}</a>
               </h2>
               <p class="chapter-card__date">
                 {chapter.data.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}

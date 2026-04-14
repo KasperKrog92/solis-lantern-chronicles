@@ -18,6 +18,11 @@ const chapters = [...published, ...drafts];
 
 const characters = await getCollection('characters');
 const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
+
+const SITE_BASE = import.meta.env.SITE
+  ? new URL(import.meta.env.SITE).pathname.replace(/\/$/, '') || '/'
+  : '/solis-lantern-chronicles';
+const resolveHref = (href: string) => href === '/' ? SITE_BASE : `${SITE_BASE}${href}`;
 ---
 
 <BaseLayout title="Chronicle" description="All sessions of the Solis Lantern Chronicles, newest first.">
@@ -37,7 +42,7 @@ const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
               {chapter.data.draft && <span style="margin-left:0.5em; opacity:0.5;">[draft]</span>}
             </p>
             <h2 class="chapter-card__title">
-              <a href={`/chronicle/${chapter.id}`}>{chapter.data.title}</a>
+              <a href={resolveHref(`/chronicle/${chapter.id}`)}>{chapter.data.title}</a>
             </h2>
             <p class="chapter-card__date">
               {chapter.data.date.toLocaleDateString('en-GB', {

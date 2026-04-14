@@ -24,6 +24,11 @@ const categoryLabels: Record<string, string> = {
 };
 
 const categoryOrder = ['location', 'faction', 'concept', 'creature'];
+
+const SITE_BASE = import.meta.env.SITE
+  ? new URL(import.meta.env.SITE).pathname.replace(/\/$/, '') || '/'
+  : '/solis-lantern-chronicles';
+const resolveHref = (href: string) => href === '/' ? SITE_BASE : `${SITE_BASE}${href}`;
 ---
 
 <BaseLayout
@@ -52,7 +57,7 @@ const categoryOrder = ['location', 'faction', 'concept', 'creature'];
           <ul class="lore-grid">
             {entries.map(entry => (
               <li>
-                <a href={`/lore/${entry.id}`} class="lore-tile">
+                <a href={resolveHref(`/lore/${entry.id}`)} class="lore-tile">
                   <p class="lore-tile__category">{category}</p>
                   <p class="lore-tile__title">{entry.data.title}</p>
                   <p class="lore-tile__summary">{entry.data.summary}</p>

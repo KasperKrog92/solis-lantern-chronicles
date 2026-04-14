@@ -9,6 +9,11 @@ const order = { active: 0, inactive: 1, deceased: 2 };
 const sorted = characters.sort((a, b) =>
   (order[a.data.status] ?? 99) - (order[b.data.status] ?? 99)
 );
+
+const SITE_BASE = import.meta.env.SITE
+  ? new URL(import.meta.env.SITE).pathname.replace(/\/$/, '') || '/'
+  : '/solis-lantern-chronicles';
+const resolveHref = (href: string) => href === '/' ? SITE_BASE : `${SITE_BASE}${href}`;
 ---
 
 <BaseLayout title="Characters" description="The founding members of the Solis Lantern adventuring guild.">
@@ -18,7 +23,7 @@ const sorted = characters.sort((a, b) =>
     <ul class="character-roster">
       {sorted.map(character => (
         <li>
-          <a href={`/characters/${character.id}`} class="character-card">
+          <a href={resolveHref(`/characters/${character.id}`)} class="character-card">
             <div class="character-card__portrait">
               {character.data.portrait ? (
                 <img src={character.data.portrait} alt={character.data.name} />

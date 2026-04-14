@@ -12,6 +12,10 @@ export async function getStaticPaths() {
 
 const { character } = Astro.props;
 const { Content }   = await render(character);
+const SITE_BASE = import.meta.env.SITE
+  ? new URL(import.meta.env.SITE).pathname.replace(/\/$/, '') || '/'
+  : '/solis-lantern-chronicles';
+const resolveHref = (href: string) => href === '/' ? SITE_BASE : `${SITE_BASE}${href}`;
 
 // Find all chapters where this character appears
 const chapters = await getCollection('chapters');
@@ -28,7 +32,7 @@ const statusLabels: Record<string, string> = {
 
 <BaseLayout title={character.data.name}>
   <div class="character-detail">
-    <a href="/characters" class="back-link">← All Characters</a>
+    <a href={resolveHref('/characters')} class="back-link">← All Characters</a>
 
     <div style="display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; margin-bottom:0.4rem;">
       <h1 class="character-detail__name">{character.data.name}</h1>
@@ -57,7 +61,7 @@ const statusLabels: Record<string, string> = {
         <ul class="appearances-list">
           {appearances.map(chapter => (
             <li>
-              <a href={`/chronicle/${chapter.id}`}>
+              <a href={resolveHref(`/chronicle/${chapter.id}`)}>
                 Session {String(chapter.data.session).padStart(2, '0')} — {chapter.data.title}
               </a>
             </li>

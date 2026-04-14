@@ -12,6 +12,11 @@ interface Props {
 
 const { slug, name } = Astro.props;
 
+const SITE_BASE = import.meta.env.SITE
+  ? new URL(import.meta.env.SITE).pathname.replace(/\/$/, '') || '/'
+  : '/solis-lantern-chronicles';
+const resolveHref = (href: string) => href === '/' ? SITE_BASE : `${SITE_BASE}${href}`;
+
 // Derive initials from name: first letter of each word, max 2 characters
 function initials(n: string): string {
   return n
@@ -23,7 +28,7 @@ function initials(n: string): string {
 }
 ---
 
-<a href={`/characters/${slug}`} class="char-chip" title={name}>
+<a href={resolveHref(`/characters/${slug}`)} class="char-chip" title={name}>
   <span class="char-chip__badge" aria-hidden="true">{initials(name)}</span>
   {name.split(' ')[0]}
 </a>

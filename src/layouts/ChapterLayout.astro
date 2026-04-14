@@ -20,6 +20,11 @@ interface Props {
 
 const { title, session, date, gmNotes } = Astro.props;
 
+const SITE_BASE = import.meta.env.SITE
+  ? new URL(import.meta.env.SITE).pathname.replace(/\/$/, '') || '/'
+  : '/solis-lantern-chronicles';
+const resolveHref = (href: string) => href === '/' ? SITE_BASE : `${SITE_BASE}${href}`;
+
 const formattedDate = date.toLocaleDateString('en-GB', {
   day: 'numeric',
   month: 'long',
@@ -34,7 +39,7 @@ const sessionLabel = `Session ${String(session).padStart(2, '0')}`;
 
     <!-- Controls bar: back link + reader settings -->
     <div class="chapter-controls">
-      <a href="/chronicle" class="chapter-controls__back">← Chronicle</a>
+      <a href={resolveHref('/chronicle')} class="chapter-controls__back">← Chronicle</a>
       <div class="chapter-controls__toggles">
         <button
           id="toggle-gradual"
