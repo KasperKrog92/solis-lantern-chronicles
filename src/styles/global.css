@@ -33,9 +33,9 @@
   --font-body:    'Crimson Pro', serif;
 
   /* Scale */
-  --size-chapter-title: 1.7rem;
-  --size-body:          1.16rem;
-  --size-ui:            0.82rem;
+  --size-chapter-title: 2.4rem;
+  --size-body:          1.5rem;
+  --size-ui:            1.1rem;
   --lh-body:            1.8;
 }
 
@@ -98,7 +98,7 @@ button {
 .nav-home {
   font-family: var(--font-display);
   font-style: italic;
-  font-size: 1.05rem;
+  font-size: 1.4rem;
   color: rgba(200, 168, 75, 0.7);
   text-decoration: none;
   letter-spacing: 0.04em;
@@ -211,7 +211,7 @@ main {
 /* Small toggle buttons in the reading UI */
 .toggle-btn {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.0rem;
   letter-spacing: 0.18em;
   color: rgba(200, 168, 75, 0.45);
   background: none;
@@ -254,7 +254,7 @@ main {
 
 .home-hero__eyebrow {
   font-family: var(--font-sc);
-  font-size: 0.78rem;
+  font-size: 1.05rem;
   letter-spacing: 0.3em;
   color: rgba(200, 168, 75, 0.45);
   margin-bottom: 1.2rem;
@@ -272,7 +272,7 @@ main {
 
 .home-hero__intro {
   max-width: 520px;
-  font-size: 1.05rem;
+  font-size: 1.4rem;
   line-height: 1.85;
   color: rgba(200, 168, 75, 0.55);
   font-style: italic;
@@ -296,7 +296,7 @@ main {
 
 .recent-section__heading {
   font-family: var(--font-sc);
-  font-size: 0.76rem;
+  font-size: 1.05rem;
   letter-spacing: 0.28em;
   color: rgba(200, 168, 75, 0.4);
   margin-bottom: 1.25rem;
