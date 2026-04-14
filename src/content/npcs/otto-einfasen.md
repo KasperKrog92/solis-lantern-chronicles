@@ -3,7 +3,7 @@ name: "Otto Einfasen"
 first_appearance: "session-00"
 status: "alive"
 affiliation: "Ministry of Empire Integrity"
-description: "A Drow bureaucrat based in Brinegate, officially working under Dolores Tarius as a local contact. Capable, discreet, and answerable — according to Dolores — to her."
+description: "A Drow bureaucrat based in Brinegate, officially working under Dolores Hylach as a local contact. Capable, discreet, and answerable — according to Dolores — to her."
 ---
 
 Otto Einfasen holds a bureaucratic position in Brinegate under the Ministry of Empire Integrity, the ministry responsible for internal threats to Imperial stability. He is, officially, a local contact for the Minister — a person of use to Nyssara should she require information or help navigating the city's more complicated processes.
