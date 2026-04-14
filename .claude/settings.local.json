@@ -7,7 +7,8 @@
       "Bash(curl -s -o /dev/null -w \" %{http_code}\" http://localhost:4321/characters)",
       "Bash(curl -s -o /dev/null -w \" %{http_code}\" http://localhost:4321/world)",
       "Bash(powershell -Command \"\\(Get-Content src/styles/global.css -Raw\\) -replace '--size-ui:\\\\\\\\s+0\\\\\\\\.7rem', '--size-ui:            0.82rem' -replace '--size-body:\\\\\\\\s+1\\\\\\\\.1rem', '--size-body:          1.16rem' -replace 'font-size: 0\\\\\\\\.5rem', 'font-size: 0.62rem' -replace 'font-size: 0\\\\\\\\.55rem', 'font-size: 0.68rem' -replace 'font-size: 0\\\\\\\\.58rem', 'font-size: 0.71rem' -replace 'font-size: 0\\\\\\\\.6rem', 'font-size: 0.74rem' -replace 'font-size: 0\\\\\\\\.62rem', 'font-size: 0.76rem' -replace 'font-size: 0\\\\\\\\.65rem', 'font-size: 0.78rem' -replace 'font-size: 0\\\\\\\\.85rem', 'font-size: 0.95rem' -replace 'font-size: 0\\\\\\\\.9rem', 'font-size: 1rem' -replace 'font-size: 0\\\\\\\\.95rem', 'font-size: 1.05rem' | Set-Content src/styles/global.css -Encoding UTF8\")",
-      "Bash(npx astro:*)"
+      "Bash(npx astro:*)",
+      "mcp__claude_ai_Google_Drive__get_file_metadata"
     ]
   }
 }
