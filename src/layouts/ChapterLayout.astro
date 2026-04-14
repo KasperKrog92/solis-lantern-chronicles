@@ -20,10 +20,11 @@ interface Props {
 
 const { title, session, date, gmNotes } = Astro.props;
 
-const SITE_BASE = import.meta.env.SITE
-  ? new URL(import.meta.env.SITE).pathname.replace(/\/$/, '') || '/'
-  : '/solis-lantern-chronicles';
-const resolveHref = (href: string) => href === '/' ? SITE_BASE : `${SITE_BASE}${href}`;
+const SITE_BASE = '/solis-lantern-chronicles/';
+function resolveHref(href: string) {
+  const target = href === '/' ? SITE_BASE : href.replace(/^\/+/, '');
+  return new URL(target, `https://example.com${SITE_BASE}`).pathname;
+}
 
 const formattedDate = date.toLocaleDateString('en-GB', {
   day: 'numeric',

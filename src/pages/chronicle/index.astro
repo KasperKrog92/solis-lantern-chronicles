@@ -19,10 +19,11 @@ const chapters = [...published, ...drafts];
 const characters = await getCollection('characters');
 const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
 
-const SITE_BASE = import.meta.env.SITE
-  ? new URL(import.meta.env.SITE).pathname.replace(/\/$/, '') || '/'
-  : '/solis-lantern-chronicles';
-const resolveHref = (href: string) => href === '/' ? SITE_BASE : `${SITE_BASE}${href}`;
+const SITE_BASE = '/solis-lantern-chronicles/';
+function resolveHref(href: string) {
+  const target = href === '/' ? SITE_BASE : href.replace(/^\/+/, '');
+  return new URL(target, `https://example.com${SITE_BASE}`).pathname;
+}
 ---
 
 <BaseLayout title="Chronicle" description="All sessions of the Solis Lantern Chronicles, newest first.">

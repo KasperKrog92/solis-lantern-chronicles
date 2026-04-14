@@ -3,10 +3,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import CharacterChip from '../components/CharacterChip.astro';
 import { getCollection } from 'astro:content';
 
-const SITE_BASE = import.meta.env.SITE
-  ? new URL(import.meta.env.SITE).pathname.replace(/\/$/, '') || '/'
-  : '/solis-lantern-chronicles';
-const resolveHref = (href: string) => href === '/' ? SITE_BASE : `${SITE_BASE}${href}`;
+const SITE_BASE = '/solis-lantern-chronicles/';
+function resolveHref(href: string) {
+  const target = href === '/' ? SITE_BASE : href.replace(/^\/+/, '');
+  return new URL(target, `https://example.com${SITE_BASE}`).pathname;
+}
 
 // Three most recent non-draft chapters
 const allChapters = await getCollection('chapters');

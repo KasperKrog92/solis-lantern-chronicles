@@ -16,13 +16,10 @@ function cleanPath(path: string) {
   const trimmed = path.replace(/\/+$|^$/g, '');
   return trimmed === '' ? '/' : trimmed;
 }
-const SITE_BASE = import.meta.env.SITE
-  ? new URL(import.meta.env.SITE).pathname.replace(/\/$/, '') || '/'
-  : '/solis-lantern-chronicles';
-
+const SITE_BASE = '/solis-lantern-chronicles/';
 function resolveHref(href: string) {
-  const path = href === '/' ? SITE_BASE : `${SITE_BASE}${href}`;
-  return cleanPath(path);
+  const target = href === '/' ? SITE_BASE : href.replace(/^\/+/, '');
+  return new URL(target, `https://example.com${SITE_BASE}`).pathname;
 }
 function isActive(href: string) {
   const resolved = resolveHref(href);
