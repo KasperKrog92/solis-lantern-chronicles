@@ -1,0 +1,55 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'Solis Lantern Chronicles',
+  description = 'A chronicle of an ongoing homebrew TTRPG campaign.',
+} = Astro.props;
+
+// Mark current nav link as active
+const pathname = new URL(Astro.request.url).pathname;
+function isActive(href: string) {
+  if (href === '/') return pathname === '/';
+  return pathname.startsWith(href);
+}
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <link rel="icon" href="/favicon.ico" />
+    <!-- Typography: IM Fell English (display) + Crimson Pro (body) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title === 'Solis Lantern Chronicles' ? title : `${title} — Solis Lantern Chronicles`}</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <nav class="site-nav" aria-label="Site navigation">
+        <a href="/" class="nav-home">Solis Lantern Chronicles</a>
+        <ul class="nav-links">
+          <li><a href="/chronicle" aria-current={isActive('/chronicle') ? 'page' : undefined}>Chronicle</a></li>
+          <li><a href="/characters" aria-current={isActive('/characters') ? 'page' : undefined}>Characters</a></li>
+          <li><a href="/world" aria-current={isActive('/world') ? 'page' : undefined}>World</a></li>
+          <li><a href="/npcs" aria-current={isActive('/npcs') ? 'page' : undefined}>People</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <slot />
+    </main>
+  </body>
+</html>

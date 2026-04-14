@@ -1,17 +1,61 @@
 ---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import CharacterChip from '../components/CharacterChip.astro';
+import { getCollection } from 'astro:content';
 
+// Three most recent non-draft chapters
+const allChapters = await getCollection('chapters');
+const recent = allChapters
+  .filter(c => !c.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+
+// Character map for chips
+const characters = await getCollection('characters');
+const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout
+  title="Solis Lantern Chronicles"
+  description="A campaign chronicle for an ongoing homebrew TTRPG campaign set in a world shaped by Leviathans and the Great Walls."
+>
+  <div class="home-hero">
+    <p class="home-hero__eyebrow">A Campaign Chronicle</p>
+    <h1 class="home-hero__title">Solis Lantern Chronicles</h1>
+    <p class="home-hero__intro">
+      At the edge of the Middle Tier, where the Wall meets the city of gates,
+      five strangers became something else. This is where their story is kept.
+    </p>
+    <div class="home-hero__cta">
+      <a href="/chronicle" class="btn btn--primary">Read the Chronicle</a>
+      <a href="/world" class="btn">The World</a>
+    </div>
+
+    {recent.length > 0 && (
+      <div class="recent-section">
+        <p class="recent-section__heading">Recent Sessions</p>
+        <ul class="chapter-list">
+          {recent.map(chapter => (
+            <li class="chapter-card">
+              <p class="chapter-card__session">
+                Session {String(chapter.data.session).padStart(2, '0')}
+              </p>
+              <h2 class="chapter-card__title">
+                <a href={`/chronicle/${chapter.id}`}>{chapter.data.title}</a>
+              </h2>
+              <p class="chapter-card__date">
+                {chapter.data.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+              </p>
+              <p class="chapter-card__summary">{chapter.data.summary}</p>
+              <div class="chapter-card__characters">
+                {chapter.data.characters_present.map(slug => (
+                  <CharacterChip slug={slug} name={charMap[slug]?.name ?? slug} />
+                ))}
+              </div>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+</BaseLayout>

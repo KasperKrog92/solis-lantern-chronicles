@@ -1,0 +1,77 @@
+---
+/**
+ * ChapterLayout.astro
+ * Wraps a chapter page in the full reading experience:
+ *   - Settings toggles (gradual text, sound, GM notes)
+ *   - Chapter title block (session, title, date)
+ *   - PageTurner component (receives chapter body via slot)
+ *   - GmNotesToggle + panel
+ */
+import BaseLayout from './BaseLayout.astro';
+import PageTurner from '../components/PageTurner.astro';
+import GmNotesToggle from '../components/GmNotesToggle.astro';
+
+interface Props {
+  title: string;
+  session: number;
+  date: Date;
+  gmNotes?: string;
+}
+
+const { title, session, date, gmNotes } = Astro.props;
+
+const formattedDate = date.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+
+const sessionLabel = `Session ${String(session).padStart(2, '0')}`;
+---
+
+<BaseLayout title={title}>
+  <div class="chapter-reader">
+
+    <!-- Controls bar: back link + reader settings -->
+    <div class="chapter-controls">
+      <a href="/chronicle" class="chapter-controls__back">← Chronicle</a>
+      <div class="chapter-controls__toggles">
+        <button
+          id="toggle-gradual"
+          class="toggle-btn"
+          aria-pressed="true"
+          title="Toggle word-by-word text reveal"
+        >Gradual</button>
+        <button
+          id="toggle-sound"
+          class="toggle-btn"
+          aria-pressed="true"
+          title="Toggle writing sound"
+        >Sound</button>
+        <GmNotesToggle hasNotes={!!gmNotes} />
+      </div>
+    </div>
+
+    <!-- Page surface — the visual centrepiece -->
+    <PageTurner title={title} session={session} date={date}>
+      <slot />
+    </PageTurner>
+
+    <!-- GM notes panel — hidden until toggled; only rendered if gmNotes exists -->
+    {gmNotes && (
+      <div id="gm-notes-panel">
+        <p class="gm-notes__heading">GM Notes</p>
+        <div class="gm-notes__body">
+          <!-- TODO: render gmNotes as markdown when a chapter has notes -->
+          <p>{gmNotes}</p>
+        </div>
+      </div>
+    )}
+
+  </div>
+</BaseLayout>
+
+<script>
+  import { initPageTurner } from '../scripts/page-turner.js';
+  initPageTurner();
+</script>

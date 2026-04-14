@@ -1,0 +1,57 @@
+---
+/**
+ * PageTurner.astro
+ * The core reading component. Receives the chapter's rendered body as a slot,
+ * hides it in #pt-source, and lets page-turner.js split it on <hr> elements
+ * and present pages one at a time.
+ *
+ * Accepts chapter metadata props so the title block stays inside the page surface.
+ */
+
+interface Props {
+  title: string;
+  session: number;
+  date: Date;
+}
+
+const { title, session, date } = Astro.props;
+
+const sessionLabel = `Session ${String(session).padStart(2, '0')}`;
+const formattedDate = date.toLocaleDateString('en-GB', {
+  day: 'numeric',
+  month: 'long',
+  year: 'numeric',
+});
+---
+
+<div id="pt-container">
+  <div class="page-surface">
+
+    <!-- Chapter title block — always visible above the page text -->
+    <header class="chapter-page-header">
+      <p class="chapter-page-header__session">{sessionLabel}</p>
+      <h1 class="chapter-page-header__title">{title}</h1>
+      <p class="chapter-page-header__date">{formattedDate}</p>
+    </header>
+
+    <!--
+      Source container: hidden, holds the full rendered markdown body.
+      JavaScript reads from here, splits on <hr> elements (from --- in markdown),
+      and populates #pt-page one page at a time.
+    -->
+    <div id="pt-source" aria-hidden="true">
+      <slot />
+    </div>
+
+    <!-- Active page — populated by page-turner.js -->
+    <div id="pt-page" aria-live="polite"></div>
+
+  </div>
+
+  <!-- Navigation footer -->
+  <div class="pt-footer">
+    <button id="pt-prev" class="pt-nav-btn" aria-label="Previous page">← Prev</button>
+    <span id="pt-counter" class="pt-counter" aria-live="polite">1 / 1</span>
+    <button id="pt-next" class="pt-nav-btn" aria-label="Next page">Next →</button>
+  </div>
+</div>

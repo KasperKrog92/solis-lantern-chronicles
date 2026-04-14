@@ -1,0 +1,1216 @@
+﻿/* ============================================================
+   SOLIS LANTERN CHRONICLES â€” Global Stylesheet
+   Aesthetic: dark editorial artifact â€” illuminated manuscript
+   meets field journal.
+   ============================================================ */
+
+/* ============================================================
+   CUSTOM PROPERTIES
+   ============================================================ */
+
+:root {
+  /* Background */
+  --bg:          #1a1410;
+  --bg-raised:   #221c14;
+
+  /* Parchment (page surface) */
+  --parchment:      #f5ead8;
+  --parchment-dark: #e8d8ba;
+
+  /* Ink (on parchment) */
+  --ink:        #2a1f0e;
+  --ink-mid:    #4a3828;
+  --ink-faded:  #6b5540;
+
+  /* Accent */
+  --gold:       #c8a84b;
+  --gold-dim:   #9a7e38;
+  --red-brown:  #8b3a3a;
+
+  /* Typography */
+  --font-display: 'IM Fell English', serif;
+  --font-sc:      'IM Fell English SC', serif;
+  --font-body:    'Crimson Pro', serif;
+
+  /* Scale */
+  --size-chapter-title: 1.7rem;
+  --size-body:          1.16rem;
+  --size-ui:            0.82rem;
+  --lh-body:            1.8;
+}
+
+/* ============================================================
+   RESET
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  background-color: var(--bg);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  min-height: 100vh;
+  background-color: var(--bg);
+  font-family: var(--font-body);
+  font-weight: 300;
+  line-height: var(--lh-body);
+  color: var(--gold);
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+button {
+  font: inherit;
+}
+
+/* ============================================================
+   SITE HEADER â€” nearly invisible against dark background
+   ============================================================ */
+
+.site-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background-color: var(--bg);
+  border-bottom: 1px solid rgba(200, 168, 75, 0.12);
+}
+
+.site-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0.7rem 2rem;
+}
+
+.nav-home {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: rgba(200, 168, 75, 0.7);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+}
+
+.nav-home:hover {
+  color: var(--gold);
+}
+
+.nav-links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--font-sc);
+  font-size: var(--size-ui);
+  letter-spacing: 0.2em;
+  color: rgba(200, 168, 75, 0.5);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover,
+.nav-links a[aria-current="page"] {
+  color: var(--gold);
+}
+
+/* ============================================================
+   MAIN â€” pushed below fixed header
+   ============================================================ */
+
+main {
+  padding-top: 3rem;
+}
+
+/* ============================================================
+   PARCHMENT PAGE SURFACE
+   CSS-only parchment texture via layered gradients
+   ============================================================ */
+
+.page-surface {
+  background-color: var(--parchment);
+  background-image:
+    radial-gradient(ellipse at 18% 82%, rgba(155, 115, 50, 0.14) 0%, transparent 52%),
+    radial-gradient(ellipse at 83% 18%, rgba(155, 115, 50, 0.10) 0%, transparent 52%),
+    radial-gradient(ellipse at 50% 50%, rgba(200, 170, 110, 0.06) 0%, transparent 70%),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 27px,
+      rgba(0, 0, 0, 0.018) 27px,
+      rgba(0, 0, 0, 0.018) 28px
+    );
+  color: var(--ink);
+  border: 1px solid rgba(180, 150, 90, 0.25);
+}
+
+/* ============================================================
+   UTILITY CLASSES
+   ============================================================ */
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ============================================================
+   BUTTON PRIMITIVES
+   ============================================================ */
+
+.btn {
+  display: inline-block;
+  font-family: var(--font-sc);
+  font-size: var(--size-ui);
+  letter-spacing: 0.2em;
+  text-decoration: none;
+  padding: 0.7rem 2rem;
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn:hover {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.btn--primary {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.btn--primary:hover {
+  background: var(--gold-dim);
+  border-color: var(--gold-dim);
+}
+
+/* Small toggle buttons in the reading UI */
+.toggle-btn {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
+  color: rgba(200, 168, 75, 0.45);
+  background: none;
+  border: 1px solid rgba(200, 168, 75, 0.18);
+  padding: 0.28rem 0.7rem;
+  cursor: pointer;
+  transition: color 0.2s, border-color 0.2s;
+  text-transform: uppercase;
+}
+
+.toggle-btn:hover {
+  color: rgba(200, 168, 75, 0.75);
+  border-color: rgba(200, 168, 75, 0.4);
+}
+
+.toggle-btn[aria-pressed="true"] {
+  color: var(--gold);
+  border-color: rgba(200, 168, 75, 0.6);
+}
+
+.toggle-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* ============================================================
+   HOME PAGE
+   ============================================================ */
+
+.home-hero {
+  min-height: calc(100vh - 3rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 4rem 2rem 6rem;
+}
+
+.home-hero__eyebrow {
+  font-family: var(--font-sc);
+  font-size: 0.78rem;
+  letter-spacing: 0.3em;
+  color: rgba(200, 168, 75, 0.45);
+  margin-bottom: 1.2rem;
+}
+
+.home-hero__title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: clamp(2rem, 5vw, 3.6rem);
+  color: var(--gold);
+  letter-spacing: 0.04em;
+  line-height: 1.2;
+  margin-bottom: 2rem;
+}
+
+.home-hero__intro {
+  max-width: 520px;
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: rgba(200, 168, 75, 0.55);
+  font-style: italic;
+  margin-bottom: 3rem;
+}
+
+.home-hero__cta {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* Recent chapters strip on home page */
+
+.recent-section {
+  width: 100%;
+  max-width: 680px;
+  margin: 5rem auto 0;
+}
+
+.recent-section__heading {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.28em;
+  color: rgba(200, 168, 75, 0.4);
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.6rem;
+  border-bottom: 1px solid rgba(200, 168, 75, 0.12);
+}
+
+/* ============================================================
+   CHAPTER INDEX
+   ============================================================ */
+
+.chronicle-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.page-heading {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--size-chapter-title);
+  color: var(--gold);
+  margin-bottom: 3rem;
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(200, 168, 75, 0.18);
+}
+
+.chapter-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+}
+
+.chapter-card {
+  border: 1px solid rgba(200, 168, 75, 0.13);
+  border-top: none;
+  padding: 1.6rem 2rem;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.chapter-card:first-child {
+  border-top: 1px solid rgba(200, 168, 75, 0.13);
+}
+
+.chapter-card:hover {
+  border-color: rgba(200, 168, 75, 0.35);
+  background: rgba(200, 168, 75, 0.03);
+}
+
+.chapter-card__session {
+  font-family: var(--font-sc);
+  font-size: 0.74rem;
+  letter-spacing: 0.22em;
+  color: var(--gold-dim);
+  margin-bottom: 0.4rem;
+}
+
+.chapter-card__title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.2rem;
+  margin-bottom: 0.35rem;
+}
+
+.chapter-card__title a {
+  color: var(--gold);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.chapter-card__title a:hover {
+  color: #dfc76a;
+}
+
+.chapter-card__date {
+  font-family: var(--font-sc);
+  font-size: 0.74rem;
+  letter-spacing: 0.14em;
+  color: rgba(200, 168, 75, 0.4);
+  margin-bottom: 0.75rem;
+}
+
+.chapter-card__summary {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(200, 168, 75, 0.6);
+  margin-bottom: 1rem;
+}
+
+.chapter-card__characters {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+}
+
+/* ============================================================
+   CHARACTER CHIP
+   ============================================================ */
+
+.char-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.18rem 0.55rem 0.18rem 0.25rem;
+  border: 1px solid rgba(200, 168, 75, 0.22);
+  font-family: var(--font-sc);
+  font-size: 0.71rem;
+  letter-spacing: 0.14em;
+  color: rgba(200, 168, 75, 0.6);
+  text-decoration: none;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.char-chip:hover {
+  border-color: rgba(200, 168, 75, 0.55);
+  color: var(--gold);
+}
+
+.char-chip__badge {
+  width: 1.3rem;
+  height: 1.3rem;
+  background: rgba(200, 168, 75, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.76rem;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   CHAPTER READING EXPERIENCE
+   ============================================================ */
+
+/* The chapter reader fills the viewport â€” everything else recedes */
+
+.chapter-reader {
+  min-height: calc(100vh - 3rem);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 1rem 4rem;
+}
+
+/* Controls bar above the page surface */
+
+.chapter-controls {
+  width: 100%;
+  max-width: 680px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1.5rem;
+  gap: 1rem;
+}
+
+.chapter-controls__back {
+  font-family: var(--font-sc);
+  font-size: 0.74rem;
+  letter-spacing: 0.15em;
+  color: rgba(200, 168, 75, 0.4);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.chapter-controls__back:hover {
+  color: rgba(200, 168, 75, 0.7);
+}
+
+.chapter-controls__toggles {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* The page â€” visual centerpiece */
+
+#pt-container {
+  width: 100%;
+  max-width: 680px;
+}
+
+.page-surface {
+  padding: 3.5rem 4.5rem;
+  min-height: 520px;
+  position: relative;
+}
+
+/* Chapter title block at top of page */
+
+.chapter-page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.chapter-page-header__session {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.28em;
+  color: var(--ink-faded);
+  margin-bottom: 0.6rem;
+}
+
+.chapter-page-header__title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: var(--size-chapter-title);
+  color: var(--ink);
+  line-height: 1.25;
+  margin-bottom: 0.4rem;
+}
+
+.chapter-page-header__date {
+  font-family: var(--font-sc);
+  font-size: 0.74rem;
+  letter-spacing: 0.15em;
+  color: var(--ink-faded);
+}
+
+/* The prose page content */
+
+#pt-page {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: var(--size-body);
+  line-height: var(--lh-body);
+  color: var(--ink);
+}
+
+#pt-page p {
+  margin-bottom: 1.3em;
+}
+
+#pt-page p:last-child {
+  margin-bottom: 0;
+}
+
+#pt-page em {
+  font-style: italic;
+}
+
+#pt-page strong {
+  font-weight: 400;
+}
+
+/* Hidden source container â€” in DOM for JS, not visible */
+#pt-source {
+  display: none;
+}
+
+/* Word-by-word reveal animation */
+.word {
+  opacity: 0;
+  transition: opacity 0.1s ease;
+}
+
+.word.revealed {
+  opacity: 1;
+}
+
+/* Page footer: navigation */
+
+.pt-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.4rem 4.5rem 0;
+  margin-top: 0.5rem;
+}
+
+.pt-nav-btn {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.2em;
+  color: rgba(200, 168, 75, 0.4);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem 0;
+  transition: color 0.2s;
+}
+
+.pt-nav-btn:hover:not(:disabled) {
+  color: rgba(200, 168, 75, 0.8);
+}
+
+.pt-nav-btn:disabled {
+  opacity: 0.2;
+  cursor: default;
+}
+
+.pt-counter {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.18em;
+  color: rgba(200, 168, 75, 0.35);
+}
+
+/* Page-turn animation */
+@keyframes pageTurnIn {
+  from {
+    opacity: 0;
+    transform: translateX(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.page-turning {
+  animation: pageTurnIn 0.22s ease forwards;
+}
+
+/* ============================================================
+   LORE LINKS â€” subtle, inviting
+   ============================================================ */
+
+.lore-link {
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--red-brown);
+  opacity: 0.8;
+  transition: opacity 0.15s, border-bottom-color 0.15s;
+}
+
+.lore-link:hover {
+  opacity: 1;
+  border-bottom-color: var(--gold-dim);
+}
+
+/* ============================================================
+   DICE REVEAL COMPONENT
+   ============================================================ */
+
+.dice-reveal {
+  margin: 1.75rem 0;
+  border: 1px solid rgba(42, 31, 14, 0.18);
+  padding: 1.5rem 2rem;
+  background: rgba(42, 31, 14, 0.03);
+}
+
+.dice-reveal__header {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.2em;
+  color: var(--ink-faded);
+  margin-bottom: 0.9rem;
+}
+
+.dice-reveal__roll-btn {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.2em;
+  background: none;
+  border: 1px solid rgba(42, 31, 14, 0.3);
+  color: var(--ink-faded);
+  padding: 0.38rem 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.dice-reveal__roll-btn:hover:not(:disabled) {
+  border-color: var(--ink-mid);
+  color: var(--ink-mid);
+}
+
+.dice-reveal__roll-btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.dice-reveal__result {
+  display: none;
+  margin-top: 1.1rem;
+}
+
+.dice-reveal__result.visible {
+  display: block;
+}
+
+.dice-reveal__die {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2.4rem;
+  color: var(--ink);
+  line-height: 1;
+  margin-bottom: 0.6rem;
+}
+
+.dice-reveal__outcome {
+  font-size: 1rem;
+  line-height: 1.7;
+  font-style: italic;
+  color: var(--ink-mid);
+}
+
+/* ============================================================
+   GM NOTES TOGGLE + PANEL
+   ============================================================ */
+
+#gm-notes-panel {
+  display: none;
+  width: 100%;
+  max-width: 680px;
+  margin-top: 0.5rem;
+  padding: 1.5rem 4.5rem;
+  border: 1px solid rgba(200, 168, 75, 0.15);
+  border-top: none;
+  background: rgba(200, 168, 75, 0.03);
+}
+
+#gm-notes-panel.visible {
+  display: block;
+}
+
+.gm-notes__heading {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.22em;
+  color: rgba(200, 168, 75, 0.5);
+  margin-bottom: 1rem;
+}
+
+.gm-notes__body {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: rgba(200, 168, 75, 0.65);
+  font-style: italic;
+}
+
+.gm-notes__body p {
+  margin-bottom: 1em;
+}
+
+/* ============================================================
+   CHARACTER PAGES
+   ============================================================ */
+
+.characters-page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.character-roster {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1.25rem;
+  list-style: none;
+}
+
+.character-card {
+  display: block;
+  border: 1px solid rgba(200, 168, 75, 0.16);
+  padding: 1.4rem 1.4rem 1.6rem;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.character-card:hover {
+  border-color: rgba(200, 168, 75, 0.45);
+  background: rgba(200, 168, 75, 0.03);
+}
+
+.character-card__portrait {
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background: rgba(200, 168, 75, 0.05);
+  border: 1px solid rgba(200, 168, 75, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.character-card__portrait img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top;
+}
+
+.character-card__portrait-initial {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 3.5rem;
+  color: rgba(200, 168, 75, 0.15);
+  line-height: 1;
+}
+
+.character-card__name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--gold);
+  margin-bottom: 0.25rem;
+}
+
+.character-card__meta {
+  font-family: var(--font-sc);
+  font-size: 0.71rem;
+  letter-spacing: 0.14em;
+  color: rgba(200, 168, 75, 0.45);
+  margin-bottom: 0.3rem;
+}
+
+.character-card__player {
+  font-size: 1.05rem;
+  color: rgba(200, 168, 75, 0.5);
+}
+
+/* Character detail page */
+
+.character-detail {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.character-detail__name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2.2rem;
+  color: var(--gold);
+  margin-bottom: 0.4rem;
+  line-height: 1.2;
+}
+
+.character-detail__meta {
+  font-family: var(--font-sc);
+  font-size: 0.78rem;
+  letter-spacing: 0.2em;
+  color: rgba(200, 168, 75, 0.45);
+  margin-bottom: 0.3rem;
+}
+
+.character-detail__player {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.15em;
+  color: rgba(200, 168, 75, 0.35);
+  margin-bottom: 2.5rem;
+}
+
+.character-detail__bio {
+  font-size: 1.05rem;
+  line-height: 1.82;
+  color: rgba(200, 168, 75, 0.72);
+  font-style: italic;
+  padding: 1.25rem 1.75rem;
+  border-left: 2px solid rgba(200, 168, 75, 0.25);
+  margin-bottom: 2rem;
+}
+
+.character-detail__body {
+  font-size: 1.05rem;
+  line-height: 1.82;
+  color: rgba(200, 168, 75, 0.7);
+}
+
+.character-detail__body p {
+  margin-bottom: 1.3em;
+}
+
+.character-detail__appearances {
+  margin-top: 3rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(200, 168, 75, 0.15);
+}
+
+.character-detail__appearances h2 {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.25em;
+  color: rgba(200, 168, 75, 0.4);
+  margin-bottom: 1rem;
+}
+
+.appearances-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.appearances-list a {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1rem;
+  color: rgba(200, 168, 75, 0.65);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.appearances-list a:hover {
+  color: var(--gold);
+}
+
+/* Status badge */
+.status-badge {
+  display: inline-block;
+  font-family: var(--font-sc);
+  font-size: 0.68rem;
+  letter-spacing: 0.16em;
+  padding: 0.12rem 0.5rem;
+  border: 1px solid;
+}
+
+.status-badge--active   { color: var(--gold-dim); border-color: var(--gold-dim); }
+.status-badge--inactive { color: rgba(200,168,75,0.35); border-color: rgba(200,168,75,0.25); }
+.status-badge--deceased { color: var(--red-brown); border-color: var(--red-brown); }
+
+/* ============================================================
+   WORLD PAGE
+   ============================================================ */
+
+.world-page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.world-intro {
+  font-size: 1.05rem;
+  line-height: 1.85;
+  color: rgba(200, 168, 75, 0.65);
+  font-style: italic;
+  margin-bottom: 3.5rem;
+}
+
+.world-section {
+  margin-bottom: 3rem;
+}
+
+.world-section__heading {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.25em;
+  color: rgba(200, 168, 75, 0.4);
+  margin-bottom: 1.2rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(200, 168, 75, 0.12);
+}
+
+.lore-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+  list-style: none;
+}
+
+.lore-tile {
+  display: block;
+  border: 1px solid rgba(200, 168, 75, 0.16);
+  padding: 1.2rem 1.5rem;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.lore-tile:hover {
+  border-color: rgba(200, 168, 75, 0.4);
+  background: rgba(200, 168, 75, 0.03);
+}
+
+.lore-tile__category {
+  font-family: var(--font-sc);
+  font-size: 0.71rem;
+  letter-spacing: 0.2em;
+  color: var(--gold-dim);
+  margin-bottom: 0.35rem;
+}
+
+.lore-tile__title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--gold);
+  margin-bottom: 0.45rem;
+}
+
+.lore-tile__summary {
+  font-size: 1rem;
+  line-height: 1.65;
+  color: rgba(200, 168, 75, 0.55);
+}
+
+/* ============================================================
+   LORE ENTRY PAGE
+   ============================================================ */
+
+.lore-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.lore-page__category {
+  font-family: var(--font-sc);
+  font-size: 0.76rem;
+  letter-spacing: 0.25em;
+  color: var(--gold-dim);
+  margin-bottom: 0.5rem;
+}
+
+.lore-page__title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 2rem;
+  line-height: 1.2;
+}
+
+.lore-page__summary {
+  font-size: 1.05rem;
+  line-height: 1.82;
+  color: rgba(200, 168, 75, 0.72);
+  font-style: italic;
+  padding: 1.25rem 1.75rem;
+  border-left: 2px solid rgba(200, 168, 75, 0.25);
+  margin-bottom: 2.5rem;
+}
+
+.lore-page__body {
+  font-size: 1.05rem;
+  line-height: 1.82;
+  color: rgba(200, 168, 75, 0.7);
+}
+
+.lore-page__body p {
+  margin-bottom: 1.3em;
+}
+
+.lore-page__body h2 {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.3rem;
+  color: rgba(200, 168, 75, 0.85);
+  margin: 2rem 0 0.75rem;
+}
+
+/* ============================================================
+   NPC INDEX
+   ============================================================ */
+
+.npcs-page {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 4rem 2rem;
+}
+
+.npc-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.npc-card {
+  border: 1px solid rgba(200, 168, 75, 0.13);
+  border-top: none;
+  padding: 1.4rem 1.8rem;
+  transition: background 0.2s;
+}
+
+.npc-card:first-child {
+  border-top: 1px solid rgba(200, 168, 75, 0.13);
+}
+
+.npc-card:hover {
+  background: rgba(200, 168, 75, 0.025);
+}
+
+.npc-card__header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 0.4rem;
+  flex-wrap: wrap;
+}
+
+.npc-card__name {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1rem;
+  color: var(--gold);
+}
+
+.npc-card__status {
+  display: inline-block;
+  font-family: var(--font-sc);
+  font-size: 0.68rem;
+  letter-spacing: 0.15em;
+  padding: 0.1rem 0.45rem;
+  border: 1px solid;
+}
+
+.npc-card__status--alive    { color: var(--gold-dim);            border-color: var(--gold-dim); }
+.npc-card__status--deceased { color: var(--red-brown);           border-color: var(--red-brown); }
+.npc-card__status--missing  { color: rgba(200,168,75,0.38);      border-color: rgba(200,168,75,0.3); }
+.npc-card__status--unknown  { color: rgba(200,168,75,0.28);      border-color: rgba(200,168,75,0.2); }
+
+.npc-card__affiliation {
+  font-family: var(--font-sc);
+  font-size: 0.71rem;
+  letter-spacing: 0.12em;
+  color: rgba(200, 168, 75, 0.38);
+  margin-bottom: 0.6rem;
+}
+
+.npc-card__description {
+  font-size: 1.05rem;
+  line-height: 1.7;
+  color: rgba(200, 168, 75, 0.58);
+}
+
+.npc-card__first-appearance {
+  font-family: var(--font-sc);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  color: rgba(200, 168, 75, 0.3);
+  margin-top: 0.6rem;
+}
+
+/* ============================================================
+   BREADCRUMB / BACK LINKS
+   ============================================================ */
+
+.back-link {
+  display: inline-block;
+  font-family: var(--font-sc);
+  font-size: 0.74rem;
+  letter-spacing: 0.2em;
+  color: rgba(200, 168, 75, 0.38);
+  text-decoration: none;
+  margin-bottom: 2.5rem;
+  transition: color 0.2s;
+}
+
+.back-link:hover {
+  color: rgba(200, 168, 75, 0.7);
+}
+
+/* ============================================================
+   DIVIDERS
+   ============================================================ */
+
+.ornament {
+  text-align: center;
+  color: rgba(200, 168, 75, 0.25);
+  font-size: 0.8rem;
+  letter-spacing: 0.3em;
+  margin: 2rem 0;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+
+@media (max-width: 640px) {
+  .site-nav {
+    padding: 0.55rem 1rem;
+  }
+
+  .nav-links {
+    gap: 1.25rem;
+  }
+
+  .nav-links a {
+    font-size: 0.76rem;
+    letter-spacing: 0.14em;
+  }
+
+  .page-surface {
+    padding: 2rem 1.5rem;
+  }
+
+  .chapter-page-header__title {
+    font-size: 1.4rem;
+  }
+
+  #pt-page {
+    font-size: 1rem;
+  }
+
+  .pt-footer {
+    padding: 1.2rem 1.5rem 0;
+  }
+
+  #gm-notes-panel {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .chronicle-page,
+  .characters-page,
+  .world-page,
+  .lore-page,
+  .npcs-page,
+  .character-detail {
+    padding: 2.5rem 1rem;
+  }
+
+  .character-roster {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  }
+
+  .chapter-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .chapter-controls__toggles {
+    gap: 0.35rem;
+  }
+}
+

@@ -1,0 +1,67 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const loreEntries = await getCollection('lore');
+
+// Group by category
+function groupBy<T>(arr: T[], key: (item: T) => string): Record<string, T[]> {
+  return arr.reduce((acc, item) => {
+    const k = key(item);
+    if (!acc[k]) acc[k] = [];
+    acc[k].push(item);
+    return acc;
+  }, {} as Record<string, T[]>);
+}
+
+const grouped = groupBy(loreEntries, e => e.data.category);
+
+const categoryLabels: Record<string, string> = {
+  location: 'Locations',
+  faction:  'Factions',
+  concept:  'Concepts',
+  creature: 'Creatures',
+};
+
+const categoryOrder = ['location', 'faction', 'concept', 'creature'];
+---
+
+<BaseLayout
+  title="The World"
+  description="The world of the Solis Lantern Chronicles: three tiers, the Great Walls, Leviathans, and Brinegate."
+>
+  <div class="world-page">
+    <h1 class="page-heading">The World</h1>
+
+    <p class="world-intro">
+      The empire is divided by Great Walls, each tier defended against the Leviathans
+      that rise from the sea each wet season. The blood they leave behind shapes everything —
+      the land, the abilities of those who walk it, the politics of every city that has
+      ever needed to decide who gets to live on which side of the stone.
+      Brinegate sits at the hinge between the Middle and Outer tiers, a city of gates
+      and transit and controlled chaos, where the smell of salt is always present
+      and the wet season is always approaching.
+    </p>
+
+    {categoryOrder.map(category => {
+      const entries = grouped[category];
+      if (!entries || entries.length === 0) return null;
+      return (
+        <div class="world-section">
+          <h2 class="world-section__heading">{categoryLabels[category]}</h2>
+          <ul class="lore-grid">
+            {entries.map(entry => (
+              <li>
+                <a href={`/lore/${entry.id}`} class="lore-tile">
+                  <p class="lore-tile__category">{category}</p>
+                  <p class="lore-tile__title">{entry.data.title}</p>
+                  <p class="lore-tile__summary">{entry.data.summary}</p>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      );
+    })}
+  </div>
+</BaseLayout>

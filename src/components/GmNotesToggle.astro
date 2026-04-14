@@ -1,0 +1,27 @@
+---
+/**
+ * GmNotesToggle.astro
+ * The toggle button for revealing GM notes on a chapter page.
+ *
+ * State:
+ *   - hasNotes = false → button is rendered but disabled (no notes written yet)
+ *   - hasNotes = true  → button is active; click toggles the #gm-notes-panel
+ *
+ * The panel itself is rendered by ChapterLayout when gmNotes content exists.
+ * GM notes will not be written or published until the campaign ends.
+ */
+
+interface Props {
+  hasNotes: boolean;
+}
+
+const { hasNotes } = Astro.props;
+---
+
+<button
+  id="toggle-gm"
+  class="toggle-btn"
+  disabled={!hasNotes}
+  aria-pressed="false"
+  title={hasNotes ? 'Toggle GM notes' : 'GM notes not yet published'}
+>GM Notes</button>

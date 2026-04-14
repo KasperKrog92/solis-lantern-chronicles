@@ -1,0 +1,72 @@
+/**
+ * settings.js
+ * Manages persistent reader preferences via localStorage.
+ * Keys:
+ *   'gradual-text'  — 'false' to disable; anything else (or absent) = enabled
+ *   'sound'         — 'false' to disable; anything else (or absent) = enabled
+ *   'gm-notes'      — 'true' to show; anything else (or absent) = hidden
+ */
+
+export function isGradualEnabled() {
+  return localStorage.getItem('gradual-text') !== 'false';
+}
+
+export function isSoundEnabled() {
+  return localStorage.getItem('sound') !== 'false';
+}
+
+export function isGmNotesVisible() {
+  return localStorage.getItem('gm-notes') === 'true';
+}
+
+/** Apply the current settings state to all toggle buttons and panels in the DOM. */
+export function applySettings() {
+  const gradualBtn = document.getElementById('toggle-gradual');
+  if (gradualBtn) {
+    const on = isGradualEnabled();
+    gradualBtn.setAttribute('aria-pressed', String(on));
+    gradualBtn.textContent = on ? 'Gradual' : 'Instant';
+  }
+
+  const soundBtn = document.getElementById('toggle-sound');
+  if (soundBtn) {
+    soundBtn.setAttribute('aria-pressed', String(isSoundEnabled()));
+  }
+
+  const gmBtn   = document.getElementById('toggle-gm');
+  const gmPanel = document.getElementById('gm-notes-panel');
+  if (gmBtn && gmPanel) {
+    const on = isGmNotesVisible();
+    gmBtn.setAttribute('aria-pressed', String(on));
+    gmPanel.classList.toggle('visible', on);
+  }
+}
+
+/** Wire up click handlers for all toggle buttons. */
+export function initSettingsToggles() {
+  applySettings();
+
+  const gradualBtn = document.getElementById('toggle-gradual');
+  if (gradualBtn) {
+    gradualBtn.addEventListener('click', () => {
+      localStorage.setItem('gradual-text', String(!isGradualEnabled()));
+      applySettings();
+    });
+  }
+
+  const soundBtn = document.getElementById('toggle-sound');
+  if (soundBtn) {
+    soundBtn.addEventListener('click', () => {
+      localStorage.setItem('sound', String(!isSoundEnabled()));
+      applySettings();
+    });
+  }
+
+  const gmBtn = document.getElementById('toggle-gm');
+  if (gmBtn && !gmBtn.disabled) {
+    gmBtn.addEventListener('click', () => {
+      localStorage.setItem('gm-notes', String(!isGmNotesVisible()));
+      applySettings();
+    });
+  }
+}

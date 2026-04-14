@@ -1,0 +1,44 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const characters = await getCollection('characters');
+
+// Active characters first, then inactive, then deceased
+const order = { active: 0, inactive: 1, deceased: 2 };
+const sorted = characters.sort((a, b) =>
+  (order[a.data.status] ?? 99) - (order[b.data.status] ?? 99)
+);
+---
+
+<BaseLayout title="Characters" description="The founding members of the Solis Lantern adventuring guild.">
+  <div class="characters-page">
+    <h1 class="page-heading">Characters</h1>
+
+    <ul class="character-roster">
+      {sorted.map(character => (
+        <li>
+          <a href={`/characters/${character.id}`} class="character-card">
+            <div class="character-card__portrait">
+              {character.data.portrait ? (
+                <img src={character.data.portrait} alt={character.data.name} />
+              ) : (
+                <span class="character-card__portrait-initial" aria-hidden="true">
+                  {character.data.name[0]}
+                </span>
+              )}
+            </div>
+            <p class="character-card__name">{character.data.name}</p>
+            <p class="character-card__meta">
+              {character.data.race} · {character.data.class_name}
+            </p>
+            <p class="character-card__player">
+              <span style="font-family: var(--font-sc); font-size: 0.56rem; letter-spacing: 0.14em; opacity: 0.6;">played by</span>
+              {' '}{character.data.player}
+            </p>
+          </a>
+        </li>
+      ))}
+    </ul>
+  </div>
+</BaseLayout>

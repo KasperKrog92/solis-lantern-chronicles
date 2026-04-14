@@ -1,0 +1,39 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection } from 'astro:content';
+
+const npcs = await getCollection('npcs');
+
+// Sort: alive first, then missing, unknown, deceased
+const statusOrder: Record<string, number> = {
+  alive: 0, missing: 1, unknown: 2, deceased: 3,
+};
+const sorted = npcs.sort((a, b) =>
+  (statusOrder[a.data.status] ?? 99) - (statusOrder[b.data.status] ?? 99)
+);
+---
+
+<BaseLayout title="People" description="Notable figures encountered in the Solis Lantern Chronicles.">
+  <div class="npcs-page">
+    <h1 class="page-heading">People</h1>
+    <ul class="npc-list">
+      {sorted.map(npc => (
+        <li class="npc-card">
+          <div class="npc-card__header">
+            <span class="npc-card__name">{npc.data.name}</span>
+            <span class={`npc-card__status npc-card__status--${npc.data.status}`}>
+              {npc.data.status}
+            </span>
+          </div>
+          {npc.data.affiliation && (
+            <p class="npc-card__affiliation">{npc.data.affiliation}</p>
+          )}
+          <p class="npc-card__description">{npc.data.description}</p>
+          <p class="npc-card__first-appearance">
+            First appears: Session {npc.data.first_appearance}
+          </p>
+        </li>
+      ))}
+    </ul>
+  </div>
+</BaseLayout>

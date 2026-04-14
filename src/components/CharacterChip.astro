@@ -1,0 +1,29 @@
+---
+/**
+ * CharacterChip.astro
+ * A small character indicator used in chapter listings.
+ * Shows a badge with initials and the character's name, linking to their page.
+ */
+
+interface Props {
+  slug: string;
+  name: string;
+}
+
+const { slug, name } = Astro.props;
+
+// Derive initials from name: first letter of each word, max 2 characters
+function initials(n: string): string {
+  return n
+    .split(' ')
+    .map(w => w[0]?.toUpperCase() ?? '')
+    .filter(Boolean)
+    .join('')
+    .slice(0, 2);
+}
+---
+
+<a href={`/characters/${slug}`} class="char-chip" title={name}>
+  <span class="char-chip__badge" aria-hidden="true">{initials(name)}</span>
+  {name.split(' ')[0]}
+</a>

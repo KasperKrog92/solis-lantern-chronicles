@@ -1,0 +1,69 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const characters = await getCollection('characters');
+  return characters.map(character => ({
+    params: { slug: character.id },
+    props: { character },
+  }));
+}
+
+const { character } = Astro.props;
+const { Content }   = await render(character);
+
+// Find all chapters where this character appears
+const chapters = await getCollection('chapters');
+const appearances = chapters
+  .filter(c => c.data.characters_present.includes(character.id))
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
+
+const statusLabels: Record<string, string> = {
+  active:   'Active',
+  inactive: 'Inactive',
+  deceased: 'Deceased',
+};
+---
+
+<BaseLayout title={character.data.name}>
+  <div class="character-detail">
+    <a href="/characters" class="back-link">← All Characters</a>
+
+    <div style="display:flex; align-items:baseline; gap:1rem; flex-wrap:wrap; margin-bottom:0.4rem;">
+      <h1 class="character-detail__name">{character.data.name}</h1>
+      <span class={`status-badge status-badge--${character.data.status}`}>
+        {statusLabels[character.data.status]}
+      </span>
+    </div>
+
+    <p class="character-detail__meta">
+      {character.data.race} · {character.data.class_name}
+    </p>
+    <p class="character-detail__player">
+      <span style="font-family:var(--font-sc);font-size:0.58rem;letter-spacing:0.14em;opacity:0.6;">Played by</span>
+      {' '}{character.data.player}
+    </p>
+
+    <blockquote class="character-detail__bio">{character.data.short_bio}</blockquote>
+
+    <div class="character-detail__body">
+      <Content />
+    </div>
+
+    {appearances.length > 0 && (
+      <div class="character-detail__appearances">
+        <h2>Appears In</h2>
+        <ul class="appearances-list">
+          {appearances.map(chapter => (
+            <li>
+              <a href={`/chronicle/${chapter.id}`}>
+                Session {String(chapter.data.session).padStart(2, '0')} — {chapter.data.title}
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+</BaseLayout>

@@ -1,0 +1,27 @@
+---
+/**
+ * LoreLink.astro
+ * An inline link to a lore, character, or NPC page.
+ * Visually subtle — a red-brown underline rather than a standard blue link —
+ * inviting curiosity without interrupting the reading flow.
+ *
+ * Usage in MDX:
+ *   <LoreLink href="brinegate">Brinegate</LoreLink>
+ *   <LoreLink href="mara-embervale" type="character">Mara</LoreLink>
+ *   <LoreLink href="kisara-solis" type="npc">Kisara</LoreLink>
+ */
+
+interface Props {
+  href: string;
+  type?: 'lore' | 'character' | 'npc';
+}
+
+const { href, type = 'lore' } = Astro.props;
+
+const prefix =
+  type === 'character' ? '/characters/' :
+  type === 'npc'       ? '/npcs/'       :
+                         '/lore/';
+---
+
+<a href={`${prefix}${href}`} class="lore-link"><slot /></a>

@@ -1,0 +1,60 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import CharacterChip from '../../components/CharacterChip.astro';
+import { getCollection } from 'astro:content';
+
+const allChapters = await getCollection('chapters');
+
+// Show published chapters newest-first; drafts at the bottom behind a note
+const published = allChapters
+  .filter(c => !c.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const drafts = allChapters
+  .filter(c => c.data.draft)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+
+const chapters = [...published, ...drafts];
+
+const characters = await getCollection('characters');
+const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
+---
+
+<BaseLayout title="Chronicle" description="All sessions of the Solis Lantern Chronicles, newest first.">
+  <div class="chronicle-page">
+    <h1 class="page-heading">The Chronicle</h1>
+
+    {chapters.length === 0 ? (
+      <p style="color: rgba(200,168,75,0.45); font-style: italic;">
+        The first pages are being written.
+      </p>
+    ) : (
+      <ul class="chapter-list">
+        {chapters.map(chapter => (
+          <li class="chapter-card">
+            <p class="chapter-card__session">
+              Session {String(chapter.data.session).padStart(2, '0')}
+              {chapter.data.draft && <span style="margin-left:0.5em; opacity:0.5;">[draft]</span>}
+            </p>
+            <h2 class="chapter-card__title">
+              <a href={`/chronicle/${chapter.id}`}>{chapter.data.title}</a>
+            </h2>
+            <p class="chapter-card__date">
+              {chapter.data.date.toLocaleDateString('en-GB', {
+                day: 'numeric',
+                month: 'long',
+                year: 'numeric',
+              })}
+            </p>
+            <p class="chapter-card__summary">{chapter.data.summary}</p>
+            <div class="chapter-card__characters">
+              {chapter.data.characters_present.map(slug => (
+                <CharacterChip slug={slug} name={charMap[slug]?.name ?? slug} />
+              ))}
+            </div>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+</BaseLayout>
