@@ -1,12 +1,12 @@
 ---
-name: "Dolores Tarius"
+name: "Dolores Hylach"
 first_appearance: "session-00"
 status: "alive"
 affiliation: "Ministry of Empire Integrity"
-description: "Nyssara's mother. Matriarch of House Tarius and Minister of Empire Integrity — the ministry responsible for internal threats to Imperial stability. Formidable by reputation, unexpectedly warm in private."
+description: "Nyssara's mother. Matriarch of House Hylach and Minister of Empire Integrity — the ministry responsible for internal threats to Imperial stability. Formidable by reputation, unexpectedly warm in private."
 ---
 
-Dolores Tarius is a Drow woman in her sixties, a matriarch of a noble house and one of the Empire's senior government ministers. The Ministry of Empire Integrity, which she heads, handles internal threats to Imperial stability — the quiet, structural kind that the military does not address. Her reputation in the Inner Tier is considerable, her name sufficient to open and close certain doors without further explanation.
+Dolores Hylach is a Drow woman in her sixties, a matriarch of a noble house and one of the Empire's senior government ministers. The Ministry of Empire Integrity, which she heads, handles internal threats to Imperial stability — the quiet, structural kind that the military does not address. Her reputation in the Inner Tier is considerable, her name sufficient to open and close certain doors without further explanation.
 
 In private, she is unexpectedly warm — more so, by most accounts, than she shows her many legitimate children. She writes to Nyssara with a frequency that Nyssara finds both touching and tactically readable. Her letters are precise and unhurried, the letters of someone who considers each one carefully. She gives advice Nyssara didn't ask for and notices things in Nyssara's letters that Nyssara did not intend to reveal.
 
