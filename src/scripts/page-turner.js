@@ -28,6 +28,17 @@
 import { isGradualEnabled, isSoundEnabled, initSettingsToggles } from './settings.js';
 import { playWritingSound, playDiceRollSound, playDiceSettleSound } from './writing-sound.js';
 
+// ── Cursors ────────────────────────────────────────────────────────────────
+
+function _makeCursor(svgPath, hotX, hotY, fallback) {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"><path d="${svgPath}"/></svg>`;
+  return `url("data:image/svg+xml,${encodeURIComponent(svg)}") ${hotX} ${hotY}, ${fallback}`;
+}
+
+// Material Design arrow_back / arrow_forward paths (24×24 grid)
+const CURSOR_LEFT  = _makeCursor('M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z',  4, 12, 'w-resize');
+const CURSOR_RIGHT = _makeCursor('M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z',     20, 12, 'e-resize');
+
 // ── State ──────────────────────────────────────────────────────────────────
 
 let pages        = [];   // Array of HTML strings, one per page
@@ -443,27 +454,34 @@ function bindNavigation() {
   document.getElementById('pt-prev')?.addEventListener('click', () => navigate(-1));
   document.getElementById('pt-next')?.addEventListener('click', () => navigate(1));
 
-  // Click zones: left 40% = back, right 40% = forward, middle 20% = neutral
-  const pageEl = document.getElementById('pt-page');
-  if (pageEl) {
-    pageEl.addEventListener('click', e => {
+  // Click zones: left 40% = back, right 40% = forward, middle 20% = neutral.
+  // Attached to .page-surface so the padding areas outside the text work too.
+  const surface = document.querySelector('.page-surface');
+  if (surface) {
+    surface.addEventListener('click', e => {
       if ((e.target instanceof Element) && e.target.closest('a, button, .dice-reveal')) return;
 
-      const rect  = pageEl.getBoundingClientRect();
+      const rect  = surface.getBoundingClientRect();
       const ratio = (e.clientX - rect.left) / rect.width;
 
       if (ratio > 0.6)      navigate(1);
       else if (ratio < 0.4) navigate(-1);
     });
 
-    pageEl.addEventListener('mousemove', e => {
-      const rect  = pageEl.getBoundingClientRect();
+    surface.addEventListener('mousemove', e => {
+      const rect  = surface.getBoundingClientRect();
       const ratio = (e.clientX - rect.left) / rect.width;
-      if (ratio > 0.6 || ratio < 0.4) {
-        pageEl.style.cursor = ratio > 0.6 ? 'e-resize' : 'w-resize';
+      if (ratio > 0.6) {
+        surface.style.cursor = CURSOR_RIGHT;
+      } else if (ratio < 0.4) {
+        surface.style.cursor = CURSOR_LEFT;
       } else {
-        pageEl.style.cursor = '';
+        surface.style.cursor = '';
       }
+    });
+
+    surface.addEventListener('mouseleave', () => {
+      surface.style.cursor = '';
     });
   }
 
