@@ -26,13 +26,6 @@ function resolveHref(href: string) {
   return new URL(target, `https://example.com${SITE_BASE}`).pathname;
 }
 
-const formattedDate = date.toLocaleDateString('en-GB', {
-  day: 'numeric',
-  month: 'long',
-  year: 'numeric',
-});
-
-const sessionLabel = `Session ${String(session).padStart(2, '0')}`;
 ---
 
 <BaseLayout title={title}>

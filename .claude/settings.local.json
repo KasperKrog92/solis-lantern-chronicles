@@ -10,7 +10,9 @@
       "Bash(npx astro:*)",
       "mcp__claude_ai_Google_Drive__get_file_metadata",
       "mcp__claude_ai_Google_Drive__read_file_content",
-      "Bash(node -e ':*)"
+      "Bash(node -e ':*)",
+      "Bash(node -e \"const sharp = require\\('sharp'\\); console.log\\('sharp available'\\)\")",
+      "Bash(node -e ' *)"
     ]
   }
 }

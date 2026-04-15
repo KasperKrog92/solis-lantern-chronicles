@@ -33,7 +33,7 @@ function isActive(href: string) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <link rel="icon" href={resolveHref('/favicon.ico')} />
+    <link rel="icon" type="image/png" sizes="64x64" href={resolveHref('/favicon.png')} />
     <!-- Typography: IM Fell English (display) + Crimson Pro (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -46,7 +46,10 @@ function isActive(href: string) {
   <body>
     <header class="site-header">
       <nav class="site-nav" aria-label="Site navigation">
-        <a href={resolveHref('/')} class="nav-home">Solis Lantern Chronicles</a>
+        <a href={resolveHref('/')} class="nav-home">
+          <img src={resolveHref('/lantern_logo.png')} alt="" class="nav-logo" aria-hidden="true" />
+          Solis Lantern Chronicles
+        </a>
         <ul class="nav-links">
           <li><a href={resolveHref('/chronicle')} aria-current={isActive('/chronicle') ? 'page' : undefined}>Chronicle</a></li>
           <li><a href={resolveHref('/characters')} aria-current={isActive('/characters') ? 'page' : undefined}>Characters</a></li>

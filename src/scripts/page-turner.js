@@ -94,6 +94,13 @@ function showPage(index, direction = 1) {
 
   if (!pageEl) return;
 
+  // Toggle title block (page 1) and running header (pages 2+)
+  const titleEl        = document.getElementById('pt-title');
+  const runningHeader  = document.getElementById('pt-running-header');
+  const counterHeader  = document.getElementById('pt-counter-header');
+  if (titleEl)       titleEl.hidden      = index !== 0;
+  if (runningHeader) runningHeader.hidden = index === 0;
+
   // Set content — innerHTML gives us markup but strips event listeners,
   // so we re-initialise interactive components explicitly below.
   pageEl.innerHTML = pages[index];
@@ -103,10 +110,10 @@ function showPage(index, direction = 1) {
   void pageEl.offsetWidth; // force reflow so the class re-triggers
   pageEl.classList.add('page-turning');
 
-  // Update counter
-  if (counter) {
-    counter.textContent = `${index + 1} / ${pages.length}`;
-  }
+  // Update counters (footer + running header)
+  const pageLabel = `${index + 1} / ${pages.length}`;
+  if (counter)       counter.textContent       = pageLabel;
+  if (counterHeader) counterHeader.textContent = pageLabel;
 
   // Prev button: disabled on first page
   if (prevBtn) prevBtn.disabled = index === 0;
@@ -414,17 +421,22 @@ function navigate(direction) {
   const next = currentPage + direction;
   if (next < 0 || next >= pages.length) return;
   showPage(next, direction);
-  // Scroll the page surface back to the top on mobile
-  const container = document.getElementById('pt-container');
-  container?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Scroll to the top of the parchment surface, clearing the fixed site header
+  const surface = document.querySelector('.page-surface');
+  const siteHeader = document.querySelector('.site-header');
+  if (surface) {
+    const headerHeight = siteHeader ? siteHeader.offsetHeight : 0;
+    const top = surface.getBoundingClientRect().top + window.scrollY - headerHeight;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }
 }
 
 function bindNavigation() {
   // Keyboard
   document.addEventListener('keydown', e => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-    if (e.key === 'ArrowRight' || e.key === 'ArrowDown') navigate(1);
-    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   navigate(-1);
+    if (e.key === 'ArrowRight') navigate(1);
+    if (e.key === 'ArrowLeft')  navigate(-1);
   });
 
   // Buttons

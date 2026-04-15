@@ -4,8 +4,6 @@
  * The core reading component. Receives the chapter's rendered body as a slot,
  * hides it in #pt-source, and lets page-turner.js split it on <hr> elements
  * and present pages one at a time.
- *
- * Accepts chapter metadata props so the title block stays inside the page surface.
  */
 
 interface Props {
@@ -27,13 +25,6 @@ const formattedDate = date.toLocaleDateString('en-GB', {
 <div id="pt-container">
   <div class="page-surface">
 
-    <!-- Chapter title block — always visible above the page text -->
-    <header class="chapter-page-header">
-      <p class="chapter-page-header__session">{sessionLabel}</p>
-      <h1 class="chapter-page-header__title">{title}</h1>
-      <p class="chapter-page-header__date">{formattedDate}</p>
-    </header>
-
     <!--
       Source container: hidden, holds the full rendered markdown body.
       JavaScript reads from here, splits on <hr> elements (from --- in markdown),
@@ -42,6 +33,19 @@ const formattedDate = date.toLocaleDateString('en-GB', {
     <div id="pt-source" aria-hidden="true">
       <slot />
     </div>
+
+    <!-- Running header — visible on pages 2+; hidden by JS on page 1 -->
+    <div class="chapter-running-header" id="pt-running-header" hidden>
+      <span class="chapter-running-header__label">{sessionLabel} — {title}</span>
+      <span id="pt-counter-header" class="chapter-running-header__counter" aria-live="polite">—</span>
+    </div>
+
+    <!-- Title block — visible on page 1 only; hidden by JS on subsequent pages -->
+    <header class="chapter-page-header" id="pt-title">
+      <p class="chapter-page-header__session">{sessionLabel}</p>
+      <h1 class="chapter-page-header__title">{title}</h1>
+      <p class="chapter-page-header__date">{formattedDate}</p>
+    </header>
 
     <!-- Active page — populated by page-turner.js -->
     <div id="pt-page" aria-live="polite"></div>
