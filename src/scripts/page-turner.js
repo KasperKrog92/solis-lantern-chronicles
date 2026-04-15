@@ -286,6 +286,9 @@ function initDiceReveals(pageEl) {
               if (postWrap) {
                 // After 800ms, fade in the post-roll prose
                 setTimeout(() => {
+                  // Wrap words in hidden spans BEFORE the container becomes
+                  // visible, so there is no flash of unstyled content.
+                  if (isGradualEnabled()) wrapWordsInSpans(postWrap, false);
                   postWrap.classList.add('post-roll-visible');
                   if (isGradualEnabled()) {
                     setTimeout(() => revealPostRoll(postWrap), 200);
@@ -308,21 +311,20 @@ function initDiceReveals(pageEl) {
  * Reveal post-roll prose with the gradual word-by-word effect.
  */
 function revealPostRoll(container) {
-  wrapWordsInSpans(container);
-
   const wordEls   = Array.from(container.querySelectorAll('.word:not(.revealed)'));
   const wordCount = wordEls.length;
   if (wordCount === 0) return;
 
-  const totalMs = Math.min(2600, Math.max(800, wordCount * 55));
-  const delay   = totalMs / wordCount;
-  let soundBeat = 0;
+  const totalMs    = Math.min(2600, Math.max(800, wordCount * 55));
+  const delay      = totalMs / wordCount;
+  const soundEvery = Math.max(1, Math.round(130 / delay));
+  let soundBeat    = 0;
 
   wordEls.forEach((el, i) => {
     setTimeout(() => {
       el.classList.add('revealed');
       soundBeat++;
-      if (isSoundEnabled() && soundBeat % 5 === 0) playWritingSound();
+      if (isSoundEnabled() && soundBeat % soundEvery === 0) playWritingSound();
     }, i * delay);
   });
 }
@@ -351,16 +353,46 @@ function revealText(container) {
     return;
   }
 
-  const totalMs = Math.min(2600, Math.max(800, wordCount * 55));
-  const delay   = totalMs / wordCount;
-  let soundBeat = 0;
+  // Hide each dice reveal until the text reveal reaches it.
+  // For each, find the last word that precedes it in DOM order — that word's
+  // reveal is the trigger. If no words precede it, show it immediately.
+  const diceReveals = Array.from(container.querySelectorAll('.dice-reveal'));
+  diceReveals.forEach(dr => { dr.style.visibility = 'hidden'; });
+
+  const diceRevealTriggers = diceReveals.map(dr => {
+    let triggerIdx = -1;
+    for (let i = wordEls.length - 1; i >= 0; i--) {
+      if (dr.compareDocumentPosition(wordEls[i]) & Node.DOCUMENT_POSITION_PRECEDING) {
+        triggerIdx = i;
+        break;
+      }
+    }
+    return { el: dr, triggerIdx };
+  });
+
+  // Any dice reveal with no preceding words becomes visible immediately
+  diceRevealTriggers
+    .filter(({ triggerIdx }) => triggerIdx === -1)
+    .forEach(({ el }) => { el.style.visibility = ''; });
+
+  const totalMs    = Math.min(2600, Math.max(800, wordCount * 55));
+  const delay      = totalMs / wordCount;
+  // Fire the writing sound every ~130ms regardless of how many words are on
+  // the page — soundEvery is how many word-reveals that works out to.
+  const soundEvery = Math.max(1, Math.round(130 / delay));
+  let soundBeat    = 0;
 
   wordEls.forEach((el, i) => {
     const id = setTimeout(() => {
       el.classList.add('revealed');
 
+      // Show any dice reveal whose last preceding word just appeared
+      diceRevealTriggers.forEach(({ el: dr, triggerIdx }) => {
+        if (triggerIdx === i) dr.style.visibility = '';
+      });
+
       soundBeat++;
-      if (isSoundEnabled() && soundBeat % 5 === 0) {
+      if (isSoundEnabled() && soundBeat % soundEvery === 0) {
         playWritingSound();
       }
 
@@ -383,7 +415,7 @@ function revealText(container) {
  *
  * Also skips .post-roll-content, which is revealed after the roll resolves.
  */
-function wrapWordsInSpans(container) {
+function wrapWordsInSpans(container, skipPostRoll = true) {
   const walker = document.createTreeWalker(
     container,
     NodeFilter.SHOW_TEXT,
@@ -392,8 +424,8 @@ function wrapWordsInSpans(container) {
         if (!node.textContent.trim()) return NodeFilter.FILTER_REJECT;
         // Skip all dice-reveal card content
         if (node.parentElement?.closest('.dice-reveal'))       return NodeFilter.FILTER_REJECT;
-        // Skip gated post-roll prose (revealed separately)
-        if (node.parentElement?.closest('.post-roll-content')) return NodeFilter.FILTER_REJECT;
+        // Skip gated post-roll prose (revealed separately, unless we ARE the post-roll container)
+        if (skipPostRoll && node.parentElement?.closest('.post-roll-content')) return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       },
     }

@@ -210,10 +210,14 @@ main {
     repeating-linear-gradient(
       0deg,
       transparent,
-      transparent 27px,
-      rgba(0, 0, 0, 0.018) 27px,
-      rgba(0, 0, 0, 0.018) 28px
+      transparent calc(var(--size-body) * var(--lh-body) - 1px),
+      rgba(0, 0, 0, 0.018) calc(var(--size-body) * var(--lh-body) - 1px),
+      rgba(0, 0, 0, 0.018) calc(var(--size-body) * var(--lh-body))
     );
+  /* Pin the ruled-lines layer to the viewport so it never shifts between pages.
+     The three parchment-texture layers scroll normally with the element. */
+  background-attachment: scroll, scroll, scroll, fixed;
+  background-position-y: 0, 0, 0, 1.4rem;
   color: var(--ink);
   border: 1px solid rgba(180, 150, 90, 0.25);
 }
@@ -583,6 +587,8 @@ main {
   font-size: var(--size-body);
   line-height: var(--lh-body);
   color: var(--ink);
+  text-align: justify;
+  hyphens: auto;
 }
 
 #pt-page p {
