@@ -18,7 +18,7 @@ The guild takes on contracted work. It also takes on work that no one has contra
 
 Kisara Solis, founder and nominal leader. She describes her own role as *the person who knows where the guild hall keys are kept*, which is a deflection that the others find characteristic.
 
-Mara Embervale, Wynn, Nyssara, and Querk — the founding party.
+Mara Embervale, Wynn, Nyssara, and Querc — the founding party.
 
 Tom Evenwood, listed on the charter at Kisara's insistence.
 

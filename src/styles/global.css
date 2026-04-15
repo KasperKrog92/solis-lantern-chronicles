@@ -160,6 +160,43 @@ main {
 }
 
 /* ============================================================
+   SITE FOOTER
+   ============================================================ */
+
+.site-footer {
+  margin-top: 6rem;
+  border-top: 1px solid rgba(200, 168, 75, 0.12);
+}
+
+.site-footer__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.5rem 2rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem 2rem;
+}
+
+.site-footer__copy,
+.site-footer__contact {
+  font-family: var(--font-sc);
+  font-size: 1.0rem;
+  letter-spacing: 0.18em;
+  color: rgba(200, 168, 75, 0.35);
+}
+
+.site-footer__contact {
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.site-footer__contact:hover {
+  color: rgba(200, 168, 75, 0.65);
+}
+
+/* ============================================================
    PARCHMENT PAGE SURFACE
    CSS-only parchment texture via layered gradients
    ============================================================ */

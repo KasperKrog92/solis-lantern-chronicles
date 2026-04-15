@@ -63,5 +63,55 @@ const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
         </ul>
       </div>
     )}
+
+    <div class="about-section">
+      <p class="about-section__heading">About this chronicle</p>
+      <div class="about-section__body">
+        <p>Solis Lantern Chronicles is a campaign chronicle: a record of an ongoing tabletop RPG campaign, written up as a narrative artifact after each session. It is made by a group of friends: a GM and five players, meeting regularly to tell a story together. New chapters appear when sessions happen.</p>
+        <p>The setting is inspired by Robert Jackson Bennett's Shadow of the Leviathan book series, a world built around Leviathans, great walls, and a civilization organized around annual catastrophe. The world here has been reshaped considerably to fit a D&amp;D tabletop game: new factions, new rules, new characters, and a story that now belongs to the people playing it.</p>
+        <p>The site is designed as a reading experience, something closer to a book than a blog. If you're new, start with the <a href={resolveHref('/chronicle')}>Chronicle</a>.</p>
+      </div>
+    </div>
   </div>
 </BaseLayout>
+
+<style>
+  .about-section {
+    width: 100%;
+    max-width: 680px;
+    margin: 4rem auto 0;
+    text-align: left;
+  }
+
+  .about-section__heading {
+    font-family: var(--font-sc);
+    font-size: 1.05rem;
+    letter-spacing: 0.28em;
+    color: rgba(200, 168, 75, 0.5);
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid rgba(200, 168, 75, 0.16);
+  }
+
+  .about-section__body p {
+    font-size: 1.05rem;
+    line-height: 1.85;
+    color: rgba(200, 168, 75, 0.45);
+    margin-bottom: 1.1rem;
+  }
+
+  .about-section__body p:last-child {
+    margin-bottom: 0;
+  }
+
+  .about-section__body a {
+    color: rgba(200, 168, 75, 0.65);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    transition: color 0.2s;
+  }
+
+  .about-section__body a:hover {
+    color: rgba(200, 168, 75, 0.9);
+  }
+</style>

@@ -13,7 +13,7 @@ Mara has pushed every door available to her since then — the research facility
 
 She carries her faith with the practicality of someone who has tested it against difficult conditions and found it, improbably, sufficient. Her Oath of Vengeance is not about punishment for its own sake — it is the shape that purpose takes when someone keeps being told there is nothing to be done.
 
-The vines along the Wall that first night were the first real test of her endurance since she'd arrived in Brinegate. She passed it, in the way that matters: she didn't ask for help, but she didn't refuse it either. Nyssara and Querk pulled her free. Wynn's music held the plants. She noted all of this and filed it away.
+The vines along the Wall that first night were the first real test of her endurance since she'd arrived in Brinegate. She passed it, in the way that matters: she didn't ask for help, but she didn't refuse it either. Nyssara and Querc pulled her free. Wynn's music held the plants. She noted all of this and filed it away.
 
 She has always struggled with her temper — something deeper than ordinary frustration, episodes that overtake her completely and require outside help to pull her back from. She has learned to read the warning signs. It is one of the reasons she values the party: not just for what they can do, but because they are people she trusts to bring her back when she goes too far.
 
