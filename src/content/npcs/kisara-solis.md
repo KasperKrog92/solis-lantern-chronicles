@@ -3,6 +3,7 @@ name: "Kisara Solis"
 first_appearance: "session-00"
 status: "alive"
 affiliation: "The Solis Lantern (founder)"
+summary: "Veteran adventurer turned guild founder. Retired not out of defeat but out of choice."
 description: "A veteran adventurer who spent years in the Outer Tier and returned to Brinegate to build something that faces forward. The guild was her idea, and the test was hers."
 ---
 

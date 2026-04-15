@@ -4,6 +4,7 @@ player: "Ruriko"
 race: "Forest Gnome"
 class_name: "Bard, College of Glamour"
 status: "active"
+summary: "Gnome bard, several centuries old, has outlived nearly everyone she's ever known. The thread that drew the party together."
 short_bio: "A centuries-old gnome bard who has settled in Brinegate, carrying more stories than most people have had years, and the quiet certainty that the next one will matter."
 ---
 

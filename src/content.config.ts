@@ -26,6 +26,7 @@ const characters = defineCollection({
     portrait: z.string().optional(),
     status: z.enum(['active', 'inactive', 'deceased']),
     short_bio: z.string(),
+    summary: z.string().optional(),
   }),
 });
 
@@ -46,6 +47,7 @@ const npcs = defineCollection({
     status: z.enum(['alive', 'missing', 'deceased', 'unknown']),
     affiliation: z.string().optional(),
     description: z.string(),
+    summary: z.string().optional(),
   }),
 });
 

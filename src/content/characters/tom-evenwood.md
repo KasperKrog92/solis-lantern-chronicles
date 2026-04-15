@@ -4,6 +4,7 @@ player: "Sanni"
 race: "Human"
 class_name: "Artificer, Armorer"
 status: "active"
+summary: "Human artificer, arrived in Brinegate following an urgent letter from a former apprentice asking for help building something unusual."
 short_bio: "A craftsman and semi-retired mentor who arrived in Brinegate against the tide of the wet season, following an urgent letter from a former apprentice — and walked into something much larger than a commission."
 ---
 

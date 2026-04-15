@@ -1,6 +1,8 @@
 ---
 import ChapterLayout from '../../layouts/ChapterLayout.astro';
 import { getCollection, render } from 'astro:content';
+import Lore from '../../components/Lore.astro';
+import Note from '../../components/Note.astro';
 
 export async function getStaticPaths() {
   const chapters = await getCollection('chapters');
@@ -20,5 +22,5 @@ const { Content } = await render(chapter);
   date={chapter.data.date}
   gmNotes={chapter.data.gmNotes}
 >
-  <Content />
+  <Content components={{ Lore, Note }} />
 </ChapterLayout>

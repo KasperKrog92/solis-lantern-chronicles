@@ -4,6 +4,7 @@ player: "Sine"
 race: "Half-Drow / Half-High Elf"
 class_name: "Rogue, Mastermind"
 status: "active"
+summary: "Half-drow rogue, illegitimate daughter of a powerful government minister. Collects information the way others collect debts."
 short_bio: "The illegitimate daughter of a powerful Drow minister, raised in secrecy and trained to treat information as currency — now building her own influence in Brinegate, away from a family name she can neither use nor escape."
 ---
 

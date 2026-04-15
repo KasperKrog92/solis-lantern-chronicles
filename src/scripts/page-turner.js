@@ -12,17 +12,12 @@
  *   - A subtle page-turn animation
  *   - DiceReveal component initialisation with post-roll content gating
  *
- * ── DiceReveal gating ────────────────────────────────────────────────────────
- * When a page contains a DiceReveal that has not yet been rolled, the reader
- * cannot advance forward (Next button disabled, arrow-right / arrow-down
- * blocked). This is tracked via the module-level `pageGated` flag, which
- * initDiceReveals() sets to true when it finds an unrolled reveal, and clears
- * once the roll resolves and any post-roll prose has been revealed.
- *
+ * ── DiceReveal ───────────────────────────────────────────────────────────────
  * Post-roll prose is collected into a .post-roll-content wrapper immediately
  * after the .dice-reveal element. It starts at opacity 0 and fades in 800ms
  * after the outcome text reveals. If there is no post-roll prose on the page,
- * the gate lifts as soon as the outcome text appears.
+ * the fade-in is skipped. Navigation is never blocked — the reader can turn
+ * the page before rolling if they choose.
  */
 
 import { isGradualEnabled, isSoundEnabled, initSettingsToggles } from './settings.js';
@@ -45,7 +40,29 @@ let pages        = [];   // Array of HTML strings, one per page
 let currentPage  = 0;
 let isRevealing  = false;
 let revealTimers = [];   // Active setTimeout handles so we can cancel on nav
-let pageGated    = false; // True while a DiceReveal on the current page is unrolled
+
+// ── URL hash sync ──────────────────────────────────────────────────────────
+
+/**
+ * Parse #page-N from the URL and return the equivalent 0-based index,
+ * clamped to the available page range.
+ */
+function parseHashPage() {
+  const match = location.hash.match(/^#page-(\d+)$/);
+  if (!match) return 0;
+  const oneBased = parseInt(match[1], 10);
+  return Math.max(0, Math.min(oneBased - 1, pages.length - 1));
+}
+
+/** Write the current page to the URL without adding a history entry. */
+function replaceHash(index) {
+  history.replaceState(null, '', `#page-${index + 1}`);
+}
+
+/** Write the current page to the URL and add a history entry. */
+function pushHash(index) {
+  history.pushState(null, '', `#page-${index + 1}`);
+}
 
 // ── Entry point ────────────────────────────────────────────────────────────
 
@@ -58,7 +75,12 @@ export function initPageTurner() {
   pages = buildPages(source);
   if (pages.length === 0) return;
 
-  showPage(0);
+  // Start on whichever page the URL hash requests, then normalise the hash
+  // (so that a bare URL without a hash still gets #page-1 written in, which
+  // means the back button can return here from a deeper page).
+  const initialPage = parseHashPage();
+  replaceHash(initialPage);
+  showPage(initialPage);
   bindNavigation();
   initSettingsToggles();
 }
@@ -94,7 +116,7 @@ function buildPages(source) {
 
 // ── Page display ───────────────────────────────────────────────────────────
 
-function showPage(index, direction = 1) {
+function showPage(index) {
   cancelReveal();
 
   currentPage = index;
@@ -132,7 +154,6 @@ function showPage(index, direction = 1) {
   // ── DiceReveal ────────────────────────────────────────────────────────
   // Must run before gradual reveal so that post-roll content is hidden
   // before wrapWordsInSpans walks the tree.
-  // initDiceReveals also sets pageGated, so call updateNextBtn after.
   initDiceReveals(pageEl);
   updateNextBtn();
 
@@ -144,13 +165,9 @@ function showPage(index, direction = 1) {
 
 // ── Next button state ──────────────────────────────────────────────────────
 
-/**
- * The Next button is disabled when we're on the last page OR when a
- * DiceReveal on the current page has not yet been resolved.
- */
 function updateNextBtn() {
   const nextBtn = document.getElementById('pt-next');
-  if (nextBtn) nextBtn.disabled = currentPage === pages.length - 1 || pageGated;
+  if (nextBtn) nextBtn.disabled = currentPage === pages.length - 1;
 }
 
 // ── Dice reveal ────────────────────────────────────────────────────────────
@@ -160,26 +177,21 @@ function updateNextBtn() {
  *
  * For each .dice-reveal on the page:
  *   1. Collect all DOM siblings that follow it and wrap them in a hidden
- *      .post-roll-content element — they are gated until after the roll.
- *   2. Set pageGated = true so forward navigation is blocked.
- *   3. Attach a click handler to the "Roll the dice" button.
- *   4. On click:
+ *      .post-roll-content element — revealed after the roll resolves.
+ *   2. Attach a click handler to the "Roll the dice" button.
+ *   3. On click:
  *        - Hide the button immediately, show the tumbling die display.
  *        - Cycle through random numbers at ~12/sec for 700ms.
  *        - Snap to the fixed result from data-result.
  *        - Apply a typographic success/failure treatment to the number.
  *        - After 300ms, fade in the outcome text.
- *        - After a further 800ms, fade in any post-roll prose and clear
- *          pageGated (or clear it immediately if there is no post-roll prose).
+ *        - After a further 800ms, fade in any post-roll prose.
  */
 function initDiceReveals(pageEl) {
   const reveals = Array.from(pageEl.querySelectorAll('.dice-reveal'));
 
-  // Reset gate for this page
-  pageGated = false;
-
   for (const reveal of reveals) {
-    // ── Gate post-roll siblings ──────────────────────────────────────────
+    // ── Hide post-roll siblings until the roll resolves ──────────────────
     const postSiblings = [];
     let sibling = reveal.nextElementSibling;
     while (sibling) {
@@ -200,9 +212,6 @@ function initDiceReveals(pageEl) {
     const dc         = parseInt(reveal.dataset.dc, 10);
     const modifier   = parseInt(reveal.dataset.modifier, 10);
     const total      = rollResult + modifier;
-
-    // ── Gate forward navigation ──────────────────────────────────────────
-    pageGated = true;
 
     // ── Wire up elements ─────────────────────────────────────────────────
     const preRollEl  = reveal.querySelector('.dice-reveal__pre-roll');
@@ -274,21 +283,13 @@ function initDiceReveals(pageEl) {
             setTimeout(() => {
               resultEl.classList.add('visible');
 
-              if (!postWrap) {
-                // No post-roll prose — lift the gate after a brief pause
-                setTimeout(() => {
-                  pageGated = false;
-                  updateNextBtn();
-                }, 400);
-              } else {
-                // After 800ms, fade in the post-roll prose and lift the gate
+              if (postWrap) {
+                // After 800ms, fade in the post-roll prose
                 setTimeout(() => {
                   postWrap.classList.add('post-roll-visible');
                   if (isGradualEnabled()) {
                     setTimeout(() => revealPostRoll(postWrap), 200);
                   }
-                  pageGated = false;
-                  updateNextBtn();
                 }, 800);
               }
             }, 400);
@@ -425,21 +426,22 @@ function wrapWordsInSpans(container) {
 
 // ── Navigation ─────────────────────────────────────────────────────────────
 
-function navigate(direction) {
-  // Block forward navigation while a DiceReveal is unrolled
-  if (direction === 1 && pageGated) return;
-
-  const next = currentPage + direction;
-  if (next < 0 || next >= pages.length) return;
-  showPage(next, direction);
-  // Scroll to the top of the parchment surface, clearing the fixed site header
-  const surface = document.querySelector('.page-surface');
+function scrollToSurface() {
+  const surface    = document.querySelector('.page-surface');
   const siteHeader = document.querySelector('.site-header');
   if (surface) {
     const headerHeight = siteHeader ? siteHeader.offsetHeight : 0;
     const top = surface.getBoundingClientRect().top + window.scrollY - headerHeight;
     window.scrollTo({ top, behavior: 'smooth' });
   }
+}
+
+function navigate(direction) {
+  const next = currentPage + direction;
+  if (next < 0 || next >= pages.length) return;
+  showPage(next, direction);
+  pushHash(next);
+  scrollToSurface();
 }
 
 function bindNavigation() {
@@ -502,4 +504,12 @@ function bindNavigation() {
       navigate(dx < 0 ? 1 : -1);
     }
   }, { passive: true });
+
+  // Browser back / forward — read the hash the browser restored and jump
+  // directly to that page without pushing another history entry.
+  window.addEventListener('popstate', () => {
+    const page = parseHashPage();
+    showPage(page);
+    scrollToSurface();
+  });
 }

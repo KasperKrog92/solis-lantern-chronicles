@@ -4,6 +4,7 @@ player: "Kirsi"
 race: "Tiefling"
 class_name: "Paladin, Oath of Vengeance"
 status: "active"
+summary: "Tiefling paladin, came to Brinegate looking for her mother and sister, both of whom have gone silent."
 short_bio: "A red-skinned tiefling paladin who came to Brinegate searching for her missing mother and older sister — and found, in the shadow of the Wall, something else worth protecting."
 ---
 

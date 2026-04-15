@@ -3,6 +3,7 @@ name: "Marlowe Dei"
 first_appearance: "session-00"
 status: "alive"
 affiliation: "The Solis Lantern"
+summary: "Secretary and butler of the Solis Lantern. Better connected to Brinegate's undercurrents than their cheerful manner suggests."
 description: "Former waiter and cook at the Last Sound Inn, now the Solis Lantern's secretary and butler — a role he has taken to with considerable enthusiasm."
 ---
 

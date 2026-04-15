@@ -1,0 +1,144 @@
+---
+/**
+ * Note.astro
+ * Inline one-off tooltip for chapter annotations.
+ *
+ * Usage in MDX:
+ *   <Note>The wet season typically lasts eight weeks.</Note>
+ *   <Note gm>This foreshadows the session-02 reveal.</Note>
+ *
+ * Regular notes: always visible, rendered as a small † superscript.
+ * GM notes:      display: none by default, amber marker ◆
+ *                data-gm-note="true" attribute so the GM toggle can show them.
+ */
+
+interface Props {
+  gm?: boolean;
+}
+
+const { gm = false } = Astro.props;
+---
+
+<span
+  class:list={['note-marker', gm && 'note-marker--gm']}
+  data-gm-note={gm ? 'true' : undefined}
+>
+  <span class="note-marker__icon" aria-hidden="true">{gm ? '◆' : '†'}</span>
+  <span class="note-tooltip" role="tooltip">
+    <slot />
+  </span>
+</span>
+
+<style>
+  .note-marker {
+    position: relative;
+    display: inline;
+    cursor: default;
+  }
+
+  /* GM notes are hidden until toggled */
+  .note-marker--gm {
+    display: none;
+  }
+
+  .note-marker__icon {
+    font-size: 0.6em;
+    vertical-align: super;
+    line-height: 1;
+    opacity: 0.6;
+    color: currentColor;
+    user-select: none;
+  }
+
+  .note-marker--gm .note-marker__icon {
+    color: #c8a84b; /* muted gold — signals GM content */
+    opacity: 1;
+  }
+
+  /* Tooltip bubble */
+  .note-tooltip {
+    display: none;
+    position: absolute;
+    left: 50%;
+    bottom: calc(100% + 8px);
+    transform: translateX(-50%);
+    width: 200px;
+    background: #f5ead8;
+    color: #2a1f0e;
+    border: 1px solid rgba(42, 31, 14, 0.25);
+    border-radius: 3px;
+    padding: 0.65em 0.8em;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.3);
+    z-index: 200;
+    font-family: 'Crimson Pro', Georgia, serif;
+    font-size: 0.875rem;
+    line-height: 1.45;
+    white-space: normal;
+    text-align: left;
+  }
+
+  /* GM note tooltip gets a faint amber border */
+  .note-marker--gm .note-tooltip {
+    border-color: rgba(200, 168, 75, 0.45);
+  }
+
+  /* Show on hover or JS-added class */
+  .note-marker:hover .note-tooltip,
+  .note-marker.tooltip-open .note-tooltip {
+    display: block;
+  }
+
+  /* Flip below when there isn't room above */
+  .note-marker.tooltip-below .note-tooltip {
+    bottom: auto;
+    top: calc(100% + 8px);
+  }
+
+  /* Bridge the gap so the tooltip stays open as the cursor moves into it */
+  .note-tooltip::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -10px;
+    height: 10px;
+  }
+
+  .note-marker.tooltip-below .note-tooltip::before {
+    bottom: auto;
+    top: -10px;
+  }
+</style>
+
+<script>
+  function initNoteTooltips() {
+    const markers = document.querySelectorAll<HTMLElement>('.note-marker');
+
+    markers.forEach(marker => {
+      // Smart positioning
+      marker.addEventListener('mouseenter', () => {
+        const rect = marker.getBoundingClientRect();
+        if (rect.top < 120) {
+          marker.classList.add('tooltip-below');
+        } else {
+          marker.classList.remove('tooltip-below');
+        }
+      });
+
+      // Tap toggle
+      marker.addEventListener('click', e => {
+        e.stopPropagation();
+        marker.classList.toggle('tooltip-open');
+      });
+    });
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.note-marker.tooltip-open').forEach(el => {
+        el.classList.remove('tooltip-open');
+      });
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded', initNoteTooltips);
+  document.addEventListener('page-turner:page-changed', initNoteTooltips);
+</script>

@@ -3,6 +3,7 @@ name: "Thorvald Royce"
 first_appearance: "session-00"
 status: "alive"
 affiliation: "The Last Sound Inn"
+summary: "Innkeeper of the Last Sound Inn. Few words, mechanical prosthetic arm, knows most of what moves through Brinegate."
 description: "The innkeeper of the Last Sound Inn — broad-shouldered, few words, and possessed of a mechanical prosthetic arm he lost to Wall work. He has employed Wynn for years and knows most of what moves through Brinegate."
 ---
 
