@@ -1096,7 +1096,7 @@ main {
 }
 
 .world-intro {
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   line-height: 1.85;
   color: rgba(200, 168, 75, 0.72);
   font-style: italic;
@@ -1154,7 +1154,7 @@ main {
 }
 
 .lore-tile__summary {
-  font-size: 1rem;
+  font-size: 1.2rem;
   line-height: 1.65;
   color: rgba(200, 168, 75, 0.55);
 }
@@ -1187,7 +1187,7 @@ main {
 }
 
 .lore-page__summary {
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   line-height: 1.82;
   color: rgba(200, 168, 75, 0.78);
   font-style: italic;
@@ -1198,7 +1198,7 @@ main {
 }
 
 .lore-page__body {
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   line-height: 1.82;
   color: rgba(200, 168, 75, 0.76);
 }
@@ -1285,7 +1285,7 @@ main {
 }
 
 .npc-card__description {
-  font-size: 1.05rem;
+  font-size: 1.35rem;
   line-height: 1.7;
   color: rgba(200, 168, 75, 0.58);
 }
