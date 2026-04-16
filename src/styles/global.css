@@ -765,6 +765,12 @@ main {
   transition: opacity 0.15s, border-bottom-color 0.15s;
 }
 
+/* Hide the underline until at least one word inside has been revealed,
+   so the border doesn't appear before the text during gradual reveal. */
+#pt-page .lore-link:not(:has(.word.revealed)) {
+  border-bottom-color: transparent;
+}
+
 .lore-link:hover {
   opacity: 1;
   border-bottom-color: var(--gold-dim);

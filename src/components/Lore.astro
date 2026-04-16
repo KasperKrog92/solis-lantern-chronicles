@@ -37,17 +37,17 @@ if (charEntry) {
   found   = true;
   name    = charEntry.data.name;
   summary = charEntry.data.summary ?? charEntry.data.short_bio;
-  href    = `${base}characters/${slug}`;
+  href    = `${base}/characters/${slug}`;
 } else if (npcEntry) {
   found   = true;
   name    = npcEntry.data.name;
   summary = npcEntry.data.summary ?? npcEntry.data.description;
-  href    = `${base}npcs/${slug}`;
+  href    = `${base}/npcs/${slug}`;
 } else if (loreEntry) {
   found   = true;
   name    = loreEntry.data.title;
   summary = loreEntry.data.summary;
-  href    = `${base}lore/${slug}`;
+  href    = `${base}/lore/${slug}`;
 } else {
   console.warn(`[Lore] No entry found for slug: "${slug}" — rendering as plain text.`);
 }
@@ -82,12 +82,12 @@ if (charEntry) {
     bottom: calc(100% + 8px);
     transform: translateX(-50%);
     width: 220px;
-    background: #f5ead8;
+    background: #d9b97a;
     color: #2a1f0e;
-    border: 1px solid #c8a84b;
-    border-radius: 3px;
+    border: 1px solid rgba(100, 65, 20, 0.55);
+    border-radius: 2px;
     padding: 0.65em 0.8em;
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 16px rgba(40, 20, 4, 0.45);
     z-index: 200;
     font-family: 'Crimson Pro', Georgia, serif;
     font-size: 0.875rem;
@@ -141,14 +141,21 @@ if (charEntry) {
   }
 
   .lore-tooltip__link {
-    display: block;
-    color: #8b3a3a;
+    display: inline-block;
+    margin-top: 0.55em;
+    padding: 0.2em 0.6em;
+    font-family: 'IM Fell English SC', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.18em;
+    color: #2a1f0e;
     text-decoration: none;
-    font-size: 0.875em;
+    border: 1px solid rgba(42, 31, 14, 0.35);
+    transition: background 0.15s, border-color 0.15s;
   }
 
   .lore-tooltip__link:hover {
-    text-decoration: underline;
+    background: rgba(42, 31, 14, 0.08);
+    border-color: rgba(42, 31, 14, 0.6);
   }
 </style>
 
