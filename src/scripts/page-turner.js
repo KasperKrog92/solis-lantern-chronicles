@@ -22,6 +22,7 @@
 
 import { isGradualEnabled, isSoundEnabled, initSettingsToggles } from './settings.js';
 import { playWritingSound, playDiceRollSound, playDiceSettleSound } from './writing-sound.js';
+import { randomiseParchment } from './parchment.js';
 
 // ── Cursors ────────────────────────────────────────────────────────────────
 
@@ -80,7 +81,13 @@ export function initPageTurner() {
   // means the back button can return here from a deeper page).
   const initialPage = parseHashPage();
   replaceHash(initialPage);
-  showPage(initialPage);
+
+  // If the user arrived via browser back/forward (e.g. returning from a lore
+  // page), skip the gradual reveal — the page should feel like they never left.
+  const navType     = performance.getEntriesByType('navigation')[0]?.type;
+  const isReturning = navType === 'back_forward';
+
+  showPage(initialPage, false, isReturning);
   bindNavigation();
   initSettingsToggles();
 }
@@ -111,56 +118,72 @@ function buildPages(source) {
     result.push(group.map(el => el.outerHTML).join('\n'));
   }
 
-  return result;
+  // Page 0 is a dedicated title page — empty content, title block only.
+  return ['', ...result];
 }
 
 // ── Page display ───────────────────────────────────────────────────────────
 
-function showPage(index) {
+// Swap content immediately — no animation.  Called after the fade-out settles.
+// skipReveal: true when the reader is returning via browser history — text
+// is left fully visible, no word-by-word animation and no sound, as if they
+// never left the page.
+function renderPage(index, skipReveal = false) {
   cancelReveal();
 
   currentPage = index;
 
-  const pageEl   = document.getElementById('pt-page');
-  const counter  = document.getElementById('pt-counter');
-  const prevBtn  = document.getElementById('pt-prev');
+  const pageEl        = document.getElementById('pt-page');
+  const counter       = document.getElementById('pt-counter');
+  const prevBtn       = document.getElementById('pt-prev');
+  const titleEl       = document.getElementById('pt-title');
+  const runningHeader = document.getElementById('pt-running-header');
+  const counterHeader = document.getElementById('pt-counter-header');
 
   if (!pageEl) return;
 
-  // Toggle title block (page 1) and running header (pages 2+)
-  const titleEl        = document.getElementById('pt-title');
-  const runningHeader  = document.getElementById('pt-running-header');
-  const counterHeader  = document.getElementById('pt-counter-header');
   if (titleEl)       titleEl.hidden      = index !== 0;
   if (runningHeader) runningHeader.hidden = index === 0;
 
-  // Set content — innerHTML gives us markup but strips event listeners,
-  // so we re-initialise interactive components explicitly below.
+  // Toggle title-page class so CSS can style page 0 differently
+  document.querySelector('.page-surface')?.classList.toggle('page-surface--title', index === 0);
+
   pageEl.innerHTML = pages[index];
 
-  // Page-turn animation — brief, restrained
-  pageEl.classList.remove('page-turning');
-  void pageEl.offsetWidth; // force reflow so the class re-triggers
-  pageEl.classList.add('page-turning');
+  randomiseParchment();
 
-  // Update counters (footer + running header)
-  const pageLabel = `${index + 1} / ${pages.length}`;
+  // Title page (index 0) doesn't count — content pages run 1…N-1
+  const totalContent = pages.length - 1;
+  const pageLabel    = index === 0 ? '' : `${index} / ${totalContent}`;
   if (counter)       counter.textContent       = pageLabel;
   if (counterHeader) counterHeader.textContent = pageLabel;
+  if (prevBtn)       prevBtn.disabled          = index === 0;
 
-  // Prev button: disabled on first page
-  if (prevBtn) prevBtn.disabled = index === 0;
-
-  // ── DiceReveal ────────────────────────────────────────────────────────
-  // Must run before gradual reveal so that post-roll content is hidden
-  // before wrapWordsInSpans walks the tree.
   initDiceReveals(pageEl);
   updateNextBtn();
 
-  // ── Gradual text reveal ───────────────────────────────────────────────
-  if (isGradualEnabled()) {
+  if (!skipReveal && isGradualEnabled()) {
     revealText(pageEl);
   }
+}
+
+// Fade the page surface out, swap content, fade back in.
+// On the very first call (animate = false) we skip the fade so the
+// initial load is instant.
+function showPage(index, animate = false, skipReveal = false) {
+  const surface = document.querySelector('.page-surface');
+
+  if (!animate || !surface) {
+    renderPage(index, skipReveal);
+    return;
+  }
+
+  surface.classList.add('page-fading');
+
+  setTimeout(() => {
+    renderPage(index, skipReveal);
+    surface.classList.remove('page-fading');
+  }, 220); // matches the CSS transition duration
 }
 
 // ── Next button state ──────────────────────────────────────────────────────
@@ -459,19 +482,13 @@ function wrapWordsInSpans(container, skipPostRoll = true) {
 // ── Navigation ─────────────────────────────────────────────────────────────
 
 function scrollToSurface() {
-  const surface    = document.querySelector('.page-surface');
-  const siteHeader = document.querySelector('.site-header');
-  if (surface) {
-    const headerHeight = siteHeader ? siteHeader.offsetHeight : 0;
-    const top = surface.getBoundingClientRect().top + window.scrollY - headerHeight;
-    window.scrollTo({ top, behavior: 'smooth' });
-  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 function navigate(direction) {
   const next = currentPage + direction;
   if (next < 0 || next >= pages.length) return;
-  showPage(next, direction);
+  showPage(next, true);
   pushHash(next);
   scrollToSurface();
 }
@@ -541,7 +558,7 @@ function bindNavigation() {
   // directly to that page without pushing another history entry.
   window.addEventListener('popstate', () => {
     const page = parseHashPage();
-    showPage(page);
+    showPage(page, true, true);
     scrollToSurface();
   });
 }

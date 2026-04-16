@@ -12,7 +12,9 @@
       "mcp__claude_ai_Google_Drive__read_file_content",
       "Bash(node -e ':*)",
       "Bash(node -e \"const sharp = require\\('sharp'\\); console.log\\('sharp available'\\)\")",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(python3 -c \"from PIL import Image; img=Image.open\\('c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/lantern_logo.png'\\); print\\(img.size\\)\")",
+      "Bash(identify \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/lantern_logo.png\")"
     ]
   }
 }

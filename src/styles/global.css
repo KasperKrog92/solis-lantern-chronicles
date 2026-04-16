@@ -202,24 +202,44 @@ main {
    ============================================================ */
 
 .page-surface {
-  background-color: var(--parchment);
-  background-image:
-    radial-gradient(ellipse at 18% 82%, rgba(155, 115, 50, 0.14) 0%, transparent 52%),
-    radial-gradient(ellipse at 83% 18%, rgba(155, 115, 50, 0.10) 0%, transparent 52%),
-    radial-gradient(ellipse at 50% 50%, rgba(200, 170, 110, 0.06) 0%, transparent 70%),
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent calc(var(--size-body) * var(--lh-body) - 1px),
-      rgba(0, 0, 0, 0.018) calc(var(--size-body) * var(--lh-body) - 1px),
-      rgba(0, 0, 0, 0.018) calc(var(--size-body) * var(--lh-body))
-    );
-  /* Pin the ruled-lines layer to the viewport so it never shifts between pages.
-     The three parchment-texture layers scroll normally with the element. */
-  background-attachment: scroll, scroll, scroll, fixed;
-  background-position-y: 0, 0, 0, 1.4rem;
+  /* Amber-toned aged parchment base.
+     The full background-image (grain, foxing, stains, centre glow) is built
+     and randomised on each page turn by parchment.js. */
+  background-color: #d9b97a;
   color: var(--ink);
-  border: 1px solid rgba(180, 150, 90, 0.25);
+  /* Directional borders: lit top/left edge (light from above), dark
+     right/bottom edge (self-shadow) — visible against any background. */
+  border-top:    1px solid rgba(245, 215, 135, 0.55);
+  border-left:   1px solid rgba(245, 215, 135, 0.35);
+  border-right:  1px solid rgba(25, 12, 1, 0.85);
+  border-bottom: 1px solid rgba(25, 12, 1, 0.80);
+  box-shadow:
+    /* Inner top highlight — brightest edge, catches the overhead light */
+    inset 0 1px 0 rgba(255, 240, 175, 0.35),
+    /* Inner parchment texture */
+    inset 0 0 40px rgba(60, 30, 4, 0.12),
+    /* A modest drop shadow — visible at the right and bottom */
+    4px 6px 18px rgba(0, 0, 0, 0.55),
+    8px 12px 40px rgba(0, 0, 0, 0.35);
+  transition: opacity 0.22s ease;
+}
+
+/* Curved shadow underneath — the paper bowing slightly off the surface */
+.page-surface::after {
+  content: '';
+  position: absolute;
+  bottom: -14px;
+  left: 6%;
+  right: 6%;
+  height: 24px;
+  background: transparent;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.65);
+  border-radius: 50%;
+  z-index: -1;
+}
+
+.page-surface.page-fading {
+  opacity: 0.6;
 }
 
 /* ============================================================
@@ -395,6 +415,7 @@ main {
 }
 
 .chapter-card {
+  position: relative;
   border: 1px solid rgba(200, 168, 75, 0.16);
   border-top: none;
   padding: 1.6rem 2rem;
@@ -431,6 +452,13 @@ main {
   transition: color 0.2s;
 }
 
+/* Stretched link — expands the title anchor to cover the whole card */
+.chapter-card__title a::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+
 .chapter-card__title a:hover {
   color: #dfc76a;
 }
@@ -454,6 +482,8 @@ main {
   display: flex;
   gap: 0.4rem;
   flex-wrap: wrap;
+  position: relative;
+  z-index: 1;
 }
 
 /* ============================================================
@@ -497,7 +527,6 @@ main {
 /* The chapter reader fills the viewport â€” everything else recedes */
 
 .chapter-reader {
-  min-height: calc(100vh - 3rem);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -548,7 +577,44 @@ main {
   position: relative;
 }
 
-/* Chapter title block at top of page */
+/* Title page — page 0 is a dedicated title page, content-free */
+
+.page-surface--title {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 600px;
+}
+
+.page-surface--title .chapter-running-header {
+  display: none;
+}
+
+.page-surface--title .chapter-page-header {
+  margin-bottom: 0;
+  padding: 2rem 0;
+}
+
+/* Ornamental rule above and below the title on the title page */
+.page-surface--title .chapter-page-header__session::before,
+.page-surface--title .chapter-page-header__date::after {
+  content: '— ✦ —';
+  display: block;
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  color: var(--ink-faded);
+  opacity: 0.55;
+  margin: 1.4rem auto 1.2rem;
+}
+
+.page-surface--title .chapter-page-header__title {
+  font-size: clamp(2rem, 6vw, 3.2rem);
+  margin-bottom: 0.6rem;
+}
+
+/* Chapter title block at top of page (pages 2+) */
 
 .chapter-page-header {
   text-align: center;
@@ -686,21 +752,6 @@ main {
   color: rgba(200, 168, 75, 0.35);
 }
 
-/* Page-turn animation */
-@keyframes pageTurnIn {
-  from {
-    opacity: 0;
-    transform: translateX(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.page-turning {
-  animation: pageTurnIn 0.22s ease forwards;
-}
 
 /* ============================================================
    LORE LINKS â€” subtle, inviting
