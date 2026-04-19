@@ -51,18 +51,18 @@ let revealTimers = [];   // Active setTimeout handles so we can cancel on nav
 function parseHashPage() {
   const match = location.hash.match(/^#page-(\d+)$/);
   if (!match) return 0;
-  const oneBased = parseInt(match[1], 10);
-  return Math.max(0, Math.min(oneBased - 1, pages.length - 1));
+  const zeroBased = parseInt(match[1], 10);
+  return Math.max(0, Math.min(zeroBased, pages.length - 1));
 }
 
 /** Write the current page to the URL without adding a history entry. */
 function replaceHash(index) {
-  history.replaceState(null, '', `#page-${index + 1}`);
+  history.replaceState(null, '', `#page-${index}`);
 }
 
 /** Write the current page to the URL and add a history entry. */
 function pushHash(index) {
-  history.pushState(null, '', `#page-${index + 1}`);
+  history.pushState(null, '', `#page-${index}`);
 }
 
 // ── Entry point ────────────────────────────────────────────────────────────
@@ -77,7 +77,7 @@ export function initPageTurner() {
   if (pages.length === 0) return;
 
   // Start on whichever page the URL hash requests, then normalise the hash
-  // (so that a bare URL without a hash still gets #page-1 written in, which
+  // (so that a bare URL without a hash still gets #page-0 written in, which
   // means the back button can return here from a deeper page).
   const initialPage = parseHashPage();
   replaceHash(initialPage);
@@ -146,9 +146,14 @@ function renderPage(index, skipReveal = false) {
   if (runningHeader) runningHeader.hidden = index === 0;
 
   // Toggle title-page class so CSS can style page 0 differently
-  document.querySelector('.page-surface')?.classList.toggle('page-surface--title', index === 0);
+  const surface = document.querySelector('.page-surface');
+  surface?.classList.toggle('page-surface--title', index === 0);
+  surface?.classList.toggle('page-surface--chapter-start', index === 1);
 
   pageEl.innerHTML = pages[index];
+
+  // Inject drop cap on first content page before word-wrapping runs
+  if (index === 1) injectDropCap(pageEl);
 
   randomiseParchment();
 
@@ -438,6 +443,40 @@ function revealText(container) {
  *
  * Also skips .post-roll-content, which is revealed after the roll resolves.
  */
+
+/**
+ * Splits the first character of the first paragraph into a .drop-cap span.
+ * Must run BEFORE wrapWordsInSpans so the cap element is in place.
+ * The walker in wrapWordsInSpans skips .drop-cap, so the letter stays
+ * permanently visible (not hidden/revealed with the rest of the text).
+ */
+function injectDropCap(container) {
+  const para = container.querySelector('p');
+  if (!para) return;
+
+  // Walk to the first non-empty text node in the paragraph
+  const walker = document.createTreeWalker(para, NodeFilter.SHOW_TEXT, {
+    acceptNode(node) {
+      return node.textContent.trim() ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_SKIP;
+    },
+  });
+  const textNode = walker.nextNode();
+  if (!textNode) return;
+
+  const text      = textNode.textContent;
+  const firstChar = text.charAt(0);
+  if (!firstChar.trim()) return;
+
+  const cap  = document.createElement('span');
+  cap.className   = 'drop-cap';
+  cap.textContent = firstChar;
+
+  const rest = document.createTextNode(text.slice(1));
+  textNode.parentNode.insertBefore(cap, textNode);
+  textNode.parentNode.insertBefore(rest, textNode);
+  textNode.parentNode.removeChild(textNode);
+}
+
 function wrapWordsInSpans(container, skipPostRoll = true) {
   const walker = document.createTreeWalker(
     container,
@@ -449,6 +488,8 @@ function wrapWordsInSpans(container, skipPostRoll = true) {
         if (node.parentElement?.closest('.dice-reveal'))       return NodeFilter.FILTER_REJECT;
         // Skip gated post-roll prose (revealed separately, unless we ARE the post-roll container)
         if (skipPostRoll && node.parentElement?.closest('.post-roll-content')) return NodeFilter.FILTER_REJECT;
+        // Skip drop cap — it is always visible, not part of the word-reveal sequence
+        if (node.parentElement?.closest('.drop-cap'))          return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       },
     }

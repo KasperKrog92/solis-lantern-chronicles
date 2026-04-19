@@ -35,9 +35,16 @@ function resolveHref(href: string) {
               )}
             </div>
             <p class="character-card__name">{character.data.name}</p>
-            <p class="character-card__meta">
-              {character.data.race} · {character.data.class_name}
-            </p>
+            <dl class="character-card__stats">
+              <div class="character-card__stat">
+                <dt>Species</dt>
+                <dd>{character.data.race}</dd>
+              </div>
+              <div class="character-card__stat">
+                <dt>Class</dt>
+                <dd>{character.data.class_name}</dd>
+              </div>
+            </dl>
             <p class="character-card__player">
               <span style="font-family: var(--font-sc); font-size: 0.85rem; letter-spacing: 0.14em; opacity: 0.6;">played by</span>
               {' '}{character.data.player}

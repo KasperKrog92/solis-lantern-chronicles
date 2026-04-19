@@ -56,6 +56,8 @@ html {
 
 body {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
   background-color: var(--bg);
   /* Lantern-light effect: warm amber pool from above-center, darker at corners */
   background-image:
@@ -156,6 +158,7 @@ button {
    ============================================================ */
 
 main {
+  flex: 1;
   padding-top: 3rem;
 }
 
@@ -164,7 +167,6 @@ main {
    ============================================================ */
 
 .site-footer {
-  margin-top: 6rem;
   border-top: 1px solid rgba(200, 168, 75, 0.12);
 }
 
@@ -326,13 +328,12 @@ main {
    ============================================================ */
 
 .home-hero {
-  min-height: calc(100vh - 3rem);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   text-align: center;
-  padding: 4rem 2rem 6rem;
+  padding: 4rem 2rem 2rem;
 }
 
 .home-hero__eyebrow {
@@ -394,7 +395,7 @@ main {
 .chronicle-page {
   max-width: 720px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 4rem 2rem 2rem;
 }
 
 .page-heading {
@@ -530,7 +531,7 @@ main {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 2rem 1rem 4rem;
+  padding: 2rem 1rem 2rem;
 }
 
 /* Controls bar */
@@ -612,6 +613,21 @@ main {
 .page-surface--title .chapter-page-header__title {
   font-size: clamp(2rem, 6vw, 3.2rem);
   margin-bottom: 0.6rem;
+}
+
+/* Drop cap / illuminated initial — first content page (index 1)
+   Injected as .drop-cap by injectDropCap() before word-reveal runs,
+   so the letter is always visible (not part of the gradual reveal). */
+
+.drop-cap {
+  float: left;
+  font-family: var(--font-display);
+  font-size: 3.5em;
+  line-height: 0.88;
+  margin-right: 0.08em;
+  margin-top: 0.12em;
+  color: #7a2b1a;
+  text-shadow: 1px 2px 0 rgba(0,0,0,0.22);
 }
 
 /* Chapter title block at top of page (pages 2+) */
@@ -1012,7 +1028,7 @@ main {
 .characters-page {
   max-width: 960px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 4rem 2rem 2rem;
 }
 
 .character-roster {
@@ -1070,12 +1086,34 @@ main {
   margin-bottom: 0.25rem;
 }
 
-.character-card__meta {
+.character-card__stats {
+  margin: 0.5rem 0 0.4rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid rgba(200, 168, 75, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.character-card__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 0.05em;
+}
+
+.character-card__stat dt {
   font-family: var(--font-sc);
-  font-size: 1.0rem;
-  letter-spacing: 0.14em;
-  color: rgba(200, 168, 75, 0.45);
-  margin-bottom: 0.3rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.22em;
+  color: rgba(200, 168, 75, 0.28);
+}
+
+.character-card__stat dd {
+  font-family: var(--font-sc);
+  font-size: 0.9rem;
+  letter-spacing: 0.12em;
+  color: rgba(200, 168, 75, 0.55);
+  margin: 0;
 }
 
 .character-card__player {
@@ -1088,7 +1126,7 @@ main {
 .character-detail {
   max-width: 720px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 4rem 2rem 2rem;
 }
 
 .character-detail__name {
@@ -1192,7 +1230,7 @@ main {
 .world-page {
   max-width: 760px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 4rem 2rem 2rem;
 }
 
 .world-intro {
@@ -1266,7 +1304,7 @@ main {
 .lore-page {
   max-width: 720px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 4rem 2rem 2rem;
 }
 
 .lore-page__category {
@@ -1322,25 +1360,20 @@ main {
 .npcs-page {
   max-width: 720px;
   margin: 0 auto;
-  padding: 4rem 2rem;
+  padding: 4rem 2rem 2rem;
 }
 
 .npc-list {
   list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 0;
+  gap: 1.25rem;
 }
 
 .npc-card {
   border: 1px solid rgba(200, 168, 75, 0.13);
-  border-top: none;
   padding: 1.4rem 1.8rem;
   transition: background 0.2s;
-}
-
-.npc-card:first-child {
-  border-top: 1px solid rgba(200, 168, 75, 0.13);
 }
 
 .npc-card:hover {
