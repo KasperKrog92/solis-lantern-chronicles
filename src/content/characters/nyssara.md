@@ -1,7 +1,7 @@
 ---
 name: "Nyssara Hylach"
 player: "Sine"
-race: "Half-Drow / Half-High Elf"
+race: "Drow"
 class_name: "Rogue, Mastermind"
 status: "active"
 summary: "Half-drow rogue, illegitimate daughter of a powerful government minister. Collects information the way others collect debts."
