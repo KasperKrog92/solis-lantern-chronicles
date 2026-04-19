@@ -160,6 +160,26 @@ if (charEntry) {
 </style>
 
 <script>
+  function clampTooltip(link: HTMLElement) {
+    const tooltip = link.querySelector<HTMLElement>('.lore-tooltip');
+    if (!tooltip) return;
+
+    // Reset any previous nudge so we measure from the natural position
+    tooltip.style.transform = '';
+
+    const rect = tooltip.getBoundingClientRect();
+    const pad  = 8;
+    const vw   = window.innerWidth;
+
+    if (rect.left < pad) {
+      const nudge = pad - rect.left;
+      tooltip.style.transform = `translateX(calc(-50% + ${nudge}px))`;
+    } else if (rect.right > vw - pad) {
+      const nudge = rect.right - (vw - pad);
+      tooltip.style.transform = `translateX(calc(-50% - ${nudge}px))`;
+    }
+  }
+
   function initLoreTooltips() {
     const links = document.querySelectorAll<HTMLElement>('.lore-link');
 
@@ -167,7 +187,7 @@ if (charEntry) {
       const tooltip = link.querySelector<HTMLElement>('.lore-tooltip');
       if (!tooltip) return;
 
-      // Smart positioning: flip below if not enough room above
+      // Smart positioning: flip below if not enough room above, then clamp horizontally
       link.addEventListener('mouseenter', () => {
         const rect = link.getBoundingClientRect();
         if (rect.top < 140) {
@@ -175,6 +195,7 @@ if (charEntry) {
         } else {
           link.classList.remove('tooltip-below');
         }
+        clampTooltip(link);
       });
 
       // Tap toggle for mobile
@@ -182,17 +203,30 @@ if (charEntry) {
         // Let the → link navigate normally
         if ((e.target as HTMLElement).closest('.lore-tooltip__link')) return;
         e.stopPropagation();
-        link.classList.toggle('tooltip-open');
-      });
-    });
+        const opening = !link.classList.contains('tooltip-open');
 
-    // Dismiss open tooltip when tapping elsewhere
-    document.addEventListener('click', () => {
-      document.querySelectorAll('.lore-link.tooltip-open').forEach(el => {
-        el.classList.remove('tooltip-open');
+        // Flip below if near top of screen
+        const linkRect = link.getBoundingClientRect();
+        if (linkRect.top < 140) {
+          link.classList.add('tooltip-below');
+        } else {
+          link.classList.remove('tooltip-below');
+        }
+
+        link.classList.toggle('tooltip-open');
+
+        // Clamp after the tooltip becomes visible
+        if (opening) clampTooltip(link);
       });
     });
   }
+
+  // Dismiss open tooltips when tapping elsewhere — registered once only
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.lore-link.tooltip-open').forEach(el => {
+      el.classList.remove('tooltip-open');
+    });
+  });
 
   // Run once on load; re-run if page-turner swaps pages
   document.addEventListener('DOMContentLoaded', initLoreTooltips);

@@ -87,7 +87,7 @@ export function initPageTurner() {
   const navType     = performance.getEntriesByType('navigation')[0]?.type;
   const isReturning = navType === 'back_forward';
 
-  showPage(initialPage, false, isReturning);
+  showPage(initialPage, isReturning);
   bindNavigation();
   initSettingsToggles();
 }
@@ -128,7 +128,7 @@ function buildPages(source) {
 // skipReveal: true when the reader is returning via browser history — text
 // is left fully visible, no word-by-word animation and no sound, as if they
 // never left the page.
-function renderPage(index, skipReveal = false) {
+function renderPage(index, skipReveal = false, skipParchment = false) {
   cancelReveal();
 
   currentPage = index;
@@ -155,7 +155,7 @@ function renderPage(index, skipReveal = false) {
   // Inject drop cap on first content page before word-wrapping runs
   if (index === 1) injectDropCap(pageEl);
 
-  randomiseParchment();
+  if (!skipParchment) randomiseParchment();
 
   // Title page (index 0) doesn't count — content pages run 1…N-1
   const totalContent = pages.length - 1;
@@ -170,25 +170,13 @@ function renderPage(index, skipReveal = false) {
   if (!skipReveal && isGradualEnabled()) {
     revealText(pageEl);
   }
+
+  document.dispatchEvent(new CustomEvent('page-turner:page-changed'));
 }
 
-// Fade the page surface out, swap content, fade back in.
-// On the very first call (animate = false) we skip the fade so the
-// initial load is instant.
-function showPage(index, animate = false, skipReveal = false) {
-  const surface = document.querySelector('.page-surface');
-
-  if (!animate || !surface) {
-    renderPage(index, skipReveal);
-    return;
-  }
-
-  surface.classList.add('page-fading');
-
-  setTimeout(() => {
-    renderPage(index, skipReveal);
-    surface.classList.remove('page-fading');
-  }, 220); // matches the CSS transition duration
+// Used only for initial load and browser back/forward (no animation).
+function showPage(index, skipReveal = false) {
+  renderPage(index, skipReveal);
 }
 
 // ── Next button state ──────────────────────────────────────────────────────
@@ -529,10 +517,16 @@ function scrollToSurface() {
 function navigate(direction) {
   const next = currentPage + direction;
   if (next < 0 || next >= pages.length) return;
-  showPage(next, true);
+  // animateTurn is wired up inside bindNavigation once the DOM is ready
+  if (typeof _animateTurn === 'function') {
+    _animateTurn(next);
+  } else {
+    renderPage(next, false);
+  }
   pushHash(next);
-  scrollToSurface();
 }
+
+let _animateTurn = null;
 
 function bindNavigation() {
   // Keyboard
@@ -551,7 +545,7 @@ function bindNavigation() {
   const surface = document.querySelector('.page-surface');
   if (surface) {
     surface.addEventListener('click', e => {
-      if ((e.target instanceof Element) && e.target.closest('a, button, .dice-reveal')) return;
+      if ((e.target instanceof Element) && e.target.closest('a, button, .dice-reveal, .lore-link')) return;
 
       const rect  = surface.getBoundingClientRect();
       const ratio = (e.clientX - rect.left) / rect.width;
@@ -577,29 +571,201 @@ function bindNavigation() {
     });
   }
 
-  // Touch swipe
-  let touchStartX = 0;
-  let touchStartY = 0;
+  // Touch carousel: track slides inside a clipped stage
+  const track = document.getElementById('pt-track');
+  const stage = document.getElementById('pt-stage');
+  let touchStartX   = 0;
+  let touchStartY   = 0;
+  let touchDragging = false;
+  let touchDir      = 0;   // +1 forward, -1 back
+  let ghostEl       = null;
 
-  document.addEventListener('touchstart', e => {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-  }, { passive: true });
+  function buildGhostPage(index) {
+    const g = document.createElement('div');
+    g.className = 'page-surface';
+    g.setAttribute('aria-hidden', 'true');
 
-  document.addEventListener('touchend', e => {
-    const dx = e.changedTouches[0].clientX - touchStartX;
-    const dy = e.changedTouches[0].clientY - touchStartY;
-
-    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) {
-      navigate(dx < 0 ? 1 : -1);
+    if (index !== 0) {
+      const realRH = document.getElementById('pt-running-header');
+      if (realRH) {
+        const rh = realRH.cloneNode(true);
+        rh.removeAttribute('id');
+        rh.hidden = false;
+        const counter = rh.querySelector('#pt-counter-header');
+        if (counter) {
+          counter.removeAttribute('id');
+          counter.textContent = `${index} / ${pages.length - 1}`;
+        }
+        g.appendChild(rh);
+      }
     }
-  }, { passive: true });
+
+    return g;
+  }
+
+  function cleanupGhost(snap) {
+    if (!track || !stage) return;
+    if (snap) {
+      track.style.transition = 'transform 0.22s ease';
+      track.style.transform  = '';
+      setTimeout(() => {
+        track.style.transition = '';
+        stage.classList.remove('pt-stage--dragging');
+        ghostEl?.remove();
+        ghostEl = null;
+      }, 230);
+    } else {
+      track.style.transition = '';
+      track.style.transform  = '';
+      stage.classList.remove('pt-stage--dragging');
+      ghostEl?.remove();
+      ghostEl = null;
+    }
+  }
+
+  if (surface && track && stage) {
+    surface.addEventListener('touchstart', e => {
+      if (e.target.closest('a, button, .dice-reveal, .lore-link')) return;
+      touchStartX   = e.touches[0].clientX;
+      touchStartY   = e.touches[0].clientY;
+      touchDragging = false;
+      touchDir      = 0;
+    }, { passive: true });
+
+    surface.addEventListener('touchmove', e => {
+      const dx = e.touches[0].clientX - touchStartX;
+      const dy = e.touches[0].clientY - touchStartY;
+
+      if (!touchDragging) {
+        if (Math.abs(dx) < 6) return;
+        if (Math.abs(dy) > Math.abs(dx)) return;
+
+        const dir         = dx < 0 ? 1 : -1;
+        const adjacentIdx = currentPage + dir;
+        if (adjacentIdx < 0 || adjacentIdx >= pages.length) return;
+
+        touchDragging = true;
+        touchDir      = dir;
+
+        // Ghost sits one full track-width to the side inside the track;
+        // the stage clips so it's hidden until the track slides it into view
+        ghostEl = buildGhostPage(adjacentIdx);
+        ghostEl.style.cssText = `
+          position: absolute;
+          top: 0;
+          left: ${dir > 0 ? '100%' : '-100%'};
+          width: 100%;
+          height: ${surface.offsetHeight}px;
+        `;
+        randomiseParchment(ghostEl);
+        stage.classList.add('pt-stage--dragging');
+        track.style.transition = 'none';
+        track.appendChild(ghostEl);
+      }
+
+      e.preventDefault();
+      track.style.transition = 'none';
+      track.style.transform  = `translateX(${dx}px)`;
+    }, { passive: false });
+
+    function onTouchEnd(e) {
+      if (!touchDragging) return;
+      touchDragging = false;
+
+      const dx      = e.changedTouches[0].clientX - touchStartX;
+      const dy      = e.changedTouches[0].clientY - touchStartY;
+      const trackW  = track.getBoundingClientRect().width;
+      const commit  = Math.abs(dx) > trackW * 0.35 && Math.abs(dx) > Math.abs(dy) * 1.5;
+
+      if (commit) {
+        track.style.transition = 'transform 0.22s ease';
+        track.style.transform  = `translateX(${touchDir > 0 ? -trackW : trackW}px)`;
+
+        setTimeout(() => {
+          // Hide surface, reset track instantly, swap content — no flash
+          surface.style.transition = 'none';
+          surface.style.visibility = 'hidden';
+          track.style.transition   = 'none';
+          track.style.transform    = '';
+          stage.classList.remove('pt-stage--dragging');
+          ghostEl?.remove();
+          ghostEl = null;
+
+          const nextIdx = currentPage + touchDir;
+          renderPage(nextIdx, false);
+          pushHash(nextIdx);
+
+          requestAnimationFrame(() => {
+            surface.style.visibility = '';
+            surface.style.transition = '';
+            scrollToSurface();
+          });
+        }, 230);
+      } else {
+        cleanupGhost(true);
+      }
+    }
+
+    surface.addEventListener('touchend',    onTouchEnd);
+    surface.addEventListener('touchcancel', () => cleanupGhost(true));
+  }
+
+  // Shared carousel animation used by buttons, keyboard, and click-zones
+  let turning = false;
+  _animateTurn = function animateTurn(nextIndex) {
+    if (turning) return;
+    if (!track || !stage || !surface) {
+      renderPage(nextIndex, false);
+      scrollToSurface();
+      return;
+    }
+
+    turning = true;
+    const dir    = nextIndex > currentPage ? 1 : -1;
+    const ghost  = buildGhostPage(nextIndex);
+    const trackW = track.getBoundingClientRect().width;
+
+    ghost.style.cssText = `
+      position: absolute;
+      top: 0;
+      left: ${dir > 0 ? '100%' : '-100%'};
+      width: 100%;
+      height: ${surface.offsetHeight}px;
+    `;
+    randomiseParchment(ghost);
+    stage.classList.add('pt-stage--dragging');
+    track.style.transition = 'none';
+    track.appendChild(ghost);
+
+    requestAnimationFrame(() => {
+      track.style.transition = 'transform 0.28s ease';
+      track.style.transform  = `translateX(${dir > 0 ? -trackW : trackW}px)`;
+
+      setTimeout(() => {
+        surface.style.transition = 'none';
+        surface.style.visibility = 'hidden';
+        track.style.transition   = 'none';
+        track.style.transform    = '';
+        stage.classList.remove('pt-stage--dragging');
+        ghost.remove();
+
+        renderPage(nextIndex, false);
+
+        requestAnimationFrame(() => {
+          surface.style.visibility = '';
+          surface.style.transition = '';
+          scrollToSurface();
+          turning = false;
+        });
+      }, 290);
+    });
+  };
 
   // Browser back / forward — read the hash the browser restored and jump
   // directly to that page without pushing another history entry.
   window.addEventListener('popstate', () => {
     const page = parseHashPage();
-    showPage(page, true, true);
+    showPage(page, true);
     scrollToSurface();
   });
 }

@@ -19,8 +19,7 @@ function rgba(r, g, b, a) {
   return `rgba(${r}, ${g}, ${b}, ${a.toFixed(2)})`;
 }
 
-export function randomiseParchment() {
-  const surface = document.querySelector('.page-surface');
+export function randomiseParchment(surface = document.querySelector('.page-surface')) {
   if (!surface) return;
 
   // ── Corner foxing ────────────────────────────────────────────────────────

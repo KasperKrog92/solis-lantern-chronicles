@@ -50,8 +50,13 @@ function isActive(href: string) {
       <nav class="site-nav" aria-label="Site navigation">
         <a href={resolveHref('/')} class="nav-home">
           <Image src={lanternLogo} alt="" class="nav-logo" aria-hidden="true" width={32} height={32} />
-          Solis Lantern Chronicles
+          <span class="nav-home__text">Solis Lantern Chronicles</span>
         </a>
+        <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
         <ul class="nav-links">
           <li><a href={resolveHref('/chronicle')} aria-current={isActive('/chronicle') ? 'page' : undefined}>Chronicle</a></li>
           <li><a href={resolveHref('/characters')} aria-current={isActive('/characters') ? 'page' : undefined}>Characters</a></li>
@@ -60,6 +65,26 @@ function isActive(href: string) {
         </ul>
       </nav>
     </header>
+
+    <script>
+      const header = document.querySelector('.site-header') as HTMLElement;
+      const toggle = document.querySelector('.nav-toggle') as HTMLButtonElement;
+      const links = document.querySelectorAll('.nav-links a');
+
+      toggle?.addEventListener('click', () => {
+        const isOpen = header.classList.toggle('nav-open');
+        toggle.setAttribute('aria-expanded', String(isOpen));
+        toggle.setAttribute('aria-label', isOpen ? 'Close navigation' : 'Open navigation');
+      });
+
+      links.forEach(link => {
+        link.addEventListener('click', () => {
+          header.classList.remove('nav-open');
+          toggle?.setAttribute('aria-expanded', 'false');
+          toggle?.setAttribute('aria-label', 'Open navigation');
+        });
+      });
+    </script>
 
     <main>
       <slot />

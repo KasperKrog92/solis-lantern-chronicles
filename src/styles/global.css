@@ -153,6 +153,35 @@ button {
   color: var(--gold);
 }
 
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.4rem;
+}
+
+.nav-toggle span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background-color: rgba(200, 168, 75, 0.7);
+  transition: transform 0.25s, opacity 0.25s;
+}
+
+.site-header.nav-open .nav-toggle span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.site-header.nav-open .nav-toggle span:nth-child(2) {
+  opacity: 0;
+}
+.site-header.nav-open .nav-toggle span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
 /* ============================================================
    MAIN â€” pushed below fixed header
    ============================================================ */
@@ -223,7 +252,6 @@ main {
     /* A modest drop shadow — visible at the right and bottom */
     4px 6px 18px rgba(0, 0, 0, 0.55),
     8px 12px 40px rgba(0, 0, 0, 0.35);
-  transition: opacity 0.22s ease;
 }
 
 /* Curved shadow underneath — the paper bowing slightly off the surface */
@@ -240,8 +268,38 @@ main {
   z-index: -1;
 }
 
-.page-surface.page-fading {
-  opacity: 0.6;
+
+/* Stage clips the viewport window; track slides inside it */
+.pt-stage {
+  position: relative;
+}
+.pt-stage--dragging {
+  overflow: hidden;
+}
+
+/* Track holds current page + ghost side by side and translates as one unit */
+.pt-track {
+  position: relative;
+}
+
+/* Ghost page content rendered into the adjacent slot during drag */
+.pt-page-ghost {
+  font-family: var(--font-body);
+  font-weight: 300;
+  font-size: var(--size-body);
+  line-height: var(--lh-body);
+  color: var(--ink);
+  text-align: justify;
+  hyphens: auto;
+}
+.pt-page-ghost p {
+  margin-bottom: 1.3em;
+}
+.pt-page-ghost p:last-child {
+  margin-bottom: 0;
+}
+.pt-page-ghost em {
+  font-style: italic;
 }
 
 /* ============================================================
@@ -1469,15 +1527,45 @@ main {
 @media (max-width: 640px) {
   .site-nav {
     padding: 0.55rem 1rem;
+    flex-wrap: nowrap;
+  }
+
+  .nav-toggle {
+    display: flex;
   }
 
   .nav-links {
-    gap: 1.25rem;
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    gap: 0;
+    background-color: rgba(20, 11, 4, 0.97);
+    border-bottom: 1px solid rgba(200, 168, 75, 0.18);
+    padding: 0.5rem 0;
+    list-style: none;
+  }
+
+  .site-header.nav-open .nav-links {
+    display: flex;
+  }
+
+  .nav-links li {
+    width: 100%;
   }
 
   .nav-links a {
+    display: block;
+    padding: 0.85rem 1.5rem;
     font-size: 1.0rem;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.2em;
+    border-bottom: 1px solid rgba(200, 168, 75, 0.08);
+  }
+
+  .nav-links li:last-child a {
+    border-bottom: none;
   }
 
   .page-surface {
