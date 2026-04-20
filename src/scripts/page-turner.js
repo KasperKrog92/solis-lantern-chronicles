@@ -41,6 +41,206 @@ let pages        = [];   // Array of HTML strings, one per page
 let currentPage  = 0;
 let isRevealing  = false;
 let revealTimers = [];   // Active setTimeout handles so we can cancel on nav
+let heightTimer  = null;
+
+const HEIGHT_ANIMATION_MS = 320;
+const TOUCH_TURN_MS = 300;
+const BUTTON_TURN_MS = 360;
+
+function getSurfaceHeight(surface = document.querySelector('.page-surface')) {
+  if (!surface) return 0;
+  return Math.ceil(surface.getBoundingClientRect().height);
+}
+
+function getParchmentEl(surface = document.querySelector('.page-surface')) {
+  return surface?.querySelector('.page-surface__parchment') ?? null;
+}
+
+function syncParchmentHeight(surface = document.querySelector('.page-surface'), height = getSurfaceHeight(surface)) {
+  const parchment = getParchmentEl(surface);
+  if (!parchment || !height) return;
+  parchment.style.height = `${Math.ceil(height)}px`;
+}
+
+function copyParchmentBackground(fromSurface, toSurface = document.querySelector('.page-surface')) {
+  const fromParchment = getParchmentEl(fromSurface);
+  const toParchment = getParchmentEl(toSurface);
+  if (!fromParchment || !toParchment) return;
+  toParchment.style.backgroundImage = fromParchment.style.backgroundImage;
+}
+
+function prepareParchment(surface = document.querySelector('.page-surface'), randomise = true) {
+  if (!surface) return 0;
+  const naturalHeight = getMeasuredSurfaceHeight(surface);
+  const parchment = getParchmentEl(surface);
+  if (!parchment || !naturalHeight) return naturalHeight;
+
+  syncParchmentHeight(surface, naturalHeight);
+  if (randomise) randomiseParchment(parchment);
+
+  return naturalHeight;
+}
+
+function getMeasuredSurfaceHeight(surface = document.querySelector('.page-surface')) {
+  if (!surface) return 0;
+
+  const prevTransition = surface.style.transition;
+  const prevHeight = surface.style.height;
+  const prevMinHeight = surface.style.minHeight;
+  const prevOverflow = surface.style.overflow;
+
+  surface.style.transition = 'none';
+  surface.style.height = '';
+  surface.style.minHeight = '';
+  surface.style.overflow = '';
+
+  const height = getSurfaceHeight(surface);
+
+  surface.style.transition = prevTransition;
+  surface.style.height = prevHeight;
+  surface.style.minHeight = prevMinHeight;
+  surface.style.overflow = prevOverflow;
+
+  return height;
+}
+
+function lockStageHeight(height) {
+  const stage = document.getElementById('pt-stage');
+  const surface = document.querySelector('.page-surface');
+  if (!stage || !surface || !height) return;
+
+  if (heightTimer) {
+    clearTimeout(heightTimer);
+    heightTimer = null;
+  }
+
+  stage.style.transition = 'none';
+  stage.style.height = `${height}px`;
+  stage.style.overflow = 'hidden';
+  surface.style.transition = 'none';
+  surface.style.height = `${height}px`;
+  surface.style.minHeight = `${height}px`;
+  surface.style.overflow = 'visible';
+  syncParchmentHeight(surface, height);
+}
+
+function animateStageHeight(fromHeight, toHeight) {
+  const stage = document.getElementById('pt-stage');
+  const surface = document.querySelector('.page-surface');
+  if (!stage || !surface || !fromHeight || !toHeight) return;
+
+  if (fromHeight === toHeight) {
+    stage.style.transition = '';
+    stage.style.height = '';
+    if (!stage.classList.contains('pt-stage--dragging')) {
+      stage.style.overflow = '';
+    }
+    surface.style.transition = '';
+    surface.style.height = '';
+    surface.style.minHeight = '';
+    surface.style.overflow = '';
+    return;
+  }
+
+  const isGrowing = toHeight > fromHeight;
+  const parchmentHeight = Math.max(fromHeight, toHeight);
+  surface.style.transition = 'none';
+  surface.style.height = `${isGrowing ? toHeight : fromHeight}px`;
+  surface.style.minHeight = `${isGrowing ? toHeight : fromHeight}px`;
+  surface.style.overflow = 'visible';
+  syncParchmentHeight(surface, parchmentHeight);
+
+  requestAnimationFrame(() => {
+    void stage.offsetHeight;
+    void surface.offsetHeight;
+
+    requestAnimationFrame(() => {
+      stage.style.transition = `height ${HEIGHT_ANIMATION_MS}ms ease`;
+      stage.style.height = `${toHeight}px`;
+    });
+  });
+
+  heightTimer = setTimeout(() => {
+    stage.style.transition = '';
+    stage.style.height = '';
+    if (!stage.classList.contains('pt-stage--dragging')) {
+      stage.style.overflow = '';
+    }
+    surface.style.transition = '';
+    surface.style.height = '';
+    surface.style.minHeight = '';
+    surface.style.overflow = 'visible';
+    heightTimer = null;
+  }, HEIGHT_ANIMATION_MS + 40);
+}
+
+function getPageLabel(index) {
+  const totalContent = pages.length - 1;
+  return index === 0 ? '' : `${index} / ${totalContent}`;
+}
+
+function applySurfaceClasses(surface, index) {
+  surface?.classList.toggle('page-surface--title', index === 0);
+  surface?.classList.toggle('page-surface--chapter-start', index === 1);
+}
+
+function cloneHeaderForPage(index) {
+  if (index === 0) {
+    const title = document.getElementById('pt-title');
+    if (!title) return null;
+    const clone = title.cloneNode(true);
+    clone.removeAttribute('id');
+    clone.hidden = false;
+    return clone;
+  }
+
+  const runningHeader = document.getElementById('pt-running-header');
+  if (!runningHeader) return null;
+
+  const clone = runningHeader.cloneNode(true);
+  clone.removeAttribute('id');
+  clone.hidden = false;
+
+  const counter = clone.querySelector('#pt-counter-header');
+  if (counter) {
+    counter.removeAttribute('id');
+    counter.textContent = getPageLabel(index);
+  }
+
+  return clone;
+}
+
+function buildPageContent(index, masked = false) {
+  const content = document.createElement('div');
+  content.className = 'pt-page-content';
+  if (masked) content.classList.add('pt-page-content--masked');
+  content.innerHTML = pages[index];
+
+  if (index === 1) injectDropCap(content);
+
+  return content;
+}
+
+function buildPreviewSurface(index) {
+  const surface = document.createElement('div');
+  surface.className = 'page-surface';
+  surface.setAttribute('aria-hidden', 'true');
+  applySurfaceClasses(surface, index);
+
+  const canvas = document.createElement('div');
+  canvas.className = 'page-surface__canvas';
+  const parchment = document.createElement('div');
+  parchment.className = 'page-surface__parchment';
+  canvas.appendChild(parchment);
+  surface.appendChild(canvas);
+
+  const header = cloneHeaderForPage(index);
+  if (header) surface.appendChild(header);
+
+  surface.appendChild(buildPageContent(index, true));
+
+  return surface;
+}
 
 // ── URL hash sync ──────────────────────────────────────────────────────────
 
@@ -130,7 +330,6 @@ function buildPages(source) {
 // never left the page.
 function renderPage(index, skipReveal = false, skipParchment = false) {
   cancelReveal();
-
   currentPage = index;
 
   const pageEl        = document.getElementById('pt-page');
@@ -145,21 +344,18 @@ function renderPage(index, skipReveal = false, skipParchment = false) {
   if (titleEl)       titleEl.hidden      = index !== 0;
   if (runningHeader) runningHeader.hidden = index === 0;
 
-  // Toggle title-page class so CSS can style page 0 differently
   const surface = document.querySelector('.page-surface');
-  surface?.classList.toggle('page-surface--title', index === 0);
-  surface?.classList.toggle('page-surface--chapter-start', index === 1);
+  applySurfaceClasses(surface, index);
 
   pageEl.innerHTML = pages[index];
+  pageEl.classList.remove('pt-page-content--masked');
 
   // Inject drop cap on first content page before word-wrapping runs
   if (index === 1) injectDropCap(pageEl);
 
-  if (!skipParchment) randomiseParchment();
+  const nextHeight = prepareParchment(surface, !skipParchment);
 
-  // Title page (index 0) doesn't count — content pages run 1…N-1
-  const totalContent = pages.length - 1;
-  const pageLabel    = index === 0 ? '' : `${index} / ${totalContent}`;
+  const pageLabel    = getPageLabel(index);
   if (counter)       counter.textContent       = pageLabel;
   if (counterHeader) counterHeader.textContent = pageLabel;
   if (prevBtn)       prevBtn.disabled          = index === 0;
@@ -170,6 +366,9 @@ function renderPage(index, skipReveal = false, skipParchment = false) {
   if (!skipReveal && isGradualEnabled()) {
     revealText(pageEl);
   }
+
+  const fromHeight = parseFloat(surface.style.height) || getSurfaceHeight(surface);
+  animateStageHeight(fromHeight, nextHeight);
 
   document.dispatchEvent(new CustomEvent('page-turner:page-changed'));
 }
@@ -510,8 +709,8 @@ function wrapWordsInSpans(container, skipPostRoll = true) {
 
 // ── Navigation ─────────────────────────────────────────────────────────────
 
-function scrollToSurface() {
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+function scrollToSurface(behavior = 'smooth') {
+  window.scrollTo({ top: 0, behavior });
 }
 
 function navigate(direction) {
@@ -521,7 +720,9 @@ function navigate(direction) {
   if (typeof _animateTurn === 'function') {
     _animateTurn(next);
   } else {
+    lockStageHeight(getSurfaceHeight());
     renderPage(next, false);
+    scrollToSurface('auto');
   }
   pushHash(next);
 }
@@ -580,40 +781,17 @@ function bindNavigation() {
   let touchDir      = 0;   // +1 forward, -1 back
   let ghostEl       = null;
 
-  function buildGhostPage(index) {
-    const g = document.createElement('div');
-    g.className = 'page-surface';
-    g.setAttribute('aria-hidden', 'true');
-
-    if (index !== 0) {
-      const realRH = document.getElementById('pt-running-header');
-      if (realRH) {
-        const rh = realRH.cloneNode(true);
-        rh.removeAttribute('id');
-        rh.hidden = false;
-        const counter = rh.querySelector('#pt-counter-header');
-        if (counter) {
-          counter.removeAttribute('id');
-          counter.textContent = `${index} / ${pages.length - 1}`;
-        }
-        g.appendChild(rh);
-      }
-    }
-
-    return g;
-  }
-
   function cleanupGhost(snap) {
     if (!track || !stage) return;
     if (snap) {
-      track.style.transition = 'transform 0.22s ease';
+      track.style.transition = `transform ${TOUCH_TURN_MS}ms ease`;
       track.style.transform  = '';
       setTimeout(() => {
         track.style.transition = '';
         stage.classList.remove('pt-stage--dragging');
         ghostEl?.remove();
         ghostEl = null;
-      }, 230);
+      }, TOUCH_TURN_MS + 10);
     } else {
       track.style.transition = '';
       track.style.transform  = '';
@@ -649,18 +827,16 @@ function bindNavigation() {
 
         // Ghost sits one full track-width to the side inside the track;
         // the stage clips so it's hidden until the track slides it into view
-        ghostEl = buildGhostPage(adjacentIdx);
-        ghostEl.style.cssText = `
-          position: absolute;
-          top: 0;
-          left: ${dir > 0 ? '100%' : '-100%'};
-          width: 100%;
-          height: ${surface.offsetHeight}px;
-        `;
-        randomiseParchment(ghostEl);
+        ghostEl = buildPreviewSurface(adjacentIdx);
+        ghostEl.style.position = 'absolute';
+        ghostEl.style.top = '0';
+        ghostEl.style.left = dir > 0 ? '100%' : '-100%';
+        ghostEl.style.width = '100%';
+        ghostEl.style.height = `${surface.offsetHeight}px`;
         stage.classList.add('pt-stage--dragging');
         track.style.transition = 'none';
         track.appendChild(ghostEl);
+        prepareParchment(ghostEl, true);
       }
 
       e.preventDefault();
@@ -678,7 +854,7 @@ function bindNavigation() {
       const commit  = Math.abs(dx) > trackW * 0.35 && Math.abs(dx) > Math.abs(dy) * 1.5;
 
       if (commit) {
-        track.style.transition = 'transform 0.22s ease';
+        track.style.transition = `transform ${TOUCH_TURN_MS}ms ease`;
         track.style.transform  = `translateX(${touchDir > 0 ? -trackW : trackW}px)`;
 
         setTimeout(() => {
@@ -688,19 +864,22 @@ function bindNavigation() {
           track.style.transition   = 'none';
           track.style.transform    = '';
           stage.classList.remove('pt-stage--dragging');
+          const ghostSurface = ghostEl;
           ghostEl?.remove();
           ghostEl = null;
 
           const nextIdx = currentPage + touchDir;
-          renderPage(nextIdx, false);
+          scrollToSurface('auto');
+          lockStageHeight(getSurfaceHeight());
+          renderPage(nextIdx, false, true);
+          copyParchmentBackground(ghostSurface);
           pushHash(nextIdx);
 
           requestAnimationFrame(() => {
             surface.style.visibility = '';
             surface.style.transition = '';
-            scrollToSurface();
           });
-        }, 230);
+        }, TOUCH_TURN_MS + 10);
       } else {
         cleanupGhost(true);
       }
@@ -715,30 +894,29 @@ function bindNavigation() {
   _animateTurn = function animateTurn(nextIndex) {
     if (turning) return;
     if (!track || !stage || !surface) {
+      lockStageHeight(getSurfaceHeight());
       renderPage(nextIndex, false);
-      scrollToSurface();
+      scrollToSurface('auto');
       return;
     }
 
     turning = true;
     const dir    = nextIndex > currentPage ? 1 : -1;
-    const ghost  = buildGhostPage(nextIndex);
+    const ghost  = buildPreviewSurface(nextIndex);
     const trackW = track.getBoundingClientRect().width;
 
-    ghost.style.cssText = `
-      position: absolute;
-      top: 0;
-      left: ${dir > 0 ? '100%' : '-100%'};
-      width: 100%;
-      height: ${surface.offsetHeight}px;
-    `;
-    randomiseParchment(ghost);
+    ghost.style.position = 'absolute';
+    ghost.style.top = '0';
+    ghost.style.left = dir > 0 ? '100%' : '-100%';
+    ghost.style.width = '100%';
+    ghost.style.height = `${surface.offsetHeight}px`;
     stage.classList.add('pt-stage--dragging');
     track.style.transition = 'none';
     track.appendChild(ghost);
+    prepareParchment(ghost, true);
 
     requestAnimationFrame(() => {
-      track.style.transition = 'transform 0.28s ease';
+      track.style.transition = `transform ${BUTTON_TURN_MS}ms ease`;
       track.style.transform  = `translateX(${dir > 0 ? -trackW : trackW}px)`;
 
       setTimeout(() => {
@@ -749,15 +927,18 @@ function bindNavigation() {
         stage.classList.remove('pt-stage--dragging');
         ghost.remove();
 
-        renderPage(nextIndex, false);
+        const ghostSurface = ghost;
+        scrollToSurface('auto');
+        lockStageHeight(getSurfaceHeight());
+        renderPage(nextIndex, false, true);
+        copyParchmentBackground(ghostSurface);
 
         requestAnimationFrame(() => {
           surface.style.visibility = '';
           surface.style.transition = '';
-          scrollToSurface();
           turning = false;
         });
-      }, 290);
+      }, BUTTON_TURN_MS + 10);
     });
   };
 
@@ -765,7 +946,8 @@ function bindNavigation() {
   // directly to that page without pushing another history entry.
   window.addEventListener('popstate', () => {
     const page = parseHashPage();
+    lockStageHeight(getSurfaceHeight());
     showPage(page, true);
-    scrollToSurface();
+    scrollToSurface('auto');
   });
 }

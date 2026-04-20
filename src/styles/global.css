@@ -52,6 +52,7 @@
 html {
   background-color: var(--bg);
   -webkit-text-size-adjust: 100%;
+  scrollbar-gutter: stable;
 }
 
 body {
@@ -236,8 +237,8 @@ main {
   /* Amber-toned aged parchment base.
      The full background-image (grain, foxing, stains, centre glow) is built
      and randomised on each page turn by parchment.js. */
-  background-color: #d9b97a;
   color: var(--ink);
+  overflow: visible;
   /* Directional borders: lit top/left edge (light from above), dark
      right/bottom edge (self-shadow) — visible against any background. */
   border-top:    1px solid rgba(245, 215, 135, 0.55);
@@ -252,6 +253,25 @@ main {
     /* A modest drop shadow — visible at the right and bottom */
     4px 6px 18px rgba(0, 0, 0, 0.55),
     8px 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.page-surface__canvas {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.page-surface__parchment {
+  width: 100%;
+  min-height: 100%;
+  background-color: #d9b97a;
+}
+
+.page-surface > :not(.page-surface__canvas) {
+  position: relative;
+  z-index: 1;
 }
 
 /* Curved shadow underneath — the paper bowing slightly off the surface */
@@ -272,6 +292,7 @@ main {
 /* Stage clips the viewport window; track slides inside it */
 .pt-stage {
   position: relative;
+  will-change: height;
 }
 .pt-stage--dragging {
   overflow: hidden;
@@ -282,8 +303,8 @@ main {
   position: relative;
 }
 
-/* Ghost page content rendered into the adjacent slot during drag */
-.pt-page-ghost {
+/* Shared page body styling for active and sliding pages */
+.pt-page-content {
   font-family: var(--font-body);
   font-weight: 300;
   font-size: var(--size-body);
@@ -292,13 +313,13 @@ main {
   text-align: justify;
   hyphens: auto;
 }
-.pt-page-ghost p {
+.pt-page-content p {
   margin-bottom: 1.3em;
 }
-.pt-page-ghost p:last-child {
+.pt-page-content p:last-child {
   margin-bottom: 0;
 }
-.pt-page-ghost em {
+.pt-page-content em {
   font-style: italic;
 }
 
@@ -721,7 +742,7 @@ main {
 
 /* The prose page content */
 
-#pt-page {
+.pt-page-content {
   font-family: var(--font-body);
   font-weight: 300;
   font-size: var(--size-body);
@@ -731,20 +752,25 @@ main {
   hyphens: auto;
 }
 
-#pt-page p {
+.pt-page-content p {
   margin-bottom: 1.3em;
 }
 
-#pt-page p:last-child {
+.pt-page-content p:last-child {
   margin-bottom: 0;
 }
 
-#pt-page em {
+.pt-page-content em {
   font-style: italic;
 }
 
-#pt-page strong {
+.pt-page-content strong {
   font-weight: 400;
+}
+
+.pt-page-content--masked {
+  opacity: 0;
+  pointer-events: none;
 }
 
 /* Hidden source container â€” in DOM for JS, not visible */
@@ -841,7 +867,7 @@ main {
 
 /* Hide the underline until at least one word inside has been revealed,
    so the border doesn't appear before the text during gradual reveal. */
-#pt-page .lore-link:not(:has(.word.revealed)) {
+.pt-page-content .lore-link:not(:has(.word.revealed)) {
   border-bottom-color: transparent;
 }
 
@@ -1576,7 +1602,7 @@ main {
     font-size: 1.4rem;
   }
 
-  #pt-page {
+  .pt-page-content {
     font-size: 1rem;
   }
 

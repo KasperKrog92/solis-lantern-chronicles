@@ -26,6 +26,9 @@ const formattedDate = date.toLocaleDateString('en-GB', {
   <div class="pt-stage" id="pt-stage">
   <div class="pt-track" id="pt-track">
   <div class="page-surface">
+    <div class="page-surface__canvas" aria-hidden="true">
+      <div class="page-surface__parchment" id="pt-parchment"></div>
+    </div>
 
     <!--
       Source container: hidden, holds the full rendered markdown body.
@@ -50,7 +53,7 @@ const formattedDate = date.toLocaleDateString('en-GB', {
     </header>
 
     <!-- Active page — populated by page-turner.js -->
-    <div id="pt-page" aria-live="polite"></div>
+    <div id="pt-page" class="pt-page-content" aria-live="polite"></div>
 
   </div>
   </div><!-- /pt-track -->
