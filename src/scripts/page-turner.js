@@ -386,7 +386,8 @@ function updateNextBtn() {
 }
 
 let diceBoxCtorPromise = null;
-const DICE_BOX_ASSET_PATH = `${import.meta.env.BASE_URL}assets/dice-box/`;
+// Ensure trailing slash for asset path
+const DICE_BOX_ASSET_PATH = `${import.meta.env.BASE_URL.replace(/\/?$/, '/') }assets/dice-box/`;
 
 let overlayEl  = null;
 let overlayBox = null;
