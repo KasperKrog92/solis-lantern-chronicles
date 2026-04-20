@@ -1055,6 +1055,45 @@ main {
   text-shadow: 0 0 6px rgba(245, 208, 96, 0.55), 0 1px 2px rgba(0, 0, 0, 0.5);
 }
 
+/* If a custom SVG URL is provided via the `--dice-svg` variable on the
+   `.dice-reveal__die` element, show it behind the numeric value. The
+   built-in ::before and ::after pseudo-elements act as a decorative
+   fallback when no custom SVG is provided. */
+.dice-reveal__die {
+  /* Allow an inline `--dice-svg` variable to provide a custom die art.
+     When present the pseudo-elements are hidden so the custom SVG can
+     be shown unobstructed. */
+  background-image: var(--dice-svg, none);
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: contain;
+}
+
+.dice-reveal__die[data-has-svg="1"]::before,
+.dice-reveal__die[data-has-svg="1"]::after {
+  /* hide decorative outlines when a custom SVG is provided */
+  display: none;
+}
+
+.dice-reveal__die[data-has-svg="1"] .dice-reveal__die-value {
+  /* Show the numeric face over the SVG: match the site's display font,
+     ensure high contrast, and keep sizing responsive. */
+  visibility: visible;
+  position: relative;
+  z-index: 2;
+  color: var(--ink, #2b2117);
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.55rem;
+  text-shadow: 0 1px 0 rgba(255,255,255,0.05), 0 2px 6px rgba(0,0,0,0.45);
+}
+
+/* Slightly reduce the die size so the number and surrounding math align */
+.dice-reveal__die[data-has-svg="1"] {
+  width: 4.1rem;
+  aspect-ratio: 1 / 1.08;
+}
+
 .dice-reveal__equation.expanded .dice-reveal__die {
   width: 3.05rem;
 }

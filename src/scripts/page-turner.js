@@ -553,6 +553,26 @@ function initDiceReveals(pageEl) {
       if (dieValueEl) dieValueEl.textContent = String(rollResult);
       else dieEl.textContent = String(rollResult);
 
+      // Apply the project's d20 SVG as an inline CSS variable and mark the
+      // element so CSS can switch to the custom art. Hide the numeric face
+      // when the SVG is used so the art shows cleanly.
+      try {
+        let svgUrl;
+        const base = import.meta.env.BASE_URL || '/';
+        if (typeof location !== 'undefined' && location.origin) {
+          svgUrl = `${location.origin}${base.endsWith('/') ? base : base + '/'}assets/dice-box/d20.svg`;
+        } else {
+          svgUrl = `${DICE_BOX_ASSET_PATH}d20.svg`;
+        }
+
+        if (dieEl) {
+          dieEl.style.setProperty('--dice-svg', `url("${svgUrl}")`);
+          dieEl.setAttribute('data-has-svg', '1');
+        }
+      } catch (err) {
+        // noop - if asset path isn't available, leave numeric face visible
+      }
+
       applyDiceOutcomeClasses(reveal, rollResult, total, dc, dieLabelEl);
 
       setTimeout(() => {
@@ -650,6 +670,25 @@ function initDiceReveals(pageEl) {
           playDiceSettleSound();
           if (dieValueEl) dieValueEl.textContent = String(rollResult);
           else dieEl.textContent = String(rollResult);
+
+          // Use the project's d20 SVG as the die art and hide the numeric
+          // face so the SVG is prominent.
+          try {
+            let svgUrl;
+            const base = import.meta.env.BASE_URL || '/';
+            if (typeof location !== 'undefined' && location.origin) {
+              svgUrl = `${location.origin}${base.endsWith('/') ? base : base + '/'}assets/dice-box/d20.svg`;
+            } else {
+              svgUrl = `${DICE_BOX_ASSET_PATH}d20.svg`;
+            }
+
+            if (dieEl) {
+              dieEl.style.setProperty('--dice-svg', `url("${svgUrl}")`);
+              dieEl.setAttribute('data-has-svg', '1');
+            }
+          } catch (err) {
+            // noop
+          }
 
           // Apply outcome class (drives colour on die and, later, on total)
           if (rollResult === 20) {
