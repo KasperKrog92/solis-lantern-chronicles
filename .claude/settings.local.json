@@ -14,7 +14,13 @@
       "Bash(node -e \"const sharp = require\\('sharp'\\); console.log\\('sharp available'\\)\")",
       "Bash(node -e ' *)",
       "Bash(python3 -c \"from PIL import Image; img=Image.open\\('c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/lantern_logo.png'\\); print\\(img.size\\)\")",
-      "Bash(identify \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/lantern_logo.png\")"
+      "Bash(identify \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/lantern_logo.png\")",
+      "WebSearch",
+      "WebFetch(domain:commons.wikimedia.org)",
+      "WebFetch(domain:game-icons.net)",
+      "WebFetch(domain:www.svgrepo.com)",
+      "WebFetch(domain:upload.wikimedia.org)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }

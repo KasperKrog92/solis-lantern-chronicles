@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@3d-dice/dice-box-threejs": "^0.0.12",
     "@astrojs/mdx": "^5.0.3",
     "astro": "^6.1.6"
   }

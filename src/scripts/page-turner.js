@@ -21,7 +21,7 @@
  */
 
 import { isGradualEnabled, isSoundEnabled, initSettingsToggles } from './settings.js';
-import { playWritingSound, playDiceRollSound, playDiceSettleSound } from './writing-sound.js';
+import { playWritingSound } from './writing-sound.js';
 import { randomiseParchment } from './parchment.js';
 
 // ── Cursors ────────────────────────────────────────────────────────────────
@@ -385,6 +385,111 @@ function updateNextBtn() {
   if (nextBtn) nextBtn.disabled = currentPage === pages.length - 1;
 }
 
+let diceBoxCtorPromise = null;
+const DICE_BOX_ASSET_PATH = `${import.meta.env.BASE_URL}assets/dice-box/`;
+
+let overlayEl  = null;
+let overlayBox = null;
+const OVERLAY_SCENE_ID = 'dice-page-overlay-scene';
+
+const DICE_BOX_CONFIG = {
+  assetPath:             DICE_BOX_ASSET_PATH,
+  volume:                80,
+  strength:              0.9,
+  gravity_multiplier:    320,
+  light_intensity:       0.9,
+  color_spotlight:       0xc8a84b,
+  shadows:               true,
+  baseScale:             82,
+  theme_surface:         'cagetown',
+  theme_material:        'wood',
+  theme_customColorset: {
+    name:       'solis-lantern-dark',
+    foreground: '#fff8e0',
+    background: '#7a4f1a',
+    outline:    '#f5d060',
+    texture:    'wood',
+    material:   'wood',
+  },
+};
+
+function attachCenteredThrow(box) {
+  box.startClickThrow = function startCenteredThrow(notation) {
+    const origin = {
+      x: (Math.random() * 0.28 - 0.14) * this.display.currentWidth,
+      y: -(Math.random() * 0.18 - 0.09) * this.display.currentHeight,
+    };
+    const distance = Math.sqrt(origin.x * origin.x + origin.y * origin.y)
+      + Math.min(this.display.currentWidth, this.display.currentHeight) * 0.28
+      + 72;
+    const force = (Math.random() * 0.6 + 3.2) * distance * this.strength;
+    return this.getNotationVectors(notation, origin, force, distance);
+  };
+}
+
+async function ensureOverlayBox() {
+  if (!overlayEl) {
+    overlayEl = document.createElement('div');
+    overlayEl.className = 'dice-page-overlay';
+    const sceneEl = document.createElement('div');
+    sceneEl.id = OVERLAY_SCENE_ID;
+    sceneEl.className = 'dice-page-overlay__scene';
+    overlayEl.appendChild(sceneEl);
+    document.body.appendChild(overlayEl);
+  }
+
+  if (overlayBox) {
+    overlayBox.updateConfig({ sounds: isSoundEnabled() });
+    return overlayBox;
+  }
+
+  if (!diceBoxCtorPromise) {
+    diceBoxCtorPromise = import('@3d-dice/dice-box-threejs').then(mod => mod.default);
+  }
+
+  const [DiceBoxCtor, { ShadowMaterial }] = await Promise.all([
+    diceBoxCtorPromise,
+    import('three'),
+  ]);
+  const box = new DiceBoxCtor(`#${OVERLAY_SCENE_ID}`, { ...DICE_BOX_CONFIG, sounds: isSoundEnabled() });
+
+  await box.initialize();
+
+  if (box.desk) {
+    box.desk.material = new ShadowMaterial({ opacity: 0.28 });
+    box.desk.receiveShadow = true;
+  }
+
+  attachCenteredThrow(box);
+  overlayBox = box;
+  return box;
+}
+
+
+function applyDiceOutcomeClasses(reveal, rollResult, total, dc, dieLabelEl) {
+  reveal.classList.remove(
+    'dice-reveal--success',
+    'dice-reveal--failure',
+    'dice-reveal--crit-success',
+    'dice-reveal--crit-fail',
+  );
+
+  if (dieLabelEl) dieLabelEl.textContent = '';
+
+  if (rollResult === 20) {
+    reveal.classList.add('dice-reveal--crit-success');
+    if (dieLabelEl) dieLabelEl.textContent = 'Natural 20';
+  } else if (rollResult === 1) {
+    reveal.classList.add('dice-reveal--crit-fail');
+    if (dieLabelEl) dieLabelEl.textContent = 'Natural 1';
+  } else if (total >= dc) {
+    reveal.classList.add('dice-reveal--success');
+  } else {
+    reveal.classList.add('dice-reveal--failure');
+  }
+}
+
+
 // ── Dice reveal ────────────────────────────────────────────────────────────
 
 /**
@@ -395,12 +500,9 @@ function updateNextBtn() {
  *      .post-roll-content element — revealed after the roll resolves.
  *   2. Attach a click handler to the "Roll the dice" button.
  *   3. On click:
- *        - Hide the button immediately, show the tumbling die display.
- *        - Cycle through random numbers at ~12/sec for 700ms.
- *        - Snap to the fixed result from data-result.
- *        - Apply a typographic success/failure treatment to the number.
- *        - After 300ms, fade in the outcome text.
- *        - After a further 800ms, fade in any post-roll prose.
+ *        - Hide the button immediately and reveal the temporary 3D stage.
+ *        - Roll a predetermined 1d20 so the physical result matches history.
+ *        - Fade back into the inline equation and reveal the gated prose.
  */
 function initDiceReveals(pageEl) {
   const reveals = Array.from(pageEl.querySelectorAll('.dice-reveal'));
@@ -434,6 +536,7 @@ function initDiceReveals(pageEl) {
     const tumbleEl   = reveal.querySelector('.dice-reveal__tumble');
     const equationEl = reveal.querySelector('.dice-reveal__equation');
     const dieEl      = reveal.querySelector('.dice-reveal__die');
+    const dieValueEl = reveal.querySelector('.dice-reveal__die-value');
     const dieLabelEl = reveal.querySelector('.dice-reveal__die-label');
     const operatorEl = reveal.querySelector('.dice-reveal__operator');
     const totalEl    = reveal.querySelector('.dice-reveal__total');
@@ -441,10 +544,86 @@ function initDiceReveals(pageEl) {
 
     if (!btn || !tumbleEl || !dieEl || !resultEl) continue;
 
-    btn.addEventListener('click', () => {
-      // Immediately replace the button with the tumbling die
-      if (preRollEl) preRollEl.style.display = 'none';
+    function settleInline() {
+      if (!document.body.contains(reveal)) return;
+
+      reveal.classList.add('dice-reveal--settled');
       tumbleEl.classList.add('active');
+
+      if (dieValueEl) dieValueEl.textContent = String(rollResult);
+      else dieEl.textContent = String(rollResult);
+
+      applyDiceOutcomeClasses(reveal, rollResult, total, dc, dieLabelEl);
+
+      setTimeout(() => {
+        if (!document.body.contains(reveal)) return;
+
+        if (modifier !== 0 && equationEl && operatorEl && totalEl) {
+          const sign = modifier > 0 ? '+' : '−';
+          operatorEl.textContent = `${sign} ${Math.abs(modifier)} =`;
+          totalEl.textContent    = String(total);
+          equationEl.classList.add('expanded');
+        }
+
+        setTimeout(() => {
+          if (!document.body.contains(reveal)) return;
+
+          resultEl.classList.add('visible');
+
+          if (postWrap) {
+            setTimeout(() => {
+              if (!document.body.contains(reveal)) return;
+
+              if (isGradualEnabled()) wrapWordsInSpans(postWrap, false);
+              postWrap.classList.add('post-roll-visible');
+              if (isGradualEnabled()) {
+                setTimeout(() => revealPostRoll(postWrap), 200);
+              }
+            }, 800);
+          }
+        }, 400);
+      }, 350);
+    }
+
+    btn.addEventListener('click', async () => {
+      btn.disabled = true;
+      if (preRollEl) preRollEl.style.display = 'none';
+      resultEl.classList.remove('visible');
+
+      // Overlay sized to the reveal card + 100px padding, clamped to viewport
+      if (!overlayEl) {
+        overlayEl = document.createElement('div');
+        overlayEl.className = 'dice-page-overlay';
+        const overlaySceneEl = document.createElement('div');
+        overlaySceneEl.id = OVERLAY_SCENE_ID;
+        overlaySceneEl.className = 'dice-page-overlay__scene';
+        overlayEl.appendChild(overlaySceneEl);
+        document.body.appendChild(overlayEl);
+      }
+      const ROLL_PAD = 100;
+      const revealBounds = reveal.getBoundingClientRect();
+      const surfaceRect  = document.querySelector('.page-surface')?.getBoundingClientRect();
+      const top    = Math.max(0, revealBounds.top - ROLL_PAD);
+      const bottom = Math.min(window.innerHeight, revealBounds.bottom + ROLL_PAD);
+      overlayEl.style.top    = `${top}px`;
+      overlayEl.style.height = `${bottom - top}px`;
+      overlayEl.style.left   = `${surfaceRect ? surfaceRect.left : revealBounds.left}px`;
+      overlayEl.style.width  = `${surfaceRect ? surfaceRect.width : revealBounds.width}px`;
+      overlayEl.classList.add('active');
+
+      try {
+        const box = await ensureOverlayBox();
+        await box.roll(`1d20@${rollResult}`);
+
+        overlayEl.classList.remove('active');
+        settleInline();
+      } catch (error) {
+        console.error('3D dice roll failed, falling back to static reveal.', error);
+        if (overlayEl) overlayEl.classList.remove('active');
+        settleInline();
+      }
+
+      return;
 
       // Tumbling phase: decelerating recursive setTimeout.
       // Delay grows from 55ms → 380ms over 16 ticks (ease-out quadratic),
@@ -456,7 +635,9 @@ function initDiceReveals(pageEl) {
       let   tick       = 0;
 
       function runTumble() {
-        dieEl.textContent = String(Math.floor(Math.random() * 20) + 1);
+        const tumbleValue = String(Math.floor(Math.random() * 20) + 1);
+        if (dieValueEl) dieValueEl.textContent = tumbleValue;
+        else dieEl.textContent = tumbleValue;
         playDiceRollSound();
         tick++;
 
@@ -467,7 +648,8 @@ function initDiceReveals(pageEl) {
         } else {
           // ── Die settles ──────────────────────────────────────────────────
           playDiceSettleSound();
-          dieEl.textContent = String(rollResult);
+          if (dieValueEl) dieValueEl.textContent = String(rollResult);
+          else dieEl.textContent = String(rollResult);
 
           // Apply outcome class (drives colour on die and, later, on total)
           if (rollResult === 20) {

@@ -49,14 +49,18 @@ const modStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
     <button class="dice-reveal__roll-btn" type="button">Roll the dice</button>
   </div>
 
-  <!-- Tumbling state: shown the moment the button is clicked.
-       During tumble: only .dice-reveal__die is visible, large and centred.
-       After settling: JS adds .expanded to .dice-reveal__equation — the die
-       shrinks left and .dice-reveal__addition fades in showing the total. -->
+  <!-- 3D roll stage: shown the moment the button is clicked.
+       The temporary scene runs the immersive D20 throw, then fades back into
+       the inline equation once the predetermined result settles. -->
   <div class="dice-reveal__tumble" aria-hidden="true">
+    <div class="dice-reveal__scene-shell">
+      <div class="dice-reveal__scene" data-dice-box></div>
+    </div>
     <div class="dice-reveal__equation">
       <div class="dice-reveal__roll-part">
-        <div class="dice-reveal__die"></div>
+        <div class="dice-reveal__die">
+          <span class="dice-reveal__die-value"></span>
+        </div>
         <div class="dice-reveal__die-label"></div>
       </div>
       <div class="dice-reveal__addition">
