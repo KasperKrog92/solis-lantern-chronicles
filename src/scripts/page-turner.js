@@ -395,8 +395,8 @@ const OVERLAY_SCENE_ID = 'dice-page-overlay-scene';
 const DICE_BOX_CONFIG = {
   assetPath:             DICE_BOX_ASSET_PATH,
   volume:                80,
-  strength:              0.9,
-  gravity_multiplier:    320,
+  strength:              4.0,
+  gravity_multiplier:    350,
   light_intensity:       0.9,
   color_spotlight:       0xc8a84b,
   shadows:               true,
@@ -416,13 +416,13 @@ const DICE_BOX_CONFIG = {
 function attachCenteredThrow(box) {
   box.startClickThrow = function startCenteredThrow(notation) {
     const origin = {
-      x: (Math.random() * 0.28 - 0.14) * this.display.currentWidth,
-      y: -(Math.random() * 0.18 - 0.09) * this.display.currentHeight,
+      x: (Math.random() * 0.6 - 0.3) * this.display.currentWidth,
+      y: -(Math.random() * 0.4 - 0.2) * this.display.currentHeight,
     };
     const distance = Math.sqrt(origin.x * origin.x + origin.y * origin.y)
-      + Math.min(this.display.currentWidth, this.display.currentHeight) * 0.28
-      + 72;
-    const force = (Math.random() * 0.6 + 3.2) * distance * this.strength;
+      + Math.min(this.display.currentWidth, this.display.currentHeight) * 0.55
+      + 120;
+    const force = (Math.random() * 1.5 + 8.0) * distance * this.strength;
     return this.getNotationVectors(notation, origin, force, distance);
   };
 }
@@ -447,17 +447,16 @@ async function ensureOverlayBox() {
     diceBoxCtorPromise = import('@3d-dice/dice-box-threejs').then(mod => mod.default);
   }
 
-  const [DiceBoxCtor, { ShadowMaterial }] = await Promise.all([
-    diceBoxCtorPromise,
-    import('three'),
-  ]);
+  const DiceBoxCtor = await diceBoxCtorPromise;
   const box = new DiceBoxCtor(`#${OVERLAY_SCENE_ID}`, { ...DICE_BOX_CONFIG, sounds: isSoundEnabled() });
+
+  const _loadAudio = box.loadAudio.bind(box);
+  box.loadAudio = (url) => url.includes('dicehit_coin') ? Promise.resolve(null) : _loadAudio(url);
 
   await box.initialize();
 
-  if (box.desk) {
-    box.desk.material = new ShadowMaterial({ opacity: 0.28 });
-    box.desk.receiveShadow = true;
+  if (box.desk?.material) {
+    box.desk.material.opacity = 0.28;
   }
 
   attachCenteredThrow(box);
@@ -547,62 +546,41 @@ function initDiceReveals(pageEl) {
     function settleInline() {
       if (!document.body.contains(reveal)) return;
 
-      reveal.classList.add('dice-reveal--settled');
-      tumbleEl.classList.add('active');
-
+      // Populate the full equation before revealing it so it fades in complete
       if (dieValueEl) dieValueEl.textContent = String(rollResult);
       else dieEl.textContent = String(rollResult);
 
-      // Apply the project's d20 SVG as an inline CSS variable and mark the
-      // element so CSS can switch to the custom art. Hide the numeric face
-      // when the SVG is used so the art shows cleanly.
-      try {
-        let svgUrl;
-        const base = import.meta.env.BASE_URL || '/';
-        if (typeof location !== 'undefined' && location.origin) {
-          svgUrl = `${location.origin}${base.endsWith('/') ? base : base + '/'}assets/dice-box/d20.svg`;
-        } else {
-          svgUrl = `${DICE_BOX_ASSET_PATH}d20.svg`;
-        }
 
-        if (dieEl) {
-          dieEl.style.setProperty('--dice-svg', `url("${svgUrl}")`);
-          dieEl.setAttribute('data-has-svg', '1');
-        }
-      } catch (err) {
-        // noop - if asset path isn't available, leave numeric face visible
+      if (modifier !== 0 && equationEl && operatorEl && totalEl) {
+        const sign = modifier > 0 ? '+' : '−';
+        operatorEl.textContent = `${sign} ${Math.abs(modifier)} =`;
+        totalEl.textContent    = String(total);
+        equationEl.classList.add('expanded');
       }
 
       applyDiceOutcomeClasses(reveal, rollResult, total, dc, dieLabelEl);
 
+      // Now fade the whole equation in as one unit
+      reveal.classList.add('dice-reveal--settled');
+      tumbleEl.classList.add('active');
+
       setTimeout(() => {
         if (!document.body.contains(reveal)) return;
 
-        if (modifier !== 0 && equationEl && operatorEl && totalEl) {
-          const sign = modifier > 0 ? '+' : '−';
-          operatorEl.textContent = `${sign} ${Math.abs(modifier)} =`;
-          totalEl.textContent    = String(total);
-          equationEl.classList.add('expanded');
+        resultEl.classList.add('visible');
+
+        if (postWrap) {
+          setTimeout(() => {
+            if (!document.body.contains(reveal)) return;
+
+            if (isGradualEnabled()) wrapWordsInSpans(postWrap, false);
+            postWrap.classList.add('post-roll-visible');
+            if (isGradualEnabled()) {
+              setTimeout(() => revealPostRoll(postWrap), 200);
+            }
+          }, 800);
         }
-
-        setTimeout(() => {
-          if (!document.body.contains(reveal)) return;
-
-          resultEl.classList.add('visible');
-
-          if (postWrap) {
-            setTimeout(() => {
-              if (!document.body.contains(reveal)) return;
-
-              if (isGradualEnabled()) wrapWordsInSpans(postWrap, false);
-              postWrap.classList.add('post-roll-visible');
-              if (isGradualEnabled()) {
-                setTimeout(() => revealPostRoll(postWrap), 200);
-              }
-            }, 800);
-          }
-        }, 400);
-      }, 350);
+      }, 500);
     }
 
     btn.addEventListener('click', async () => {
@@ -620,21 +598,23 @@ function initDiceReveals(pageEl) {
         overlayEl.appendChild(overlaySceneEl);
         document.body.appendChild(overlayEl);
       }
-      const ROLL_PAD = 100;
-      const revealBounds = reveal.getBoundingClientRect();
-      const surfaceRect  = document.querySelector('.page-surface')?.getBoundingClientRect();
-      const top    = Math.max(0, revealBounds.top - ROLL_PAD);
-      const bottom = Math.min(window.innerHeight, revealBounds.bottom + ROLL_PAD);
-      overlayEl.style.top    = `${top}px`;
-      overlayEl.style.height = `${bottom - top}px`;
-      overlayEl.style.left   = `${surfaceRect ? surfaceRect.left : revealBounds.left}px`;
-      overlayEl.style.width  = `${surfaceRect ? surfaceRect.width : revealBounds.width}px`;
+      const surfaceRect = document.querySelector('.page-surface')?.getBoundingClientRect();
+      const fallback    = reveal.getBoundingClientRect();
+      const rect        = surfaceRect ?? fallback;
+      const headerBottom = document.querySelector('.site-header')?.getBoundingClientRect().bottom ?? 0;
+      const vpTop    = Math.max(headerBottom, 0);
+      const vpBottom = Math.min(window.innerHeight, rect.bottom);
+      overlayEl.style.top    = `${window.scrollY + vpTop}px`;
+      overlayEl.style.height = `${vpBottom - vpTop}px`;
+      overlayEl.style.left   = `${window.scrollX + rect.left}px`;
+      overlayEl.style.width  = `${rect.width}px`;
       overlayEl.classList.add('active');
 
       try {
         const box = await ensureOverlayBox();
         await box.roll(`1d20@${rollResult}`);
 
+        await new Promise(r => setTimeout(r, 600));
         overlayEl.classList.remove('active');
         settleInline();
       } catch (error) {
@@ -670,25 +650,6 @@ function initDiceReveals(pageEl) {
           playDiceSettleSound();
           if (dieValueEl) dieValueEl.textContent = String(rollResult);
           else dieEl.textContent = String(rollResult);
-
-          // Use the project's d20 SVG as the die art and hide the numeric
-          // face so the SVG is prominent.
-          try {
-            let svgUrl;
-            const base = import.meta.env.BASE_URL || '/';
-            if (typeof location !== 'undefined' && location.origin) {
-              svgUrl = `${location.origin}${base.endsWith('/') ? base : base + '/'}assets/dice-box/d20.svg`;
-            } else {
-              svgUrl = `${DICE_BOX_ASSET_PATH}d20.svg`;
-            }
-
-            if (dieEl) {
-              dieEl.style.setProperty('--dice-svg', `url("${svgUrl}")`);
-              dieEl.setAttribute('data-has-svg', '1');
-            }
-          } catch (err) {
-            // noop
-          }
 
           // Apply outcome class (drives colour on die and, later, on total)
           if (rollResult === 20) {

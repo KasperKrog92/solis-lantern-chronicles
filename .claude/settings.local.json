@@ -20,7 +20,16 @@
       "WebFetch(domain:game-icons.net)",
       "WebFetch(domain:www.svgrepo.com)",
       "WebFetch(domain:upload.wikimedia.org)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(grep -o 'sounds_dice\\\\[.\\\\{0,30\\\\}\\\\]\\\\|sounds_dice\\\\.\\\\w\\\\+\\\\|dicehit_\\\\w\\\\+' c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/node_modules/@3d-dice/dice-box-threejs/dist/dice-box-threejs.es.js)",
+      "Bash(grep -o '\"wood_table\".\\\\{0,200\\\\}' c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/node_modules/@3d-dice/dice-box-threejs/dist/dice-box-threejs.es.js)",
+      "Bash(python3 -c ' *)",
+      "Bash(inkscape --version)",
+      "Bash(convert --version)",
+      "Bash(magick --version)",
+      "Bash(node -e \"require\\('sharp'\\)\")",
+      "Bash(npm install *)",
+      "Bash(npm uninstall *)"
     ]
   }
 }
