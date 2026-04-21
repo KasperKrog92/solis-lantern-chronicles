@@ -9,18 +9,38 @@ const TRACKS = {
   'graveyard':  `${BASE}/sounds/ambience-graveyard.mp3`,
 };
 
-const FADE_MS = 4000;
+const FADE_MS    = 4000;
+const LOOP_IN_S  = 10; // skip this many seconds at the start of each loop
+const LOOP_OUT_S = 10; // stop this many seconds before the file ends
 
 // intendedKey: what should be playing regardless of enabled state
 // active: what is currently playing
 let intendedKey = null;
-let active      = null; // { key: string, howl: Howl }
+let active      = null; // { key, howl, loopTimer }
 
 function startTrack(key) {
-  const howl = new Howl({ src: [TRACKS[key]], loop: true, volume: 0 });
-  active = { key, howl };
-  howl.play();
-  howl.fade(0, getAmbienceVolume(), FADE_MS);
+  const howl = new Howl({ src: [TRACKS[key]], loop: false, volume: 0 });
+  active = { key, howl, loopTimer: null };
+
+  howl.once('load', () => {
+    if (active?.howl !== howl) return;
+
+    const loopDurationMs = (howl.duration() - LOOP_IN_S - LOOP_OUT_S) * 1000;
+
+    function scheduleLoop() {
+      if (active?.howl !== howl) return;
+      active.loopTimer = setTimeout(() => {
+        if (active?.howl !== howl) return;
+        howl.seek(LOOP_IN_S);
+        scheduleLoop();
+      }, loopDurationMs);
+    }
+
+    const id = howl.play();
+    howl.seek(LOOP_IN_S, id);
+    howl.fade(0, getAmbienceVolume(), FADE_MS, id);
+    scheduleLoop();
+  });
 }
 
 export function updateAmbienceVolume(v) {
@@ -29,10 +49,11 @@ export function updateAmbienceVolume(v) {
 
 function stopActive() {
   if (!active) return;
-  const { howl } = active;
+  const { howl, loopTimer } = active;
   active = null;
+  clearTimeout(loopTimer);
   howl.fade(howl.volume(), 0, FADE_MS);
-  setTimeout(() => howl.stop(), FADE_MS + 100);
+  setTimeout(() => howl.unload(), FADE_MS + 100);
 }
 
 export function setAmbience(key) {
