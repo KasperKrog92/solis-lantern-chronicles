@@ -790,6 +790,13 @@ function revealText(container) {
     const id = setTimeout(() => {
       el.classList.add('revealed');
 
+      // Mark the parent lore-link on first reveal so CSS can use a cheap
+      // class selector instead of the expensive :has() subtree check.
+      const loreLink = el.closest('.lore-link');
+      if (loreLink && !loreLink.classList.contains('lore-link--revealed')) {
+        loreLink.classList.add('lore-link--revealed');
+      }
+
       // Show any dice reveal whose last preceding word just appeared
       diceRevealTriggers.forEach(({ el: dr, triggerIdx }) => {
         if (triggerIdx === i) dr.style.visibility = '';

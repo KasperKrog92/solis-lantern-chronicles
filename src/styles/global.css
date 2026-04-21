@@ -866,8 +866,10 @@ main {
 }
 
 /* Hide the underline until at least one word inside has been revealed,
-   so the border doesn't appear before the text during gradual reveal. */
-.pt-page-content .lore-link:not(:has(.word.revealed)) {
+   so the border doesn't appear before the text during gradual reveal.
+   The .lore-link--revealed class is added by JS (page-turner.js) to avoid
+   the expensive :has() subtree check on every word reveal. */
+.pt-page-content .lore-link:not(.lore-link--revealed) {
   border-bottom-color: transparent;
 }
 
