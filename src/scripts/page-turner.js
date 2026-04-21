@@ -20,9 +20,9 @@
  * the page before rolling if they choose.
  */
 
-import { isGradualEnabled, isSoundEnabled, isWritingSoundEnabled, isDiceSoundEnabled, initSettingsToggles } from './settings.js';
-import { playWritingSound, playWritingFinishSound, preloadWritingSound, unlockAudioContext } from './writing-sound.js';
-import { setAmbience, stopAmbience, applyAmbienceEnabled } from './ambience.js';
+import { isGradualEnabled, isSoundEnabled, isWritingSoundEnabled, isDiceSoundEnabled, getWritingSoundVolume, getDiceSoundVolume, getAmbienceVolume, initSettingsToggles } from './settings.js';
+import { playWritingSound, playWritingFinishSound, preloadWritingSound, unlockAudioContext, setWritingSoundVolume } from './writing-sound.js';
+import { setAmbience, stopAmbience, applyAmbienceEnabled, updateAmbienceVolume } from './ambience.js';
 import { randomiseParchment } from './parchment.js';
 
 // ── Cursors ────────────────────────────────────────────────────────────────
@@ -300,6 +300,17 @@ export function initPageTurner() {
     if (!isGradualEnabled()) finishReveal();
   });
 
+  // Volume sliders — apply changes in real time.
+  document.getElementById('writing-sound-volume')?.addEventListener('input', e => {
+    setWritingSoundVolume(parseFloat(e.target.value));
+  });
+  document.getElementById('ambience-volume')?.addEventListener('input', e => {
+    updateAmbienceVolume(parseFloat(e.target.value));
+  });
+  document.getElementById('dice-sound-volume')?.addEventListener('input', e => {
+    if (overlayBox) overlayBox.updateConfig({ volume: parseFloat(e.target.value) * 100 });
+  });
+
   // Re-evaluate ambience whenever master sound or the ambience toggle changes.
   document.getElementById('toggle-sound')?.addEventListener('click', applyAmbienceEnabled);
   document.getElementById('toggle-ambience-sound')?.addEventListener('click', applyAmbienceEnabled);
@@ -473,7 +484,7 @@ async function ensureOverlayBox() {
   }
 
   if (overlayBox) {
-    overlayBox.updateConfig({ sounds: isDiceSoundEnabled() });
+    overlayBox.updateConfig({ sounds: isDiceSoundEnabled(), volume: getDiceSoundVolume() * 100 });
     return overlayBox;
   }
 
@@ -482,7 +493,7 @@ async function ensureOverlayBox() {
   }
 
   const DiceBoxCtor = await diceBoxCtorPromise;
-  const box = new DiceBoxCtor(`#${OVERLAY_SCENE_ID}`, { ...DICE_BOX_CONFIG, sounds: isDiceSoundEnabled() });
+  const box = new DiceBoxCtor(`#${OVERLAY_SCENE_ID}`, { ...DICE_BOX_CONFIG, sounds: isDiceSoundEnabled(), volume: getDiceSoundVolume() * 100 });
 
   const _loadAudio = box.loadAudio.bind(box);
   box.loadAudio = (url) => url.includes('dicehit_coin') ? Promise.resolve(null) : _loadAudio(url);
@@ -588,9 +599,8 @@ function initDiceReveals(pageEl) {
     const dieLabelEl = reveal.querySelector('.dice-reveal__die-label');
     const operatorEl = reveal.querySelector('.dice-reveal__operator');
     const totalEl    = reveal.querySelector('.dice-reveal__total');
-    const resultEl   = reveal.querySelector('.dice-reveal__result');
 
-    if (!btn || !tumbleEl || !dieEl || !resultEl) continue;
+    if (!btn || !tumbleEl || !dieEl) continue;
 
     function settleInline() {
       if (!document.body.contains(reveal)) return;
@@ -609,35 +619,44 @@ function initDiceReveals(pageEl) {
 
       applyDiceOutcomeClasses(reveal, rollResult, total, dc, dieLabelEl);
 
-      // Now fade the whole equation in as one unit
-      reveal.classList.add('dice-reveal--settled');
+      // Release height lock, show tumble (equation lives inside it),
+      // then immediately settle so scene-shell is hidden before it can flash
+      reveal.style.minHeight = '';
       tumbleEl.classList.add('active');
+      reveal.classList.add('dice-reveal--settled');
 
-      setTimeout(() => {
-        if (!document.body.contains(reveal)) return;
+      if (postWrap) {
+        setTimeout(() => {
+          if (!document.body.contains(reveal)) return;
 
-        resultEl.classList.add('visible');
-
-        if (postWrap) {
-          setTimeout(() => {
-            if (!document.body.contains(reveal)) return;
-
-            if (isGradualEnabled()) wrapWordsInSpans(postWrap, false);
-            postWrap.classList.add('post-roll-visible');
-            if (isGradualEnabled()) {
-              setTimeout(() => revealPostRoll(postWrap), 200);
-            }
-          }, 800);
-        }
-      }, 500);
+          if (isGradualEnabled()) wrapWordsInSpans(postWrap, false);
+          postWrap.classList.add('post-roll-visible');
+          if (isGradualEnabled()) {
+            setTimeout(() => revealPostRoll(postWrap), 200);
+          }
+        }, 500);
+      }
     }
+
+    const OVERLAY_FADE_MS = 500; // must match .dice-page-overlay transition duration
 
     btn.addEventListener('click', async () => {
       btn.disabled = true;
-      if (preRollEl) preRollEl.style.display = 'none';
-      resultEl.classList.remove('visible');
 
-      // Overlay sized to the reveal card + 100px padding, clamped to viewport
+      // Lock the card's current height so it doesn't collapse as the button fades
+      reveal.style.minHeight = `${reveal.offsetHeight}px`;
+
+      // Fade out the pre-roll button smoothly
+      if (preRollEl) {
+        preRollEl.style.transition = 'opacity 0.25s ease';
+        preRollEl.style.opacity = '0';
+      }
+
+      // Wait for button fade, then hide it and show the overlay
+      await new Promise(r => setTimeout(r, 250));
+      if (preRollEl) preRollEl.style.display = 'none';
+
+      // Size and show the overlay
       if (!overlayEl) {
         overlayEl = document.createElement('div');
         overlayEl.className = 'dice-page-overlay';
@@ -665,10 +684,13 @@ function initDiceReveals(pageEl) {
 
         await new Promise(r => setTimeout(r, 600));
         overlayEl.classList.remove('active');
+        // Wait for the overlay to fully fade before revealing the equation
+        await new Promise(r => setTimeout(r, OVERLAY_FADE_MS));
         settleInline();
       } catch (error) {
         console.error('3D dice roll failed, falling back to static reveal.', error);
         if (overlayEl) overlayEl.classList.remove('active');
+        await new Promise(r => setTimeout(r, OVERLAY_FADE_MS));
         settleInline();
       }
 

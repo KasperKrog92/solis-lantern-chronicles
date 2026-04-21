@@ -429,16 +429,75 @@ main {
   right: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.5rem;
   background: var(--bg, #1a1510);
   border: 1px solid rgba(200, 168, 75, 0.25);
-  padding: 0.4rem;
+  padding: 0.5rem;
   z-index: 50;
-  min-width: 7rem;
+  width: 11rem;
 }
 
 .sound-group__menu[hidden] {
   display: none;
+}
+
+.sound-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sound-row .toggle-btn {
+  width: 100%;
+  text-align: left;
+}
+
+.sound-vol {
+  width: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  height: 2px;
+  background: rgba(200, 168, 75, 0.2);
+  outline: none;
+  cursor: pointer;
+  border: none;
+  padding: 0;
+  display: block;
+}
+
+.sound-vol::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(200, 168, 75, 0.55);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.sound-vol::-webkit-slider-thumb:hover {
+  background: var(--gold);
+}
+
+.sound-vol::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(200, 168, 75, 0.55);
+  cursor: pointer;
+  border: none;
+  transition: background 0.15s;
+}
+
+.sound-vol::-moz-range-thumb:hover {
+  background: var(--gold);
+}
+
+.sound-vol:disabled {
+  opacity: 0.25;
+  cursor: default;
+  pointer-events: none;
 }
 
 /* ============================================================
@@ -927,7 +986,7 @@ main {
   border-left-width: 3px;
   padding: 1.5rem 2rem;
   background: rgba(42, 31, 14, 0.03);
-  transition: border-left-color 0.4s ease;
+  transition: border-left-color 0.4s ease, min-height 0.4s ease;
 }
 
 .dice-reveal--success,
@@ -970,12 +1029,17 @@ main {
 
 .dice-reveal__tumble {
   display: none;
-  padding: 0.9rem 0 0.25rem;
+  opacity: 0;
 }
 
 .dice-reveal__tumble.active {
   display: block;
   padding: 0;
+  animation: tumble-fadein 0.3s ease forwards;
+}
+
+@keyframes tumble-fadein {
+  to { opacity: 1; }
 }
 
 .dice-reveal__scene-shell {
@@ -1039,12 +1103,7 @@ main {
 }
 
 .dice-reveal--settled .dice-reveal__scene-shell {
-  max-height: 0;
-  margin-bottom: 0;
-  opacity: 0;
-  transform: translateY(-0.55rem) scale(0.985);
-  border-color: transparent;
-  pointer-events: none;
+  display: none;
 }
 
 .dice-reveal--settled .dice-reveal__equation {
@@ -1153,24 +1212,6 @@ main {
 
 /* Outcome text — fades in after the die settles */
 
-.dice-reveal__result {
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.4s ease;
-  margin-top: 1.25rem;
-}
-
-.dice-reveal__result.visible {
-  opacity: 1;
-  visibility: visible;
-}
-
-.dice-reveal__outcome {
-  font-size: 1.35rem;
-  line-height: 1.8;
-  font-style: italic;
-  color: var(--ink);
-}
 
 /* Full-page dice overlay — shown during the 3D roll, covers the whole page */
 

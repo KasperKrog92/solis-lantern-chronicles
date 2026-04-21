@@ -9,7 +9,8 @@ function getAudioContext() {
   if (!audioCtx) {
     audioCtx   = new (window.AudioContext || window.webkitAudioContext)();
     masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.6;
+    const storedVol = parseFloat(localStorage.getItem('writing-sound-volume'));
+    masterGain.gain.value = isNaN(storedVol) ? 0.6 : storedVol;
     masterGain.connect(audioCtx.destination);
   }
   return { ctx: audioCtx, gain: masterGain };
@@ -58,6 +59,10 @@ function buildFilterChain(ctx, gain) {
   warmth.connect(presence);
 
   return warmth; // entry point of the chain
+}
+
+export function setWritingSoundVolume(v) {
+  if (masterGain) masterGain.gain.value = v;
 }
 
 export function preloadWritingSound() {
@@ -131,72 +136,3 @@ export function playWritingFinishSound() {
   } catch {}
 }
 
-export function playDiceRollSound() {
-  if (localStorage.getItem('sound') === 'false') return;
-  try {
-    const { ctx, gain } = getAudioContext();
-    if (ctx.state === 'suspended') { ctx.resume(); return; }
-
-    const duration   = 0.065;
-    const frameCount = Math.floor(ctx.sampleRate * duration);
-    const buffer     = ctx.createBuffer(1, frameCount, ctx.sampleRate);
-    const data       = buffer.getChannelData(0);
-
-    for (let i = 0; i < frameCount; i++) {
-      const t = i / frameCount;
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 2.8) * 0.9;
-    }
-
-    const source    = ctx.createBufferSource();
-    source.buffer   = buffer;
-
-    const bpf           = ctx.createBiquadFilter();
-    bpf.type            = 'bandpass';
-    bpf.frequency.value = 1300 + Math.random() * 700;
-    bpf.Q.value         = 1.8;
-
-    const localGain       = ctx.createGain();
-    localGain.gain.value  = 2.8;
-
-    source.connect(bpf);
-    bpf.connect(localGain);
-    localGain.connect(gain);
-    source.start(ctx.currentTime);
-    source.stop(ctx.currentTime + duration + 0.005);
-  } catch {}
-}
-
-export function playDiceSettleSound() {
-  if (localStorage.getItem('sound') === 'false') return;
-  try {
-    const { ctx, gain } = getAudioContext();
-    if (ctx.state === 'suspended') { ctx.resume(); return; }
-
-    const duration   = 0.11;
-    const frameCount = Math.floor(ctx.sampleRate * duration);
-    const buffer     = ctx.createBuffer(1, frameCount, ctx.sampleRate);
-    const data       = buffer.getChannelData(0);
-
-    for (let i = 0; i < frameCount; i++) {
-      const t = i / frameCount;
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - t, 1.8) * 1.0;
-    }
-
-    const source    = ctx.createBufferSource();
-    source.buffer   = buffer;
-
-    const bpf           = ctx.createBiquadFilter();
-    bpf.type            = 'bandpass';
-    bpf.frequency.value = 680;
-    bpf.Q.value         = 1.2;
-
-    const localGain       = ctx.createGain();
-    localGain.gain.value  = 3.2;
-
-    source.connect(bpf);
-    bpf.connect(localGain);
-    localGain.connect(gain);
-    source.start(ctx.currentTime);
-    source.stop(ctx.currentTime + duration + 0.005);
-  } catch {}
-}

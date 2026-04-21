@@ -27,10 +27,9 @@ interface Props {
   dc: number;
   modifier: number;
   result: number;   // Fixed historical roll (1–20)
-  outcome: string;  // Narrative text revealed after the roll
 }
 
-const { character, skill, dc, modifier, result, outcome } = Astro.props;
+const { character, skill, dc, modifier, result } = Astro.props;
 const modStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
 ---
 
@@ -70,8 +69,4 @@ const modStr = modifier >= 0 ? `+${modifier}` : `${modifier}`;
     </div>
   </div>
 
-  <!-- Outcome: fades in 300ms after the die settles -->
-  <div class="dice-reveal__result" role="status" aria-live="polite">
-    <div class="dice-reveal__outcome">{outcome}</div>
-  </div>
 </div>

@@ -1,5 +1,5 @@
 import { Howl } from 'howler';
-import { isAmbienceSoundEnabled } from './settings.js';
+import { isAmbienceSoundEnabled, getAmbienceVolume } from './settings.js';
 
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
@@ -10,7 +10,6 @@ const TRACKS = {
 };
 
 const FADE_MS = 4000;
-const VOLUME  = 0.15;
 
 // intendedKey: what should be playing regardless of enabled state
 // active: what is currently playing
@@ -21,7 +20,11 @@ function startTrack(key) {
   const howl = new Howl({ src: [TRACKS[key]], loop: true, volume: 0 });
   active = { key, howl };
   howl.play();
-  howl.fade(0, VOLUME, FADE_MS);
+  howl.fade(0, getAmbienceVolume(), FADE_MS);
+}
+
+export function updateAmbienceVolume(v) {
+  if (active) active.howl.volume(v);
 }
 
 function stopActive() {
