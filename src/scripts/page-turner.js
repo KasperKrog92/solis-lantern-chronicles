@@ -418,7 +418,7 @@ function renderPage(index, skipReveal = false, skipParchment = false) {
 
 // Used only for initial load and browser back/forward (no animation).
 function showPage(index, skipReveal = false) {
-  if (!skipReveal && isWritingSoundEnabled()) preloadWritingSound();
+  if (isWritingSoundEnabled()) preloadWritingSound();
   renderPage(index, skipReveal);
 }
 
