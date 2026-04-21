@@ -9,7 +9,7 @@ function getAudioContext() {
   if (!audioCtx) {
     audioCtx   = new (window.AudioContext || window.webkitAudioContext)();
     masterGain = audioCtx.createGain();
-    masterGain.gain.value = 0.35;
+    masterGain.gain.value = 0.6;
     masterGain.connect(audioCtx.destination);
   }
   return { ctx: audioCtx, gain: masterGain };

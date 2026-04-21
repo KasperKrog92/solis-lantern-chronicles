@@ -6,6 +6,7 @@
  *   'sound'          — 'false' to disable; anything else (or absent) = enabled (master toggle)
  *   'writing-sound'  — 'false' to disable; anything else (or absent) = enabled
  *   'dice-sound'     — 'false' to disable; anything else (or absent) = enabled
+ *   'ambience-sound' — 'false' to disable; anything else (or absent) = enabled
  *   'gm-notes'       — 'true' to show; anything else (or absent) = hidden
  */
 
@@ -23,6 +24,10 @@ export function isWritingSoundEnabled() {
 
 export function isDiceSoundEnabled() {
   return isSoundEnabled() && localStorage.getItem('dice-sound') !== 'false';
+}
+
+export function isAmbienceSoundEnabled() {
+  return isSoundEnabled() && localStorage.getItem('ambience-sound') !== 'false';
 }
 
 export function isGmNotesVisible() {
@@ -55,6 +60,12 @@ export function applySettings() {
   if (diceSoundBtn) {
     diceSoundBtn.setAttribute('aria-pressed', String(localStorage.getItem('dice-sound') !== 'false'));
     diceSoundBtn.disabled = !masterOn;
+  }
+
+  const ambienceSoundBtn = document.getElementById('toggle-ambience-sound');
+  if (ambienceSoundBtn) {
+    ambienceSoundBtn.setAttribute('aria-pressed', String(localStorage.getItem('ambience-sound') !== 'false'));
+    ambienceSoundBtn.disabled = !masterOn;
   }
 
   const gmBtn   = document.getElementById('toggle-gm');
@@ -115,6 +126,14 @@ export function initSettingsToggles() {
   if (diceSoundBtn) {
     diceSoundBtn.addEventListener('click', () => {
       localStorage.setItem('dice-sound', String(localStorage.getItem('dice-sound') === 'false'));
+      applySettings();
+    });
+  }
+
+  const ambienceSoundBtn = document.getElementById('toggle-ambience-sound');
+  if (ambienceSoundBtn) {
+    ambienceSoundBtn.addEventListener('click', () => {
+      localStorage.setItem('ambience-sound', String(localStorage.getItem('ambience-sound') === 'false'));
       applySettings();
     });
   }

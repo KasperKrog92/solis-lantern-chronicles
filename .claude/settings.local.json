@@ -44,7 +44,11 @@
       "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces_pre_asmr_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces/)",
       "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit/)",
       "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces/)",
-      "WebFetch(domain:pixabay.com)"
+      "WebFetch(domain:pixabay.com)",
+      "Bash(ffprobe -v quiet -show_entries format=duration,bit_rate -of csv=p=0 \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-tavern.mp3\")",
+      "Bash(ffprobe -v quiet -show_entries format=duration,bit_rate -of csv=p=0 \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-night-wall.mp3\")",
+      "Bash(ffprobe -v quiet -show_entries format=duration,bit_rate -of csv=p=0 \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-graveyard.mp3\")",
+      "Bash(where ffprobe *)"
     ]
   }
 }

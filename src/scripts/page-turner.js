@@ -22,6 +22,7 @@
 
 import { isGradualEnabled, isSoundEnabled, isWritingSoundEnabled, isDiceSoundEnabled, initSettingsToggles } from './settings.js';
 import { playWritingSound, playWritingFinishSound, preloadWritingSound, unlockAudioContext } from './writing-sound.js';
+import { setAmbience, stopAmbience, applyAmbienceEnabled } from './ambience.js';
 import { randomiseParchment } from './parchment.js';
 
 // ── Cursors ────────────────────────────────────────────────────────────────
@@ -38,6 +39,7 @@ const CURSOR_RIGHT = _makeCursor('M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59
 // ── State ──────────────────────────────────────────────────────────────────
 
 let pages        = [];   // Array of HTML strings, one per page
+let ambienceMap  = [];   // Per-page ambience key, filled forward from markers
 let currentPage  = 0;
 let isRevealing  = false;
 let revealTimers = [];   // Active setTimeout handles so we can cancel on nav
@@ -275,6 +277,7 @@ export function initPageTurner() {
 
   pages = buildPages(source);
   if (pages.length === 0) return;
+  ambienceMap = buildAmbienceMap(pages);
 
   // Start on whichever page the URL hash requests, then normalise the hash
   // (so that a bare URL without a hash still gets #page-0 written in, which
@@ -296,6 +299,13 @@ export function initPageTurner() {
   document.getElementById('toggle-gradual')?.addEventListener('click', () => {
     if (!isGradualEnabled()) finishReveal();
   });
+
+  // Re-evaluate ambience whenever master sound or the ambience toggle changes.
+  document.getElementById('toggle-sound')?.addEventListener('click', applyAmbienceEnabled);
+  document.getElementById('toggle-ambience-sound')?.addEventListener('click', applyAmbienceEnabled);
+
+  // Fade out when the reader navigates away from the chapter.
+  window.addEventListener('pagehide', stopAmbience);
 }
 
 // ── Page splitting ─────────────────────────────────────────────────────────
@@ -328,6 +338,21 @@ function buildPages(source) {
   return ['', ...result];
 }
 
+// Pre-compute the ambience key for each page by scanning for [data-ambience]
+// elements and filling forward: a page with no marker inherits the previous key.
+function buildAmbienceMap(pageList) {
+  const div = document.createElement('div');
+  let lastKey = null;
+  return pageList.map(html => {
+    if (html.includes('data-ambience')) {
+      div.innerHTML = html;
+      const el = div.querySelector('[data-ambience]');
+      if (el) lastKey = el.dataset.ambience;
+    }
+    return lastKey;
+  });
+}
+
 // ── Page display ───────────────────────────────────────────────────────────
 
 // Swap content immediately — no animation.  Called after the fade-out settles.
@@ -337,6 +362,7 @@ function buildPages(source) {
 function renderPage(index, skipReveal = false, skipParchment = false) {
   cancelReveal();
   currentPage = index;
+  setAmbience(ambienceMap[index] ?? null);
 
   const pageEl        = document.getElementById('pt-page');
   const counter       = document.getElementById('pt-counter');
