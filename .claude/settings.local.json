@@ -43,7 +43,8 @@
       "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit_pre_asmr_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit/)",
       "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces_pre_asmr_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces/)",
       "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit/)",
-      "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces/)"
+      "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces/)",
+      "WebFetch(domain:pixabay.com)"
     ]
   }
 }

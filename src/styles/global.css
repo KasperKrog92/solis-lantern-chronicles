@@ -402,6 +402,45 @@ main {
   pointer-events: none;
 }
 
+.sound-group {
+  position: relative;
+  display: inline-flex;
+}
+
+.sound-group__main {
+  border-right: none;
+}
+
+.sound-group__caret {
+  padding: 0.28rem 0.45rem;
+  border-left: none;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.sound-group__caret[aria-expanded="true"] {
+  color: var(--gold);
+  border-color: rgba(200, 168, 75, 0.6);
+}
+
+.sound-group__menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  background: var(--bg, #1a1510);
+  border: 1px solid rgba(200, 168, 75, 0.25);
+  padding: 0.4rem;
+  z-index: 50;
+  min-width: 7rem;
+}
+
+.sound-group__menu[hidden] {
+  display: none;
+}
+
 /* ============================================================
    HOME PAGE
    ============================================================ */

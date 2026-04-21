@@ -2,9 +2,11 @@
  * settings.js
  * Manages persistent reader preferences via localStorage.
  * Keys:
- *   'gradual-text'  — 'false' to disable; anything else (or absent) = enabled
- *   'sound'         — 'false' to disable; anything else (or absent) = enabled
- *   'gm-notes'      — 'true' to show; anything else (or absent) = hidden
+ *   'gradual-text'   — 'false' to disable; anything else (or absent) = enabled
+ *   'sound'          — 'false' to disable; anything else (or absent) = enabled (master toggle)
+ *   'writing-sound'  — 'false' to disable; anything else (or absent) = enabled
+ *   'dice-sound'     — 'false' to disable; anything else (or absent) = enabled
+ *   'gm-notes'       — 'true' to show; anything else (or absent) = hidden
  */
 
 export function isGradualEnabled() {
@@ -13,6 +15,14 @@ export function isGradualEnabled() {
 
 export function isSoundEnabled() {
   return localStorage.getItem('sound') !== 'false';
+}
+
+export function isWritingSoundEnabled() {
+  return isSoundEnabled() && localStorage.getItem('writing-sound') !== 'false';
+}
+
+export function isDiceSoundEnabled() {
+  return isSoundEnabled() && localStorage.getItem('dice-sound') !== 'false';
 }
 
 export function isGmNotesVisible() {
@@ -28,9 +38,23 @@ export function applySettings() {
     gradualBtn.textContent = on ? 'Gradual' : 'Instant';
   }
 
+  const masterOn = isSoundEnabled();
+
   const soundBtn = document.getElementById('toggle-sound');
   if (soundBtn) {
-    soundBtn.setAttribute('aria-pressed', String(isSoundEnabled()));
+    soundBtn.setAttribute('aria-pressed', String(masterOn));
+  }
+
+  const writingSoundBtn = document.getElementById('toggle-writing-sound');
+  if (writingSoundBtn) {
+    writingSoundBtn.setAttribute('aria-pressed', String(localStorage.getItem('writing-sound') !== 'false'));
+    writingSoundBtn.disabled = !masterOn;
+  }
+
+  const diceSoundBtn = document.getElementById('toggle-dice-sound');
+  if (diceSoundBtn) {
+    diceSoundBtn.setAttribute('aria-pressed', String(localStorage.getItem('dice-sound') !== 'false'));
+    diceSoundBtn.disabled = !masterOn;
   }
 
   const gmBtn   = document.getElementById('toggle-gm');
@@ -58,6 +82,39 @@ export function initSettingsToggles() {
   if (soundBtn) {
     soundBtn.addEventListener('click', () => {
       localStorage.setItem('sound', String(!isSoundEnabled()));
+      applySettings();
+    });
+  }
+
+  const caretBtn = document.querySelector('.sound-group__caret');
+  const soundMenu = document.getElementById('sound-submenu');
+  if (caretBtn && soundMenu) {
+    caretBtn.addEventListener('click', () => {
+      const open = !soundMenu.hidden;
+      soundMenu.hidden = open;
+      caretBtn.setAttribute('aria-expanded', String(!open));
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!soundMenu.hidden && !caretBtn.closest('.sound-group').contains(e.target)) {
+        soundMenu.hidden = true;
+        caretBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  const writingSoundBtn = document.getElementById('toggle-writing-sound');
+  if (writingSoundBtn) {
+    writingSoundBtn.addEventListener('click', () => {
+      localStorage.setItem('writing-sound', String(localStorage.getItem('writing-sound') === 'false'));
+      applySettings();
+    });
+  }
+
+  const diceSoundBtn = document.getElementById('toggle-dice-sound');
+  if (diceSoundBtn) {
+    diceSoundBtn.addEventListener('click', () => {
+      localStorage.setItem('dice-sound', String(localStorage.getItem('dice-sound') === 'false'));
       applySettings();
     });
   }

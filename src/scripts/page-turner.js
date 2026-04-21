@@ -20,7 +20,7 @@
  * the page before rolling if they choose.
  */
 
-import { isGradualEnabled, isSoundEnabled, initSettingsToggles } from './settings.js';
+import { isGradualEnabled, isSoundEnabled, isWritingSoundEnabled, isDiceSoundEnabled, initSettingsToggles } from './settings.js';
 import { playWritingSound, playWritingFinishSound, preloadWritingSound, unlockAudioContext } from './writing-sound.js';
 import { randomiseParchment } from './parchment.js';
 
@@ -290,6 +290,12 @@ export function initPageTurner() {
   showPage(initialPage, isReturning);
   bindNavigation();
   initSettingsToggles();
+
+  // When the user switches from Gradual → Instant mid-reveal, finish immediately.
+  // settings.js toggles the value first, so isGradualEnabled() reflects the new state here.
+  document.getElementById('toggle-gradual')?.addEventListener('click', () => {
+    if (!isGradualEnabled()) finishReveal();
+  });
 }
 
 // ── Page splitting ─────────────────────────────────────────────────────────
@@ -375,7 +381,7 @@ function renderPage(index, skipReveal = false, skipParchment = false) {
 
 // Used only for initial load and browser back/forward (no animation).
 function showPage(index, skipReveal = false) {
-  if (!skipReveal && isSoundEnabled()) preloadWritingSound();
+  if (!skipReveal && isWritingSoundEnabled()) preloadWritingSound();
   renderPage(index, skipReveal);
 }
 
@@ -441,7 +447,7 @@ async function ensureOverlayBox() {
   }
 
   if (overlayBox) {
-    overlayBox.updateConfig({ sounds: isSoundEnabled() });
+    overlayBox.updateConfig({ sounds: isDiceSoundEnabled() });
     return overlayBox;
   }
 
@@ -450,7 +456,7 @@ async function ensureOverlayBox() {
   }
 
   const DiceBoxCtor = await diceBoxCtorPromise;
-  const box = new DiceBoxCtor(`#${OVERLAY_SCENE_ID}`, { ...DICE_BOX_CONFIG, sounds: isSoundEnabled() });
+  const box = new DiceBoxCtor(`#${OVERLAY_SCENE_ID}`, { ...DICE_BOX_CONFIG, sounds: isDiceSoundEnabled() });
 
   const _loadAudio = box.loadAudio.bind(box);
   box.loadAudio = (url) => url.includes('dicehit_coin') ? Promise.resolve(null) : _loadAudio(url);
@@ -734,14 +740,17 @@ function revealPostRoll(container) {
   const soundEvery = Math.max(1, Math.round(130 / delay));
   let soundBeat    = 0;
 
+  isRevealing = true;
   wordEls.forEach((el, i) => {
-    setTimeout(() => {
+    const id = setTimeout(() => {
       el.classList.add('revealed');
       const swooshIdx = wordEls.length - 6;
       soundBeat++;
-      if (isSoundEnabled() && soundBeat % soundEvery === 0 && i < swooshIdx) playWritingSound();
-      if (wordEls.length >= 10 && isSoundEnabled() && i === swooshIdx) playWritingFinishSound();
+      if (isWritingSoundEnabled() && soundBeat % soundEvery === 0 && i < swooshIdx) playWritingSound();
+      if (wordEls.length >= 10 && isWritingSoundEnabled() && i === swooshIdx) playWritingFinishSound();
+      if (i === wordEls.length - 1) isRevealing = false;
     }, i * delay);
+    revealTimers.push(id);
   });
 }
 
@@ -751,6 +760,20 @@ function cancelReveal() {
   for (const id of revealTimers) clearTimeout(id);
   revealTimers = [];
   isRevealing  = false;
+}
+
+function finishReveal() {
+  cancelReveal();
+  const pageEl = document.getElementById('pt-page');
+  if (!pageEl) return;
+  pageEl.querySelectorAll('.word:not(.revealed)').forEach(el => {
+    el.classList.add('revealed');
+    const loreLink = el.closest('.lore-link');
+    if (loreLink && !loreLink.classList.contains('lore-link--revealed')) {
+      loreLink.classList.add('lore-link--revealed');
+    }
+  });
+  pageEl.querySelectorAll('.dice-reveal').forEach(el => { el.style.visibility = ''; });
 }
 
 function revealText(container) {
@@ -817,12 +840,12 @@ function revealText(container) {
       const useSwoosh = wordEls.length >= 15;
       const swooshIdx = wordEls.length - 6;
       soundBeat++;
-      if (isSoundEnabled() && soundBeat % soundEvery === 0 && (!useSwoosh || i < swooshIdx)) {
+      if (isWritingSoundEnabled() && soundBeat % soundEvery === 0 && (!useSwoosh || i < swooshIdx)) {
         playWritingSound();
       }
 
       if (useSwoosh && i === swooshIdx) {
-        if (isSoundEnabled()) playWritingFinishSound();
+        if (isWritingSoundEnabled()) playWritingFinishSound();
       }
 
       if (i === wordEls.length - 1) {

@@ -46,12 +46,31 @@ function resolveHref(href: string) {
           aria-pressed="true"
           title="Toggle word-by-word text reveal"
         >Gradual</button>
-        <button
-          id="toggle-sound"
-          class="toggle-btn"
-          aria-pressed="true"
-          title="Toggle writing sound"
-        >Sound</button>
+        <div class="sound-group">
+          <button
+            id="toggle-sound"
+            class="toggle-btn sound-group__main"
+            aria-pressed="true"
+            title="Toggle all sound"
+          >Sound</button><button
+            class="toggle-btn sound-group__caret"
+            aria-expanded="false"
+            aria-controls="sound-submenu"
+            title="Individual sound settings"
+          >▾</button>
+          <div id="sound-submenu" class="sound-group__menu" hidden>
+            <button
+              id="toggle-writing-sound"
+              class="toggle-btn"
+              aria-pressed="true"
+            >Writing</button>
+            <button
+              id="toggle-dice-sound"
+              class="toggle-btn"
+              aria-pressed="true"
+            >Dice</button>
+          </div>
+        </div>
         <GmNotesToggle hasNotes={!!gmNotes} />
       </div>
     </div>
