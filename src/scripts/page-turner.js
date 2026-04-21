@@ -508,8 +508,11 @@ function applyDiceOutcomeClasses(reveal, rollResult, total, dc, dieLabelEl) {
 function initDiceReveals(pageEl) {
   const reveals = Array.from(pageEl.querySelectorAll('.dice-reveal'));
 
-  // Warm up the dice box in the background as soon as dice are on the page
-  if (reveals.length > 0) ensureOverlayBox().catch(() => {});
+  // Pre-fetch the module so the JS is ready, but don't initialize the box yet —
+  // creating AudioContexts without a user gesture triggers browser warnings.
+  if (reveals.length > 0 && !diceBoxCtorPromise) {
+    diceBoxCtorPromise = import('@3d-dice/dice-box-threejs').then(mod => mod.default);
+  }
 
   for (const reveal of reveals) {
     // ── Hide post-roll siblings until the roll resolves ──────────────────

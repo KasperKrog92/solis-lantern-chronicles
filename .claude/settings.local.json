@@ -29,7 +29,9 @@
       "Bash(magick --version)",
       "Bash(node -e \"require\\('sharp'\\)\")",
       "Bash(npm install *)",
-      "Bash(npm uninstall *)"
+      "Bash(npm uninstall *)",
+      "Bash(grep -v \"\\\\.js$\")",
+      "Bash(grep -v \"\\\\.mp3$\")"
     ]
   }
 }
