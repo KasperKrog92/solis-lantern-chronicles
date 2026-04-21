@@ -891,8 +891,9 @@ function wrapWordsInSpans(container, skipPostRoll = true) {
         if (skipPostRoll && node.parentElement?.closest('.post-roll-content')) return NodeFilter.FILTER_REJECT;
         // Skip drop cap — it is always visible, not part of the word-reveal sequence
         if (node.parentElement?.closest('.drop-cap'))          return NodeFilter.FILTER_REJECT;
-        // Skip lore tooltips — hidden until hover, must not be part of the reveal sequence
+        // Skip lore/note tooltips — hidden until hover, must not be part of the reveal sequence
         if (node.parentElement?.closest('.lore-tooltip'))      return NodeFilter.FILTER_REJECT;
+        if (node.parentElement?.closest('.note-tooltip'))      return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       },
     }
