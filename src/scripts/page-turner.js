@@ -435,7 +435,9 @@ const DICE_BOX_ASSET_PATH = `${import.meta.env.BASE_URL.replace(/\/?$/, '/') }as
 
 let overlayEl  = null;
 let overlayBox = null;
+let preloadBox = null; // Hidden instance for preloading dice sounds
 const OVERLAY_SCENE_ID = 'dice-page-overlay-scene';
+const PRELOAD_SCENE_ID = 'dice-preload-scene';
 
 const DICE_BOX_CONFIG = {
   assetPath:             DICE_BOX_ASSET_PATH,
@@ -470,6 +472,51 @@ function attachCenteredThrow(box) {
     const force = (Math.random() * 1.5 + 8.0) * distance * this.strength;
     return this.getNotationVectors(notation, origin, force, distance);
   };
+}
+
+/**
+ * Preload dice sounds by creating and initializing a hidden DiceBox instance.
+ * This allows sounds to load in parallel with page rendering, eliminating
+ * the delay when the user first clicks "Roll the dice".
+ */
+async function preloadDiceSounds() {
+  // Don't preload if sounds are disabled
+  if (!isDiceSoundEnabled()) return;
+  
+  // Skip if already preloading or preloaded
+  if (preloadBox) return;
+
+  if (!diceBoxCtorPromise) {
+    diceBoxCtorPromise = import('@3d-dice/dice-box-threejs').then(mod => mod.default);
+  }
+
+  try {
+    // Create a hidden container for the preload instance
+    let preloadEl = document.getElementById(PRELOAD_SCENE_ID);
+    if (!preloadEl) {
+      preloadEl = document.createElement('div');
+      preloadEl.id = PRELOAD_SCENE_ID;
+      preloadEl.style.display = 'none';
+      document.body.appendChild(preloadEl);
+    }
+
+    const DiceBoxCtor = await diceBoxCtorPromise;
+    const box = new DiceBoxCtor(`#${PRELOAD_SCENE_ID}`, {
+      ...DICE_BOX_CONFIG,
+      sounds: true,
+      volume: getDiceSoundVolume() * 100,
+    });
+
+    // Skip the coin sound to reduce preload time
+    const _loadAudio = box.loadAudio.bind(box);
+    box.loadAudio = (url) => url.includes('dicehit_coin') ? Promise.resolve(null) : _loadAudio(url);
+
+    // Initialize to load sounds asynchronously
+    await box.initialize();
+    preloadBox = box;
+  } catch (error) {
+    console.warn('Failed to preload dice sounds:', error);
+  }
 }
 
 async function ensureOverlayBox() {
@@ -564,6 +611,8 @@ function initDiceReveals(pageEl) {
   // WebGL must be initialized after the overlay has real dimensions (active + positioned).
   if (reveals.length > 0 && !diceBoxCtorPromise) {
     diceBoxCtorPromise = import('@3d-dice/dice-box-threejs').then(mod => mod.default);
+    // Preload dice sounds asynchronously so they're ready when the user clicks Roll
+    preloadDiceSounds().catch(err => console.warn('Dice preload error:', err));
   }
 
   for (const reveal of reveals) {
