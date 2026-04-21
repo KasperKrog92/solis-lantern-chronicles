@@ -21,7 +21,7 @@
  */
 
 import { isGradualEnabled, isSoundEnabled, initSettingsToggles } from './settings.js';
-import { playWritingSound } from './writing-sound.js';
+import { playWritingSound, playWritingFinishSound, preloadWritingSound } from './writing-sound.js';
 import { randomiseParchment } from './parchment.js';
 
 // ── Cursors ────────────────────────────────────────────────────────────────
@@ -375,6 +375,7 @@ function renderPage(index, skipReveal = false, skipParchment = false) {
 
 // Used only for initial load and browser back/forward (no animation).
 function showPage(index, skipReveal = false) {
+  if (!skipReveal && isSoundEnabled()) preloadWritingSound();
   renderPage(index, skipReveal);
 }
 
@@ -506,6 +507,9 @@ function applyDiceOutcomeClasses(reveal, rollResult, total, dc, dieLabelEl) {
  */
 function initDiceReveals(pageEl) {
   const reveals = Array.from(pageEl.querySelectorAll('.dice-reveal'));
+
+  // Warm up the dice box in the background as soon as dice are on the page
+  if (reveals.length > 0) ensureOverlayBox().catch(() => {});
 
   for (const reveal of reveals) {
     // ── Hide post-roll siblings until the roll resolves ──────────────────
@@ -721,8 +725,10 @@ function revealPostRoll(container) {
   wordEls.forEach((el, i) => {
     setTimeout(() => {
       el.classList.add('revealed');
+      const swooshIdx = wordEls.length - 6;
       soundBeat++;
-      if (isSoundEnabled() && soundBeat % soundEvery === 0) playWritingSound();
+      if (isSoundEnabled() && soundBeat % soundEvery === 0 && i < swooshIdx) playWritingSound();
+      if (wordEls.length >= 10 && isSoundEnabled() && i === swooshIdx) playWritingFinishSound();
     }, i * delay);
   });
 }
@@ -773,11 +779,11 @@ function revealText(container) {
     .filter(({ triggerIdx }) => triggerIdx === -1)
     .forEach(({ el }) => { el.style.visibility = ''; });
 
-  const totalMs    = Math.min(2600, Math.max(800, wordCount * 55));
+  const totalMs    = Math.min(6000, Math.max(1800, wordCount * 110));
   const delay      = totalMs / wordCount;
-  // Fire the writing sound every ~130ms regardless of how many words are on
+  // Fire the writing sound every ~180ms regardless of how many words are on
   // the page — soundEvery is how many word-reveals that works out to.
-  const soundEvery = Math.max(1, Math.round(130 / delay));
+  const soundEvery = Math.max(1, Math.round(240 / delay));
   let soundBeat    = 0;
 
   wordEls.forEach((el, i) => {
@@ -789,9 +795,15 @@ function revealText(container) {
         if (triggerIdx === i) dr.style.visibility = '';
       });
 
+      const useSwoosh = wordEls.length >= 15;
+      const swooshIdx = wordEls.length - 6;
       soundBeat++;
-      if (isSoundEnabled() && soundBeat % soundEvery === 0) {
+      if (isSoundEnabled() && soundBeat % soundEvery === 0 && (!useSwoosh || i < swooshIdx)) {
         playWritingSound();
+      }
+
+      if (useSwoosh && i === swooshIdx) {
+        if (isSoundEnabled()) playWritingFinishSound();
       }
 
       if (i === wordEls.length - 1) {
