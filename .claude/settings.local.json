@@ -35,7 +35,15 @@
       "Bash(ffmpeg -version)",
       "Bash(where ffmpeg *)",
       "Bash(where sox *)",
-      "Bash(winget install *)"
+      "Bash(winget install *)",
+      "Bash(/c/Users/kaspe/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-8.1-full_build/bin/ffprobe.exe -v error -show_entries stream=channels,channel_layout -of compact c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit/dicehit_wood1.mp3)",
+      "Bash(/c/Users/kaspe/AppData/Local/Microsoft/WinGet/Packages/Gyan.FFmpeg_Microsoft.Winget.Source_8wekyb3d8bbwe/ffmpeg-8.1-full_build/bin/ffprobe.exe -v error -show_entries stream=channels,channel_layout -of compact c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit_stereo_backup/dicehit_wood1.mp3)",
+      "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit_pre_asmr_backup)",
+      "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces_pre_asmr_backup)",
+      "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit_pre_asmr_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit/)",
+      "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces_pre_asmr_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces/)",
+      "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/dicehit/)",
+      "Bash(cp -r c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces_backup/. c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/assets/dice-box/sounds/surfaces/)"
     ]
   }
 }

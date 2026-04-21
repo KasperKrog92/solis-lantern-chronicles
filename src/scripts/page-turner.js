@@ -397,8 +397,8 @@ const OVERLAY_SCENE_ID = 'dice-page-overlay-scene';
 const DICE_BOX_CONFIG = {
   assetPath:             DICE_BOX_ASSET_PATH,
   volume:                80,
-  strength:              4.0,
-  gravity_multiplier:    350,
+  strength:              3.0,
+  gravity_multiplier:    180,
   light_intensity:       0.9,
   color_spotlight:       0xc8a84b,
   shadows:               true,
