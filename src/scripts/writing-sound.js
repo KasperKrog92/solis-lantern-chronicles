@@ -64,8 +64,21 @@ export function preloadWritingSound() {
   prefetch();
 }
 
+// Call once from a real user gesture (click/keydown) to create and resume the
+// AudioContext. Until this runs, playWritingSound is a silent no-op so Chrome
+// never logs "AudioContext was not allowed to start" warnings.
+export function unlockAudioContext() {
+  if (localStorage.getItem('sound') === 'false') return;
+  try {
+    const { ctx } = getAudioContext();
+    if (ctx.state === 'suspended') ctx.resume();
+    loadBuffer();
+  } catch {}
+}
+
 export function playWritingSound() {
   if (localStorage.getItem('sound') === 'false') return;
+  if (!audioCtx) return; // Not unlocked by a user gesture yet
   try {
     const { ctx, gain } = getAudioContext();
     if (ctx.state === 'suspended') { ctx.resume(); return; }
@@ -94,6 +107,7 @@ export function playWritingSound() {
 
 export function playWritingFinishSound() {
   if (localStorage.getItem('sound') === 'false') return;
+  if (!audioCtx) return;
   try {
     const { ctx, gain } = getAudioContext();
     if (ctx.state === 'suspended') { ctx.resume(); return; }

@@ -21,7 +21,7 @@
  */
 
 import { isGradualEnabled, isSoundEnabled, initSettingsToggles } from './settings.js';
-import { playWritingSound, playWritingFinishSound, preloadWritingSound } from './writing-sound.js';
+import { playWritingSound, playWritingFinishSound, preloadWritingSound, unlockAudioContext } from './writing-sound.js';
 import { randomiseParchment } from './parchment.js';
 
 // ── Cursors ────────────────────────────────────────────────────────────────
@@ -882,6 +882,8 @@ function wrapWordsInSpans(container, skipPostRoll = true) {
         if (skipPostRoll && node.parentElement?.closest('.post-roll-content')) return NodeFilter.FILTER_REJECT;
         // Skip drop cap — it is always visible, not part of the word-reveal sequence
         if (node.parentElement?.closest('.drop-cap'))          return NodeFilter.FILTER_REJECT;
+        // Skip lore tooltips — hidden until hover, must not be part of the reveal sequence
+        if (node.parentElement?.closest('.lore-tooltip'))      return NodeFilter.FILTER_REJECT;
         return NodeFilter.FILTER_ACCEPT;
       },
     }
@@ -935,6 +937,10 @@ function navigate(direction) {
 let _animateTurn = null;
 
 function bindNavigation() {
+  // Unlock Web Audio on the first user gesture so sounds work without warnings
+  document.addEventListener('click',   unlockAudioContext, { once: true });
+  document.addEventListener('keydown', unlockAudioContext, { once: true });
+
   // Keyboard
   document.addEventListener('keydown', e => {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
