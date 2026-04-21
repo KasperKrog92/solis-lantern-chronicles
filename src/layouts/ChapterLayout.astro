@@ -29,6 +29,11 @@ function resolveHref(href: string) {
 ---
 
 <BaseLayout title={title}>
+  <Fragment slot="head">
+    {Array.from({ length: 12 }, (_, i) => (
+      <link rel="prefetch" href={`${SITE_BASE}assets/dice-box/sounds/dicehit/dicehit_wood${i + 1}.mp3`} as="fetch" crossorigin="anonymous" />
+    ))}
+  </Fragment>
   <div class="chapter-reader">
 
     <!-- Controls bar: back link + reader settings -->

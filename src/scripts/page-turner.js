@@ -457,6 +457,15 @@ async function ensureOverlayBox() {
 
   await box.initialize();
 
+  // Render at device pixel ratio so the dice are sharp on HiDPI screens.
+  // Only resizes the GPU backing buffer — physics/camera are left untouched.
+  // Capped at 2 to avoid excessive GPU cost on very high-density displays.
+  if (box.renderer && window.devicePixelRatio > 1) {
+    const dpr = Math.min(window.devicePixelRatio, 2);
+    box.renderer.setPixelRatio(dpr);
+    box.renderer.setSize(box.display.currentWidth * 2, box.display.currentHeight * 2);
+  }
+
   if (box.desk?.material) {
     box.desk.material.opacity = 0.28;
   }
@@ -508,21 +517,10 @@ function applyDiceOutcomeClasses(reveal, rollResult, total, dc, dieLabelEl) {
 function initDiceReveals(pageEl) {
   const reveals = Array.from(pageEl.querySelectorAll('.dice-reveal'));
 
-  if (reveals.length > 0) {
-    if (!diceBoxCtorPromise) {
-      diceBoxCtorPromise = import('@3d-dice/dice-box-threejs').then(mod => mod.default);
-    }
-    // Pre-warm the box in the background so sounds and WebGL are ready before
-    // the first click. AudioContext starts suspended and is resumed on first
-    // user gesture via unlockAudioContext — safe to create before any click.
-    if (!overlayBox) {
-      const preload = () => ensureOverlayBox().catch(() => {});
-      if (typeof requestIdleCallback === 'function') {
-        requestIdleCallback(preload, { timeout: 3000 });
-      } else {
-        setTimeout(preload, 500);
-      }
-    }
+  // Pre-fetch the module so the JS is ready, but don't initialize the box yet —
+  // WebGL must be initialized after the overlay has real dimensions (active + positioned).
+  if (reveals.length > 0 && !diceBoxCtorPromise) {
+    diceBoxCtorPromise = import('@3d-dice/dice-box-threejs').then(mod => mod.default);
   }
 
   for (const reveal of reveals) {

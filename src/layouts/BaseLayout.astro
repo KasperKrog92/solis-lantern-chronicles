@@ -44,12 +44,13 @@ function isActive(href: string) {
       rel="stylesheet"
     />
     <title>{title === 'Solis Lantern Chronicles' ? title : `${title} — Solis Lantern Chronicles`}</title>
+    <slot name="head" />
   </head>
   <body>
     <header class="site-header">
       <nav class="site-nav" aria-label="Site navigation">
         <a href={resolveHref('/')} class="nav-home">
-          <Image src={lanternLogo} alt="" class="nav-logo" aria-hidden="true" width={32} height={32} />
+          <Image src={lanternLogo} alt="" class="nav-logo" aria-hidden="true" width={32} height={32} loading="eager" />
           <span class="nav-home__text">Solis Lantern Chronicles</span>
         </a>
         <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">

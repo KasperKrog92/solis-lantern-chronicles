@@ -31,7 +31,11 @@
       "Bash(npm install *)",
       "Bash(npm uninstall *)",
       "Bash(grep -v \"\\\\.js$\")",
-      "Bash(grep -v \"\\\\.mp3$\")"
+      "Bash(grep -v \"\\\\.mp3$\")",
+      "Bash(ffmpeg -version)",
+      "Bash(where ffmpeg *)",
+      "Bash(where sox *)",
+      "Bash(winget install *)"
     ]
   }
 }
