@@ -47,13 +47,19 @@ export function updateAmbienceVolume(v) {
   if (active) active.howl.volume(v);
 }
 
+function fadeOutHowl(howl, loopTimer) {
+  if (!howl) return;
+  clearTimeout(loopTimer);
+  const currentVolume = howl.volume();
+  howl.fade(currentVolume, 0, FADE_MS);
+  setTimeout(() => howl.unload(), FADE_MS + 100);
+}
+
 function stopActive() {
   if (!active) return;
   const { howl, loopTimer } = active;
   active = null;
-  clearTimeout(loopTimer);
-  howl.fade(howl.volume(), 0, FADE_MS);
-  setTimeout(() => howl.unload(), FADE_MS + 100);
+  fadeOutHowl(howl, loopTimer);
 }
 
 export function setAmbience(key) {
@@ -66,8 +72,12 @@ export function setAmbience(key) {
 
   if (active?.key === key) return;
 
-  stopActive();
+  const previous = active;
   startTrack(key);
+
+  if (previous?.howl) {
+    fadeOutHowl(previous.howl, previous.loopTimer);
+  }
 }
 
 export function stopAmbience() {
