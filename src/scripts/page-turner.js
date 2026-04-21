@@ -508,10 +508,21 @@ function applyDiceOutcomeClasses(reveal, rollResult, total, dc, dieLabelEl) {
 function initDiceReveals(pageEl) {
   const reveals = Array.from(pageEl.querySelectorAll('.dice-reveal'));
 
-  // Pre-fetch the module so the JS is ready, but don't initialize the box yet —
-  // creating AudioContexts without a user gesture triggers browser warnings.
-  if (reveals.length > 0 && !diceBoxCtorPromise) {
-    diceBoxCtorPromise = import('@3d-dice/dice-box-threejs').then(mod => mod.default);
+  if (reveals.length > 0) {
+    if (!diceBoxCtorPromise) {
+      diceBoxCtorPromise = import('@3d-dice/dice-box-threejs').then(mod => mod.default);
+    }
+    // Pre-warm the box in the background so sounds and WebGL are ready before
+    // the first click. AudioContext starts suspended and is resumed on first
+    // user gesture via unlockAudioContext — safe to create before any click.
+    if (!overlayBox) {
+      const preload = () => ensureOverlayBox().catch(() => {});
+      if (typeof requestIdleCallback === 'function') {
+        requestIdleCallback(preload, { timeout: 3000 });
+      } else {
+        setTimeout(preload, 500);
+      }
+    }
   }
 
   for (const reveal of reveals) {
