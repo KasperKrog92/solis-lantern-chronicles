@@ -1,16 +1,16 @@
 ---
-import { Image } from 'astro:assets';
 import '../styles/global.css';
-import lanternLogo from '../assets/lantern_logo.png';
 
 interface Props {
   title?: string;
   description?: string;
+  fullscreenHero?: boolean;
 }
 
 const {
   title = 'Solis Lantern Chronicles',
   description = 'A chronicle of an ongoing homebrew TTRPG campaign.',
+  fullscreenHero = false,
 } = Astro.props;
 
 const pathname = cleanPath(new URL(Astro.request.url).pathname);
@@ -35,7 +35,7 @@ function isActive(href: string) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <link rel="icon" type="image/png" sizes="64x64" href={resolveHref('/favicon.png')} />
+    <link rel="icon" type="image/png" sizes="32x32" href={resolveHref('/favicon.png')} />
     <!-- Typography: IM Fell English (display) + Crimson Pro (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -50,7 +50,7 @@ function isActive(href: string) {
     <header class="site-header">
       <nav class="site-nav" aria-label="Site navigation">
         <a href={resolveHref('/')} class="nav-home">
-          <Image src={lanternLogo} alt="" class="nav-logo" aria-hidden="true" width={32} height={32} loading="eager" />
+          <img src={resolveHref('/lantern-logo-new.png')} alt="" class="nav-logo" aria-hidden="true" width={32} height={32} loading="eager" />
           <span class="nav-home__text">Solis Lantern Chronicles</span>
         </a>
         <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">
@@ -87,14 +87,14 @@ function isActive(href: string) {
       });
     </script>
 
-    <main>
+    <main class:list={[{ 'has-fullscreen-hero': fullscreenHero }]}>
       <slot />
     </main>
 
     <footer class="site-footer">
       <div class="site-footer__inner">
         <span class="site-footer__copy">&copy; {new Date().getFullYear()} Solis Lantern Chronicles</span>
-        <a href="mailto:solislanternchronicles@gmail.com" class="site-footer__contact">solislanternchronicles@gmail.com</a>
+        <a href="mailto:solislanternchronicles@gmail.com" class="site-footer__contact">Contact</a>
       </div>
     </footer>
   </body>

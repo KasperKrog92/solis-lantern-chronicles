@@ -43,6 +43,11 @@ const formattedDate = date.toLocaleDateString('en-GB', {
     <div class="chapter-running-header" id="pt-running-header" hidden>
       <span class="chapter-running-header__label">{sessionLabel} — {title}</span>
       <span id="pt-counter-header" class="chapter-running-header__counter" aria-live="polite">—</span>
+      <div class="chapter-running-header__ornament" aria-hidden="true">
+        <div class="chapter-running-header__ornament-line"></div>
+        <span class="chapter-running-header__ornament-gem">✦</span>
+        <div class="chapter-running-header__ornament-line"></div>
+      </div>
     </div>
 
     <!-- Title block — visible on page 1 only; hidden by JS on subsequent pages -->

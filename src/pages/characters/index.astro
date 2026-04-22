@@ -4,11 +4,18 @@ import { getCollection } from 'astro:content';
 
 const characters = await getCollection('characters');
 
-// Active characters first, then inactive, then deceased
 const order = { active: 0, inactive: 1, deceased: 2 };
 const sorted = characters.sort((a, b) =>
   (order[a.data.status] ?? 99) - (order[b.data.status] ?? 99)
 );
+
+const ACCENT: Record<string, string> = {
+  'mara-embervale': 'oklch(48% 0.14 18)',
+  'wynn':           'oklch(52% 0.10 128)',
+  'nyssara':        'oklch(56% 0.09 255)',
+  'querc':          'oklch(52% 0.11 148)',
+  'tom-evenwood':   'oklch(54% 0.11 48)',
+};
 
 const SITE_BASE = '/solis-lantern-chronicles/';
 function resolveHref(href: string) {
@@ -18,37 +25,44 @@ function resolveHref(href: string) {
 ---
 
 <BaseLayout title="Characters" description="The founding members of the Solis Lantern adventuring guild.">
-  <div class="characters-page">
-    <h1 class="page-heading">Characters</h1>
+  <div class="roster-page">
+    <div class="roster-header">
+      <div>
+        <p class="roster-header__eyebrow">The Party</p>
+        <h1 class="roster-header__title">Characters</h1>
+      </div>
+    </div>
 
-    <ul class="character-roster">
+    <ul class="roster-grid">
       {sorted.map(character => (
         <li>
-          <a href={resolveHref(`/characters/${character.id}`)} class="character-card">
-            <div class="character-card__portrait">
-              {character.data.portrait ? (
-                <img src={character.data.portrait} alt={character.data.name} />
-              ) : (
-                <span class="character-card__portrait-initial" aria-hidden="true">
-                  {character.data.name[0]}
-                </span>
-              )}
+          <a
+            href={resolveHref(`/characters/${character.id}`)}
+            class="roster-card"
+            style={`--char-accent: ${ACCENT[character.id] ?? 'var(--gold)'}`}
+          >
+            <div class="roster-card__portrait-wrap">
+              <div class="roster-card__portrait">
+                {character.data.portrait ? (
+                  <img
+                    src={resolveHref(character.data.portrait)}
+                    alt={character.data.name}
+                  />
+                ) : (
+                  <span class="roster-card__portrait-initial" aria-hidden="true">
+                    {character.data.name[0]}
+                  </span>
+                )}
+              </div>
+              <div class="roster-card__overlay">
+                <span class="roster-card__overlay-text">View Profile</span>
+              </div>
             </div>
-            <p class="character-card__name">{character.data.name}</p>
-            <dl class="character-card__stats">
-              <div class="character-card__stat">
-                <dt>Species</dt>
-                <dd>{character.data.race}</dd>
-              </div>
-              <div class="character-card__stat">
-                <dt>Class</dt>
-                <dd>{character.data.class_name}</dd>
-              </div>
-            </dl>
-            <p class="character-card__player">
-              <span style="font-family: var(--font-sc); font-size: 0.85rem; letter-spacing: 0.14em; opacity: 0.6;">played by</span>
-              {' '}{character.data.player}
-            </p>
+            <div class="roster-card__info">
+              <span class="roster-card__name">{character.data.name}</span>
+              <span class="roster-card__class">{character.data.class_name}</span>
+              <span class="roster-card__player">{character.data.player}</span>
+            </div>
           </a>
         </li>
       ))}

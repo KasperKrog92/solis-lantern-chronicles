@@ -11,54 +11,88 @@ export async function getStaticPaths() {
 }
 
 const { character } = Astro.props;
-const { Content }   = await render(character);
+const { Content } = await render(character);
+
+const ACCENT: Record<string, string> = {
+  'mara-embervale': 'oklch(48% 0.14 18)',
+  'wynn':           'oklch(52% 0.10 128)',
+  'nyssara':        'oklch(56% 0.09 255)',
+  'querc':          'oklch(52% 0.11 148)',
+  'tom-evenwood':   'oklch(54% 0.11 48)',
+};
+
 const SITE_BASE = '/solis-lantern-chronicles/';
 function resolveHref(href: string) {
   const target = href === '/' ? SITE_BASE : href.replace(/^\/+/, '');
   return new URL(target, `https://example.com${SITE_BASE}`).pathname;
 }
 
-// Find all chapters where this character appears
-const chapters = await getCollection('chapters');
-const appearances = chapters
-  .filter(c => c.data.characters_present.includes(character.id))
-  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime());
-
+const accentColor = ACCENT[character.id] ?? 'var(--gold)';
+const tagline = `${character.data.race} · ${character.data.class_name}`;
 ---
 
 <BaseLayout title={character.data.name}>
-  <div class="character-detail">
-    <a href={resolveHref('/characters')} class="back-link">← All Characters</a>
+  <div class="detail-page" style={`--char-accent: ${accentColor}`}>
+    <div class="page-wrap">
 
-    <h1 class="character-detail__name" style="margin-bottom:0.4rem;">{character.data.name}</h1>
+      <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href={resolveHref('/characters')}>Characters</a>
+        <span class="breadcrumb__sep" aria-hidden="true">›</span>
+        <span>{character.data.name}</span>
+      </nav>
 
-    <p class="character-detail__meta">
-      {character.data.race} · {character.data.class_name}
-    </p>
-    <p class="character-detail__player">
-      <span style="font-family:var(--font-sc);font-size:0.85rem;letter-spacing:0.14em;opacity:0.6;">Played by</span>
-      {' '}{character.data.player}
-    </p>
+      <div class="detail-layout">
 
-    <blockquote class="character-detail__bio">{character.data.short_bio}</blockquote>
+        <div class="detail-left">
+          <div class="detail-portrait">
+            {character.data.portrait ? (
+              <img
+                src={resolveHref(character.data.portrait)}
+                alt={character.data.name}
+                class="detail-portrait__img"
+              />
+            ) : (
+              <div class="detail-portrait__placeholder" aria-hidden="true">
+                {character.data.name[0]}
+              </div>
+            )}
+          </div>
 
-    <div class="character-detail__body">
-      <Content />
-    </div>
+          <dl class="detail-stat-block">
+            <div class="detail-stat-row">
+              <dt>Race</dt>
+              <dd>{character.data.race}</dd>
+            </div>
+            <div class="detail-stat-row">
+              <dt>Class</dt>
+              <dd>{character.data.class_name}</dd>
+            </div>
+            <div class="detail-stat-row">
+              <dt>Player</dt>
+              <dd>{character.data.player}</dd>
+            </div>
+          </dl>
+        </div>
 
-    {appearances.length > 0 && (
-      <div class="character-detail__appearances">
-        <h2>Appears In</h2>
-        <ul class="appearances-list">
-          {appearances.map(chapter => (
-            <li>
-              <a href={resolveHref(`/chronicle/${chapter.id}`)}>
-                Session {String(chapter.data.session).padStart(2, '0')} — {chapter.data.title}
-              </a>
-            </li>
-          ))}
-        </ul>
+        <div class="detail-right">
+          <h1 class="detail-name">{character.data.name}</h1>
+          <p class="detail-tagline">{tagline}</p>
+
+          <div class="detail-rule" aria-hidden="true">
+            <div class="detail-rule__line"></div>
+            <span class="detail-rule__mark">✦</span>
+            <div class="detail-rule__line"></div>
+          </div>
+
+          <blockquote class="detail-bio">{character.data.short_bio}</blockquote>
+
+          <div class="detail-prose">
+            <Content />
+          </div>
+
+        </div>
+
       </div>
-    )}
+    </div>
   </div>
 </BaseLayout>

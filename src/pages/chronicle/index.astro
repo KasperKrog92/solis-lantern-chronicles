@@ -28,7 +28,7 @@ function resolveHref(href: string) {
 
 <BaseLayout title="Chronicle" description="All sessions of the Solis Lantern Chronicles, newest first.">
   <div class="chronicle-page">
-    <h1 class="page-heading">The Chronicle</h1>
+    <p class="chronicle-page__label">The Chronicle</p>
 
     {chapters.length === 0 ? (
       <p style="color: rgba(200,168,75,0.45); font-style: italic;">
@@ -40,11 +40,9 @@ function resolveHref(href: string) {
           <li class="chapter-card">
             <p class="chapter-card__session">
               Session {String(chapter.data.session).padStart(2, '0')}
-              {chapter.data.draft && <span style="margin-left:0.5em; opacity:0.5;">[draft]</span>}
+              {chapter.data.draft && <span class="chapter-card__draft">[draft]</span>}
             </p>
-            <h2 class="chapter-card__title">
-              <a href={resolveHref(`/chronicle/${chapter.id}`)}>{chapter.data.title}</a>
-            </h2>
+            <h2 class="chapter-card__title">{chapter.data.title}</h2>
             <p class="chapter-card__date">
               {chapter.data.date.toLocaleDateString('en-GB', {
                 day: 'numeric',
@@ -52,15 +50,26 @@ function resolveHref(href: string) {
                 year: 'numeric',
               })}
             </p>
+            <div class="chapter-card__divider" aria-hidden="true">
+              <div class="chapter-card__divider-line"></div>
+              <span class="chapter-card__divider-gem">✦</span>
+              <div class="chapter-card__divider-line"></div>
+            </div>
             <p class="chapter-card__summary">{chapter.data.summary}</p>
             <div class="chapter-card__characters">
               {chapter.data.characters_present.map(slug => (
                 <CharacterChip slug={slug} name={charMap[slug]?.name ?? slug} />
               ))}
             </div>
+            <a href={resolveHref(`/chronicle/${chapter.id}`)} class="chapter-card__read-link">Read this session →</a>
           </li>
         ))}
       </ul>
     )}
   </div>
 </BaseLayout>
+
+<script>
+  import { randomiseParchment } from '../../scripts/parchment.js';
+  document.querySelectorAll<HTMLElement>('.chapter-card').forEach(card => randomiseParchment(card));
+</script>

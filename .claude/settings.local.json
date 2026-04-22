@@ -48,7 +48,10 @@
       "Bash(ffprobe -v quiet -show_entries format=duration,bit_rate -of csv=p=0 \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-tavern.mp3\")",
       "Bash(ffprobe -v quiet -show_entries format=duration,bit_rate -of csv=p=0 \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-night-wall.mp3\")",
       "Bash(ffprobe -v quiet -show_entries format=duration,bit_rate -of csv=p=0 \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-graveyard.mp3\")",
-      "Bash(where ffprobe *)"
+      "Bash(where ffprobe *)",
+      "WebFetch(domain:api.anthropic.com)",
+      "Bash(magick identify *)",
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile\\(\"C:\\\\Users\\\\kaspe\\\\OneDrive\\\\Webprojekter\\\\solis-lantern-chronicles\\\\public\\\\lantern-logo-new.png\"\\); \"$\\($img.Width\\)x$\\($img.Height\\)\"; $img.Dispose\\(\\))"
     ]
   }
 }
