@@ -19,7 +19,7 @@ let intendedKey = null;
 let active      = null; // { key, howl, loopTimer }
 
 function startTrack(key) {
-  const howl = new Howl({ src: [TRACKS[key]], loop: false, volume: 0 });
+  const howl = new Howl({ src: TRACKS[key], loop: false, volume: 0 });
   active = { key, howl, loopTimer: null };
 
   howl.once('load', () => {
