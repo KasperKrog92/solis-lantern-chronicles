@@ -52,6 +52,7 @@
 
 html {
   background-color: var(--bg);
+  color-scheme: dark;
   -webkit-text-size-adjust: 100%;
   scrollbar-gutter: stable;
 }
@@ -517,7 +518,7 @@ main.has-fullscreen-hero {
   place-items: center;
   position: relative;
   overflow: hidden;
-  padding: 5rem 2rem 4rem;
+  padding: 5rem 2rem 7rem;
 }
 
 .hero::before {
@@ -1892,9 +1893,7 @@ main.has-fullscreen-hero {
 
 .detail-portrait__img {
   width: 100%;
-  aspect-ratio: 3 / 4;
-  object-fit: cover;
-  object-position: top;
+  height: auto;
   display: block;
 }
 
@@ -2411,3 +2410,28 @@ main.has-fullscreen-hero {
   }
 }
 
+/* ── HIGH-CONTRAST PREFERENCE ────────────────────────────────────────── */
+/* For users who have enabled "increase contrast" in their OS settings.   */
+
+@media (prefers-contrast: more) {
+  :root {
+    --bg:       #2a1d0a;
+    --bg-raised: #352510;
+  }
+
+  body {
+    background-image:
+      radial-gradient(ellipse 110% 75% at 50% 20%, #3d2610 0%, transparent 60%),
+      radial-gradient(ellipse 55% 50% at 15% 100%, #231508 0%, transparent 55%),
+      radial-gradient(ellipse 55% 50% at 85% 100%, #231508 0%, transparent 55%);
+  }
+
+  .hero__intro,
+  .hero__eyebrow {
+    color: rgba(200, 168, 75, 0.85);
+  }
+
+  .about__body {
+    color: rgba(200, 168, 75, 0.6);
+  }
+}

@@ -1,8 +1,21 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { getCollection } from 'astro:content';
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
 
 const characters = await getCollection('characters');
+
+const portraitModules = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/content/characters/*.png',
+  { eager: true }
+);
+const portraits: Record<string, ImageMetadata> = Object.fromEntries(
+  Object.entries(portraitModules).map(([path, mod]) => [
+    path.replace('/src/content/characters/', '').replace('.png', ''),
+    mod.default,
+  ])
+);
 
 const order = { active: 0, inactive: 1, deceased: 2 };
 const sorted = characters.sort((a, b) =>
@@ -43,10 +56,12 @@ function resolveHref(href: string) {
           >
             <div class="roster-card__portrait-wrap">
               <div class="roster-card__portrait">
-                {character.data.portrait ? (
-                  <img
-                    src={resolveHref(character.data.portrait)}
+                {portraits[character.id] ? (
+                  <Image
+                    src={portraits[character.id]}
                     alt={character.data.name}
+                    width={400}
+                    height={533}
                   />
                 ) : (
                   <span class="roster-card__portrait-initial" aria-hidden="true">

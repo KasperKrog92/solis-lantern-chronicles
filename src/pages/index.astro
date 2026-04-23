@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 import CharacterChip from '../components/CharacterChip.astro';
+import { Image } from 'astro:assets';
+import lanternLogo from '../assets/lantern-logo-new.png';
 import { getCollection } from 'astro:content';
 
 const SITE_BASE = '/solis-lantern-chronicles/';
@@ -55,7 +57,7 @@ const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
     <div class="hero__content">
       <div class="hero__logo-wrap">
         <div class="hero__glow" aria-hidden="true"></div>
-        <img src={resolveHref('/lantern-logo-new.png')} alt="The Solis Lantern" class="hero__logo" />
+        <Image src={lanternLogo} alt="The Solis Lantern" class="hero__logo" loading="eager" />
       </div>
       <p class="hero__eyebrow">A Campaign Chronicle</p>
       <h1 class="hero__title">Solis Lantern Chronicles</h1>

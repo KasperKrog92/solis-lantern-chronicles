@@ -51,7 +51,8 @@
       "Bash(where ffprobe *)",
       "WebFetch(domain:api.anthropic.com)",
       "Bash(magick identify *)",
-      "PowerShell(Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile\\(\"C:\\\\Users\\\\kaspe\\\\OneDrive\\\\Webprojekter\\\\solis-lantern-chronicles\\\\public\\\\lantern-logo-new.png\"\\); \"$\\($img.Width\\)x$\\($img.Height\\)\"; $img.Dispose\\(\\))"
+      "PowerShell(Add-Type -AssemblyName System.Drawing; $img = [System.Drawing.Image]::FromFile\\(\"C:\\\\Users\\\\kaspe\\\\OneDrive\\\\Webprojekter\\\\solis-lantern-chronicles\\\\public\\\\lantern-logo-new.png\"\\); \"$\\($img.Width\\)x$\\($img.Height\\)\"; $img.Dispose\\(\\))",
+      "Bash(node -e \"const p = require\\('./package.json'\\); console.log\\(p.dependencies?.astro || p.devDependencies?.astro\\)\")"
     ]
   }
 }

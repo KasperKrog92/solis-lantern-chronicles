@@ -1,5 +1,7 @@
 ---
 import '../styles/global.css';
+import { Image } from 'astro:assets';
+import lanternLogo from '../assets/lantern-logo-new.png';
 
 interface Props {
   title?: string;
@@ -50,7 +52,7 @@ function isActive(href: string) {
     <header class="site-header">
       <nav class="site-nav" aria-label="Site navigation">
         <a href={resolveHref('/')} class="nav-home">
-          <img src={resolveHref('/lantern-logo-new.png')} alt="" class="nav-logo" aria-hidden="true" width={32} height={32} loading="eager" />
+          <Image src={lanternLogo} alt="" class="nav-logo" aria-hidden="true" width={32} height={32} loading="eager" />
           <span class="nav-home__text">Solis Lantern Chronicles</span>
         </a>
         <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">
