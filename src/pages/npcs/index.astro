@@ -7,23 +7,32 @@ const sorted = npcs.sort((a, b) => a.data.name.localeCompare(b.data.name));
 ---
 
 <BaseLayout title="People" description="Notable figures encountered in the Solis Lantern Chronicles.">
-  <div class="npcs-page">
-    <h1 class="page-heading">People</h1>
-    <ul class="npc-list">
+  <div class="world-page-wrap">
+
+    <div class="world-header">
+      <div class="world-header__left">
+        <p class="world-header__eyebrow">Chronicle People</p>
+        <h1 class="world-header__title">People</h1>
+        <p class="world-header__intro">
+          Notable figures encountered across the tiers — allies, rivals, and those best
+          avoided in dark corridors.
+        </p>
+      </div>
+    </div>
+
+    <div class="npc-grid">
       {sorted.map(npc => (
-        <li class="npc-card">
-          <div class="npc-card__header">
-            <span class="npc-card__name">{npc.data.name}</span>
-          </div>
+        <div class="npc-card">
+          <span class="npc-card__ghost" aria-hidden="true">{npc.data.name[0]}</span>
           {npc.data.affiliation && (
             <p class="npc-card__affiliation">{npc.data.affiliation}</p>
           )}
+          <h2 class="npc-card__name">{npc.data.name}</h2>
           <p class="npc-card__description">{npc.data.description}</p>
-          <p class="npc-card__first-appearance">
-            First appears: Session {npc.data.first_appearance}
-          </p>
-        </li>
+          <p class="npc-card__first-appearance">First appears: Session {npc.data.first_appearance}</p>
+        </div>
       ))}
-    </ul>
+    </div>
+
   </div>
 </BaseLayout>

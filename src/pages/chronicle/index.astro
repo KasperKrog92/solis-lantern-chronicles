@@ -5,7 +5,6 @@ import { getCollection } from 'astro:content';
 
 const allChapters = await getCollection('chapters');
 
-// Show published chapters newest-first; drafts at the bottom behind a note
 const published = allChapters
   .filter(c => !c.data.draft)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
@@ -28,44 +27,57 @@ function resolveHref(href: string) {
 
 <BaseLayout title="Chronicle" description="All sessions of the Solis Lantern Chronicles, newest first.">
   <div class="chronicle-page">
-    <p class="chronicle-page__label">The Chronicle</p>
 
-    {chapters.length === 0 ? (
-      <p style="color: rgba(200,168,75,0.45); font-style: italic;">
-        The first pages are being written.
-      </p>
-    ) : (
-      <ul class="chapter-list">
-        {chapters.map(chapter => (
-          <li class="chapter-card">
-            <p class="chapter-card__session">
-              Session {String(chapter.data.session).padStart(2, '0')}
-              {chapter.data.draft && <span class="chapter-card__draft">[draft]</span>}
-            </p>
-            <h2 class="chapter-card__title">{chapter.data.title}</h2>
-            <p class="chapter-card__date">
-              {chapter.data.date.toLocaleDateString('en-GB', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </p>
-            <div class="chapter-card__divider" aria-hidden="true">
-              <div class="chapter-card__divider-line"></div>
-              <span class="chapter-card__divider-gem">✦</span>
-              <div class="chapter-card__divider-line"></div>
-            </div>
-            <p class="chapter-card__summary">{chapter.data.summary}</p>
-            <div class="chapter-card__characters">
-              {chapter.data.characters_present.map(slug => (
-                <CharacterChip slug={slug} name={charMap[slug]?.name ?? slug} />
-              ))}
-            </div>
-            <a href={resolveHref(`/chronicle/${chapter.id}`)} class="chapter-card__read-link">Read this session →</a>
-          </li>
-        ))}
-      </ul>
-    )}
+    <div class="world-header">
+      <div class="world-header__left">
+        <p class="world-header__eyebrow">Session Log</p>
+        <h1 class="world-header__title">Chronicle</h1>
+        <p class="world-header__intro">
+          A record of every session — what was done, what was lost, and what the party
+          would rather forget.
+        </p>
+      </div>
+    </div>
+
+    <div class="chapter-list-wrap">
+      {chapters.length === 0 ? (
+        <p style="color: rgba(200,168,75,0.45); font-style: italic;">
+          The first pages are being written.
+        </p>
+      ) : (
+        <ul class="chapter-list">
+          {chapters.map(chapter => (
+            <li class="chapter-card">
+              <p class="chapter-card__session">
+                Session {String(chapter.data.session).padStart(2, '0')}
+                {chapter.data.draft && <span class="chapter-card__draft">[draft]</span>}
+              </p>
+              <h2 class="chapter-card__title">{chapter.data.title}</h2>
+              <p class="chapter-card__date">
+                {chapter.data.date.toLocaleDateString('en-GB', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </p>
+              <div class="chapter-card__divider" aria-hidden="true">
+                <div class="chapter-card__divider-line"></div>
+                <span class="chapter-card__divider-gem">✦</span>
+                <div class="chapter-card__divider-line"></div>
+              </div>
+              <p class="chapter-card__summary">{chapter.data.summary}</p>
+              <div class="chapter-card__characters">
+                {chapter.data.characters_present.map(slug => (
+                  <CharacterChip slug={slug} name={charMap[slug]?.name ?? slug} />
+                ))}
+              </div>
+              <a href={resolveHref(`/chronicle/${chapter.id}`)} class="chapter-card__read-link">Read this session →</a>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+
   </div>
 </BaseLayout>
 

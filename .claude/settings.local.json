@@ -58,7 +58,11 @@
       "PowerShell(Get-Command ffmpeg.exe -ErrorAction SilentlyContinue)",
       "PowerShell(Get-Command node -ErrorAction SilentlyContinue)",
       "PowerShell(winget install --id Gyan.FFmpeg --accept-source-agreements --accept-package-agreements 2>&1)",
-      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\kaspe\\\\OneDrive\\\\Webprojekter\\\\solis-lantern-chronicles\\\\public\\\\sounds\" | Select-Object Name, @{N='Size KB';E={[math]::Round\\($_.Length/1KB\\)}})"
+      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\kaspe\\\\OneDrive\\\\Webprojekter\\\\solis-lantern-chronicles\\\\public\\\\sounds\" | Select-Object Name, @{N='Size KB';E={[math]::Round\\($_.Length/1KB\\)}})",
+      "Bash(curl -s -L \"https://api.anthropic.com/v1/design/h/T02RBilEKDeLkiXARRmmmw?open_file=Lore+Pages+Redesign.html\" -o /tmp/design_file.html)",
+      "Read(//tmp/**)",
+      "Bash(curl -sv \"https://api.anthropic.com/v1/design/h/T02RBilEKDeLkiXARRmmmw?open_file=Lore+Pages+Redesign.html\")",
+      "Bash(curl -sv \"https://api.anthropic.com/v1/design/h/T02RBilEKDeLkiXARRmmmw\")"
     ]
   }
 }

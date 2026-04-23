@@ -36,6 +36,7 @@ const lore = defineCollection({
     title: z.string(),
     category: z.enum(['location', 'faction', 'concept', 'creature']),
     summary: z.string(),
+    related: z.array(z.string()).optional(),
   }),
 });
 
