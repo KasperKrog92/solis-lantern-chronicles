@@ -2686,7 +2686,8 @@ main.has-fullscreen-hero {
   }
 
   .detail-portrait {
-    max-width: 260px;
+    max-width: 360px;
+    margin: 0 auto;
   }
 
   .chapter-controls {
