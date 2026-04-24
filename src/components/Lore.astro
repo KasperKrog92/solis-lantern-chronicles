@@ -10,6 +10,7 @@
  * If no entry is found for the slug, renders children as plain text.
  */
 import { getCollection } from 'astro:content';
+import { CHARACTER_COLORS } from '../lib/characterColors';
 
 interface Props {
   slug: string;
@@ -28,16 +29,18 @@ const charEntry   = allCharacters.find(e => e.id === slug);
 const npcEntry    = allNpcs.find(e => e.id === slug);
 const loreEntry   = allLore.find(e => e.id === slug);
 
-let name    = '';
-let summary = '';
-let href    = '';
-let found   = false;
+let name      = '';
+let summary   = '';
+let href      = '';
+let found     = false;
+let charColor = '';
 
 if (charEntry) {
-  found   = true;
-  name    = charEntry.data.name;
-  summary = charEntry.data.summary ?? charEntry.data.short_bio;
-  href    = `${base}/characters/${slug}`;
+  found     = true;
+  name      = charEntry.data.name;
+  summary   = charEntry.data.summary ?? charEntry.data.short_bio;
+  href      = `${base}/characters/${slug}`;
+  charColor = CHARACTER_COLORS[slug] ?? '';
 } else if (npcEntry) {
   found   = true;
   name    = npcEntry.data.name;
@@ -54,7 +57,11 @@ if (charEntry) {
 ---
 
 {found ? (
-  <span class="lore-link" data-lore-slug={slug}>
+  <span
+    class:list={['lore-link', { 'lore-link--character': !!charColor }]}
+    data-lore-slug={slug}
+    style={charColor ? `color: ${charColor}` : undefined}
+  >
     <slot />
     <span class="lore-tooltip" role="tooltip">
       <span class="lore-tooltip__name">{name}</span>
@@ -66,12 +73,16 @@ if (charEntry) {
   <slot />
 )}
 
-<style>
+<style is:global>
   .lore-link {
     position: relative;
     display: inline;
     border-bottom: 1px dotted currentColor;
     cursor: default;
+  }
+
+  .lore-link--character {
+    border-bottom: none;
   }
 
   /* Tooltip — hidden until hover or .tooltip-open (tap) */
@@ -160,75 +171,7 @@ if (charEntry) {
 </style>
 
 <script>
-  function clampTooltip(link: HTMLElement) {
-    const tooltip = link.querySelector<HTMLElement>('.lore-tooltip');
-    if (!tooltip) return;
-
-    // Reset any previous nudge so we measure from the natural position
-    tooltip.style.transform = '';
-
-    const rect = tooltip.getBoundingClientRect();
-    const pad  = 8;
-    const vw   = window.innerWidth;
-
-    if (rect.left < pad) {
-      const nudge = pad - rect.left;
-      tooltip.style.transform = `translateX(calc(-50% + ${nudge}px))`;
-    } else if (rect.right > vw - pad) {
-      const nudge = rect.right - (vw - pad);
-      tooltip.style.transform = `translateX(calc(-50% - ${nudge}px))`;
-    }
-  }
-
-  function initLoreTooltips() {
-    const links = document.querySelectorAll<HTMLElement>('.lore-link');
-
-    links.forEach(link => {
-      const tooltip = link.querySelector<HTMLElement>('.lore-tooltip');
-      if (!tooltip) return;
-
-      // Smart positioning: flip below if not enough room above, then clamp horizontally
-      link.addEventListener('mouseenter', () => {
-        const rect = link.getBoundingClientRect();
-        if (rect.top < 140) {
-          link.classList.add('tooltip-below');
-        } else {
-          link.classList.remove('tooltip-below');
-        }
-        clampTooltip(link);
-      });
-
-      // Tap toggle for mobile
-      link.addEventListener('click', e => {
-        // Let the → link navigate normally
-        if ((e.target as HTMLElement).closest('.lore-tooltip__link')) return;
-        e.stopPropagation();
-        const opening = !link.classList.contains('tooltip-open');
-
-        // Flip below if near top of screen
-        const linkRect = link.getBoundingClientRect();
-        if (linkRect.top < 140) {
-          link.classList.add('tooltip-below');
-        } else {
-          link.classList.remove('tooltip-below');
-        }
-
-        link.classList.toggle('tooltip-open');
-
-        // Clamp after the tooltip becomes visible
-        if (opening) clampTooltip(link);
-      });
-    });
-  }
-
-  // Dismiss open tooltips when tapping elsewhere — registered once only
-  document.addEventListener('click', () => {
-    document.querySelectorAll('.lore-link.tooltip-open').forEach(el => {
-      el.classList.remove('tooltip-open');
-    });
-  });
-
-  // Run once on load; re-run if page-turner swaps pages
+  import { initLoreTooltips } from '../scripts/lore-tooltips';
+  // DOMContentLoaded covers Lore used outside of ChapterLayout (no page-turner)
   document.addEventListener('DOMContentLoaded', initLoreTooltips);
-  document.addEventListener('page-turner:page-changed', initLoreTooltips);
 </script>

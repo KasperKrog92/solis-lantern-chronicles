@@ -10,6 +10,8 @@
 import BaseLayout from './BaseLayout.astro';
 import PageTurner from '../components/PageTurner.astro';
 import GmNotesToggle from '../components/GmNotesToggle.astro';
+import { getCollection } from 'astro:content';
+import { CHARACTER_COLORS } from '../lib/characterColors';
 
 interface Props {
   title: string;
@@ -25,6 +27,15 @@ function resolveHref(href: string) {
   const target = href === '/' ? SITE_BASE : href.replace(/^\/+/, '');
   return new URL(target, `https://example.com${SITE_BASE}`).pathname;
 }
+
+const allCharacters = await getCollection('characters');
+const characterData = allCharacters.map(c => ({
+  slug: c.id,
+  name: c.data.name,
+  color: CHARACTER_COLORS[c.id] ?? '',
+  summary: c.data.summary ?? c.data.short_bio,
+  href: resolveHref(`/characters/${c.id}`),
+}));
 
 ---
 
@@ -96,11 +107,24 @@ function resolveHref(href: string) {
   </div>
 </BaseLayout>
 
+<script type="application/json" id="character-data" is:inline set:html={JSON.stringify(characterData)} />
+
 <script>
   import { initPageTurner } from '../scripts/page-turner.js';
   import { initSketchReveal } from '../scripts/sketch-reveal.js';
+  import { replaceCharacterMentions } from '../scripts/character-mentions';
+  import { initLoreTooltips } from '../scripts/lore-tooltips';
+
+  // Replace character names in #pt-source BEFORE initPageTurner reads it to
+  // build the pages array — this way spans are baked into the stored HTML
+  // strings and survive the word-reveal wrapping that happens per page display.
+  replaceCharacterMentions();
 
   initPageTurner();
+
+  // Init tooltips after each page is shown (fresh DOM nodes, no data-lore-init).
+  // DOMContentLoaded is handled by Lore.astro's script for the initial page.
+  document.addEventListener('page-turner:page-changed', initLoreTooltips);
 
   document.addEventListener('page-turner:text-revealed', () => {
     const page = document.getElementById('pt-page');

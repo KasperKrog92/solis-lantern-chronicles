@@ -5,20 +5,14 @@
  * Shows a badge with initials and the character's name, linking to their page.
  */
 
+import { CHARACTER_COLORS } from '../lib/characterColors';
+
 interface Props {
   slug: string;
   name: string;
 }
 
 const { slug, name } = Astro.props;
-
-const ACCENT: Record<string, string> = {
-  'mara-embervale': 'oklch(48% 0.14 18)',
-  'wynn':           'oklch(52% 0.10 128)',
-  'nyssara':        'oklch(56% 0.09 255)',
-  'querc':          'oklch(52% 0.11 148)',
-  'tom-evenwood':   'oklch(54% 0.11 48)',
-};
 
 const SITE_BASE = '/solis-lantern-chronicles/';
 function resolveHref(href: string) {
@@ -32,7 +26,7 @@ function initials(n: string): string {
 }
 ---
 
-<a href={resolveHref(`/characters/${slug}`)} class="char-chip" style={`--char-accent: ${ACCENT[slug] ?? 'var(--ink)'}`} title={name}>
+<a href={resolveHref(`/characters/${slug}`)} class="char-chip" style={`--char-accent: ${CHARACTER_COLORS[slug] ?? 'var(--ink)'}`} title={name}>
   <span class="char-chip__badge" aria-hidden="true">{initials(name)}</span>
   {name.split(' ')[0]}
 </a>
