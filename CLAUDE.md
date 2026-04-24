@@ -53,7 +53,18 @@ If the transformation runs on `#pt-source` first, the modified HTML is baked int
 - `page-turner:page-changed` → **wrong** hook for text-node replacement
 - `page-turner:text-revealed` → fires after word reveal animation completes
 
-`wrapWordsInSpans()` already skips `.lore-tooltip` and `.note-tooltip` content.
+`wrapWordsInSpans()` skips: `.dice-reveal`, `.post-roll-content`, `.drop-cap`, `.lore-tooltip`, `.note-tooltip`. Any new component with hidden-until-interaction text must be added here — unwrapped hidden words cause silent pauses in the reveal sequence.
+
+### Page numbering convention
+- **Page 0** — dedicated title page (empty content, shows title/session/date). Never counted.
+- **Pages 1..N** — content pages, shown as "1 / N" etc. in the running header.
+- So "page 2 of the chapter" = second `---` block = `pages[2]` in JS.
+
+### Navigation
+- Arrow keys, Prev/Next buttons, click zones (left 40% back, right 40% forward, middle 20% neutral)
+- Touch: swipe carousel with ghost preview; commits if drag > 35% of track width
+- URL hash: `#page-N` (0-based), updated via `pushHash`/`replaceHash`
+- Browser back/forward via `popstate` — calls `showPage` with `skipReveal: true`
 
 ### Key scripts
 | Script | Purpose |
@@ -105,3 +116,80 @@ If a `net::ERR_ABORTED 504 (Outdated Optimize Dep)` error appears: `rm -rf node_
 - Session 00 = the founding one-shot; slug `session-00`
 - Chapter MDX uses `<Ambience track="key" />`, `<Sketch src={img} alt="..." />`, `<Note>`, `<DiceReveal>` components
 - Audio tracks live in `public/sounds/` as both `.webm` (Opus) and `.mp3` pairs
+
+## Sound system
+
+Three layers: master toggle → individual sound toggles → per-sound volume sliders. All state in `localStorage`, managed by `settings.js`. Audio wiring (play calls, DiceBox config, ambience) lives in `page-turner.js`.
+
+- **Master toggle:** `localStorage['sound']` — disabling it disables all sub-controls.
+- **Writing sound** (`writing-sound.js`): sample-based (`public/sounds/writing-sign.ogg`), not synthesised. Filter chain: LPF 4000 Hz → presence +4 dB at 1500 Hz → warmth +4 dB at 400 Hz. Playback rate 0.80–0.90×. Strokes: 180–300 ms random clips. Swoosh fires at `wordEls.length - 6` on pages ≥ 15 words. `AudioContext` is NOT created on page load — created lazily after first user gesture to avoid Chrome warnings.
+- **Dice sound**: handled by `@3d-dice/dice-box-threejs`; pass `volume: 0–100` in config. Files `dicehit_wood1–12.mp3` are mono; surface files converted to mono via ffmpeg to prevent positional panning.
+- **Ambience** (`ambience.js`): Howler.js, three tracks: `tavern`, `night-wall`, `graveyard`. Crossfades over 4 seconds.
+- **Text reveal timing**: duration `Math.min(6000, Math.max(1800, wordCount * 110))` ms; writing sound fires every ~240 ms of reveal.
+- **`settings.js` pattern**: `SOUND_TOGGLES` and `VOLUME_SLIDERS` config arrays drive both `applySettings()` and `initSettingsToggles()`. To add a new sound type, add one entry to each array.
+
+**Do not apply EQ or filter chains to dice hit/surface sounds.** Two attempts were made and both reverted ("too shrill", "not good"). If dice sounds need adjustment, tune physics params (`strength`, `gravity_multiplier`) or volume instead.
+
+## DiceBox architecture
+
+3D dice use `@3d-dice/dice-box-threejs` rendered into `.dice-page-overlay` sized over `.page-surface` at click time.
+
+**Init is deferred — never call `initialize()` before the overlay has inline dimensions.** Doing so creates a 0×0 Three.js renderer (dice render but are invisible). This was the exact bug on the hosted site.
+
+- On page render: JS module pre-fetched (`diceBoxCtorPromise = import(...)`) but no `new DiceBoxCtor()` or `initialize()`.
+- On first click: overlay created with inline `width`/`height`, made active, then `ensureOverlayBox()` initializes the renderer.
+- On subsequent clicks: `overlayBox` already exists; only `updateConfig({ sounds: ... })` is called.
+
+**Asset path:** `import.meta.env.BASE_URL + 'assets/dice-box/'` — assets live in `public/assets/dice-box/`.
+
+**Overlay sizing:** top = `.site-header` bottom (nav acts as physics ceiling). Bottom clamped to `rect.bottom` of page surface. Positioned with `window.scrollY` offset.
+
+**HiDPI fix:** after `box.initialize()`, call `box.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))` then `box.renderer.setSize(width * 2, height * 2)`. Do NOT call `box.setDimensions()` here — that recalculates physics/camera and makes dice appear oversized.
+
+**Physics (current):** `strength: 3.0`, `gravity_multiplier: 180`. Defaults were `4.0` / `350`.
+
+## DiceReveal component
+
+`DiceReveal.astro` renders a bordered card. Outcome/result text is NOT a prop — it lives as normal MDX prose after the component tag.
+
+**Props:** `character`, `skill`, `dc`, `modifier`, `result` (no `outcome` prop — coupling narrative to the component was overengineering).
+
+**HTML structure:**
+- `.dice-reveal__header` — "Character — Skill · DC N · Roll +N"
+- `.dice-reveal__pre-roll` — contains the "Roll the dice" button
+- `.dice-reveal__tumble` — `.dice-reveal__scene-shell` (3D stage) + `.dice-reveal__equation` (die value + operator + total)
+
+**Post-roll flow (`initDiceReveals`):**
+1. Click: lock card `min-height`, fade out button (250 ms), show overlay
+2. After roll + 600 ms: remove overlay `.active`
+3. Wait full overlay fade (500 ms) then call `settleInline()`
+4. `settleInline()`: populate equation, apply outcome classes, release `min-height`, add `tumbleEl.active` + `dice-reveal--settled` simultaneously
+5. Post-roll MDX siblings gated in `.post-roll-content`; revealed 500 ms after settle
+
+## Sketch reveal
+
+Images in `<figure data-sketch-reveal>` are hidden at first paint via `[data-sketch-reveal] img { opacity: 0 }` in CSS (not JS). When triggered, a `<canvas class="sketch-canvas">` is appended and progressively draws the image in wavy horizontal bands using `ctx.clip()` + `ctx.drawImage()`, simulating pen strokes sweeping top-to-bottom.
+
+**Trigger:** `page-turner:text-revealed` event — sketch starts after text on the page has fully revealed.
+
+**Sound:** `playWritingSound()` fires every `SOUND_EVERY` bands (~240 ms cadence); `playWritingFinishSound()` fires at `SWOOSH_AT` (`STROKE_COUNT - 6`). Both gated on `isWritingSoundEnabled()`.
+
+**Key tuning constants in `sketch-reveal.js`:**
+- `STROKE_COUNT = 52` — number of bands
+- `DURATION_MS = 5000` — total draw time (2200 ms was too fast)
+- `START_DELAY = 200` — ms pause before pen touches paper
+- `bandH = (H / STROKE_COUNT) * 2.4` — overlap prevents gaps
+- `amp = 5` px vertical noise on band edges
+
+## Campaign source document
+
+The master campaign document lives in Google Drive and can be read directly via MCP tools.
+
+- **File ID:** `1Bv-L7IyZDMLJdqUKDr_y68pQ3tZnY7UsSG0-O2x1dyM`
+- **Tool:** `mcp__claude_ai_Google_Drive__read_file_content` with the file ID above
+
+When asked to sync the website from the campaign doc, read this file and compare against `src/content/` to update characters, NPCs, lore, and chapters.
+
+## Conventions / learned rules
+
+**Prefer removing over over-engineering.** After 2–3 failed attempts at a visual polish feature, proactively suggest the simpler alternative. Don't add abstraction layers (wrapper divs, JS-managed state) to solve what should be a CSS-only problem. Demonstrated during the dice icon saga: after many attempts to align an icon, the response was "remove the fucking dice icon and just use a number."
