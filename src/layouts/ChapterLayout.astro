@@ -98,5 +98,12 @@ function resolveHref(href: string) {
 
 <script>
   import { initPageTurner } from '../scripts/page-turner.js';
+  import { initSketchReveal } from '../scripts/sketch-reveal.js';
+
   initPageTurner();
+
+  document.addEventListener('page-turner:text-revealed', () => {
+    const page = document.getElementById('pt-page');
+    if (page) initSketchReveal(page);
+  });
 </script>

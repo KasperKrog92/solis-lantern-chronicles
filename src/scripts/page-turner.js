@@ -408,6 +408,8 @@ function renderPage(index, skipReveal = false, skipParchment = false) {
 
   if (!skipReveal && isGradualEnabled()) {
     revealText(pageEl);
+  } else {
+    document.dispatchEvent(new CustomEvent('page-turner:text-revealed'));
   }
 
   const fromHeight = parseFloat(surface.style.height) || getSurfaceHeight(surface);
@@ -871,6 +873,7 @@ function finishReveal() {
     }
   });
   pageEl.querySelectorAll('.dice-reveal').forEach(el => { el.style.visibility = ''; });
+  document.dispatchEvent(new CustomEvent('page-turner:text-revealed'));
 }
 
 function revealText(container) {
@@ -886,6 +889,7 @@ function revealText(container) {
 
   if (wordCount === 0) {
     isRevealing = false;
+    document.dispatchEvent(new CustomEvent('page-turner:text-revealed'));
     return;
   }
 
@@ -947,6 +951,7 @@ function revealText(container) {
 
       if (i === wordEls.length - 1) {
         isRevealing = false;
+        document.dispatchEvent(new CustomEvent('page-turner:text-revealed'));
       }
     }, i * delay);
 
