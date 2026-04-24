@@ -1287,14 +1287,30 @@ main.has-fullscreen-hero {
   display: none;
 }
 
-/* Word-by-word reveal animation */
+/* Word-by-word reveal animation — left-to-right clip wipe per word */
 .word {
-  opacity: 0;
-  transition: opacity 0.1s ease;
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.1s ease-out;
 }
 
 .word.revealed {
-  opacity: 1;
+  clip-path: inset(0 0% 0 0);
+}
+
+/* Per-character reveal (≤10-word pages) — word spans become plain wrappers */
+.char-reveal .word {
+  clip-path: none;
+}
+
+.char {
+  display: inline-block;
+  clip-path: inset(0 100% 0 0);
+  transition: clip-path 0.08s ease-out;
+}
+
+.char.revealed {
+  clip-path: inset(0 0% 0 0);
 }
 
 /* Page footer: navigation */

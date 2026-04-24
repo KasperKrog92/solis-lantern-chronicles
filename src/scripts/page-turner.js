@@ -47,6 +47,7 @@ let heightTimer  = null;
 
 const HEIGHT_ANIMATION_MS = 320;
 const TOUCH_TURN_MS = 300;
+const CHAR_REVEAL_THRESHOLD = 10;
 const BUTTON_TURN_MS = 360;
 
 function getSurfaceHeight(surface = document.querySelector('.page-surface')) {
@@ -391,7 +392,7 @@ function renderPage(index, skipReveal = false, skipParchment = false) {
   applySurfaceClasses(surface, index);
 
   pageEl.innerHTML = pages[index];
-  pageEl.classList.remove('pt-page-content--masked');
+  pageEl.classList.remove('pt-page-content--masked', 'char-reveal');
 
   // Inject drop cap on first content page before word-wrapping runs
   if (index === 1) injectDropCap(pageEl);
@@ -872,8 +873,76 @@ function finishReveal() {
       loreLink.classList.add('lore-link--revealed');
     }
   });
+  pageEl.querySelectorAll('.char:not(.revealed)').forEach(el => el.classList.add('revealed'));
   pageEl.querySelectorAll('.dice-reveal').forEach(el => { el.style.visibility = ''; });
   document.dispatchEvent(new CustomEvent('page-turner:text-revealed'));
+}
+
+function revealByChar(container, wordEls, diceRevealTriggers) {
+  container.classList.add('char-reveal');
+
+  for (const wordEl of wordEls) {
+    const text = wordEl.textContent;
+    const frag = document.createDocumentFragment();
+    for (const ch of text) {
+      const span     = document.createElement('span');
+      span.className = 'char';
+      span.textContent = ch;
+      frag.appendChild(span);
+    }
+    wordEl.textContent = '';
+    wordEl.appendChild(frag);
+    wordEl.classList.add('revealed');
+  }
+
+  const charEls = Array.from(container.querySelectorAll('.char'));
+  if (charEls.length === 0) {
+    isRevealing = false;
+    document.dispatchEvent(new CustomEvent('page-turner:text-revealed'));
+    return;
+  }
+
+  // Map each word-level dice trigger to the last char index of that word
+  let idx = 0;
+  const wordLastCharIdx = new Map();
+  for (const wordEl of wordEls) {
+    const count = wordEl.querySelectorAll('.char').length;
+    wordLastCharIdx.set(wordEl, idx + count - 1);
+    idx += count;
+  }
+  const charDiceRevealTriggers = diceRevealTriggers.map(({ el, triggerIdx }) => ({
+    el,
+    charIdx: triggerIdx === -1 ? -1 : (wordLastCharIdx.get(wordEls[triggerIdx]) ?? -1),
+  }));
+
+  const charCount  = charEls.length;
+  const charDelay  = Math.max(60, Math.max(2000, wordEls.length * 110) / charCount);
+  const soundEvery = Math.max(1, Math.round(240 / charDelay));
+  let soundBeat    = 0;
+
+  charEls.forEach((el, i) => {
+    const id = setTimeout(() => {
+      el.classList.add('revealed');
+
+      charDiceRevealTriggers.forEach(({ el: dr, charIdx }) => {
+        if (charIdx === i) dr.style.visibility = '';
+      });
+
+      const useSwoosh = charCount >= 15;
+      const swooshIdx = charCount - 6;
+      soundBeat++;
+      if (isWritingSoundEnabled() && soundBeat % soundEvery === 0 && (!useSwoosh || i < swooshIdx)) {
+        playWritingSound();
+      }
+      if (useSwoosh && i === swooshIdx && isWritingSoundEnabled()) playWritingFinishSound();
+
+      if (i === charCount - 1) {
+        isRevealing = false;
+        document.dispatchEvent(new CustomEvent('page-turner:text-revealed'));
+      }
+    }, i * charDelay);
+    revealTimers.push(id);
+  });
 }
 
 function revealText(container) {
@@ -914,6 +983,11 @@ function revealText(container) {
   diceRevealTriggers
     .filter(({ triggerIdx }) => triggerIdx === -1)
     .forEach(({ el }) => { el.style.visibility = ''; });
+
+  if (wordCount <= CHAR_REVEAL_THRESHOLD) {
+    revealByChar(container, wordEls, diceRevealTriggers);
+    return;
+  }
 
   const totalMs    = Math.min(6000, Math.max(1800, wordCount * 110));
   const delay      = totalMs / wordCount;
