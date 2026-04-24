@@ -13,6 +13,8 @@ draft: false
 
 import DiceReveal from '../../components/DiceReveal.astro';
 import Ambience from '../../components/Ambience.astro';
+import Sketch from '../../components/Sketch.astro';
+import innSketch from '../../assets/sketches/inn-sketch.png';
 
 <Ambience track="tavern" />The wet season is coming. Everyone in <Lore slug="brinegate">Brinegate</Lore> can feel it — in the way the merchants have begun stacking their stalls with waterproofed covers, in the way the Wall guards stand longer at their posts, scanning the horizon with a particular quality of attention that has nothing to do with smugglers or curfew-breakers. The sea is eight days east and its rhythms have always been felt here, in the hinge between the <Lore slug="the-three-tiers">Middle Tier and the Outer</Lore>, where the smell of salt is a permanent undercurrent in the wood smoke and tallow.<Note>The wet season typically runs eight to ten weeks. The previous year saw three Leviathan incursions in the first week alone.</Note>
 
@@ -20,9 +22,7 @@ import Ambience from '../../components/Ambience.astro';
 
 The Last Sound Inn has been full since yesterday. Travelers who didn't want to be caught in the outer reaches when the season turned have been arriving in small, tense clusters all day. By evening the common room is warm with bodies and dense with the particular conversation of people who are deciding, quietly, whether to be afraid.
 
-<figure class="page-sketch" data-sketch-reveal>
-  <img src="/solis-lantern-chronicles/inn-sketch.png" alt="The Last Sound Inn" />
-</figure>
+<Sketch src={innSketch} alt="The Last Sound Inn" />
 
 ---
 

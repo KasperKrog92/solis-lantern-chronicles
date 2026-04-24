@@ -1,0 +1,14 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  src: ImageMetadata;
+  alt: string;
+}
+
+const { src, alt } = Astro.props;
+---
+<figure class="page-sketch" data-sketch-reveal>
+  <Image {src} {alt} loading="eager" />
+</figure>
