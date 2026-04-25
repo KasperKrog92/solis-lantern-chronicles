@@ -69,16 +69,24 @@ body {
   display: flex;
   flex-direction: column;
   background-color: var(--bg);
-  /* Lantern-light effect: warm amber pool from above-center, darker at corners */
-  background-image:
-    radial-gradient(ellipse 110% 75% at 50% 20%, #301d08 0%, transparent 60%),
-    radial-gradient(ellipse 55% 50% at 15% 100%, #1a1006 0%, transparent 55%),
-    radial-gradient(ellipse 55% 50% at 85% 100%, #1a1006 0%, transparent 55%);
-  background-attachment: fixed;
   font-family: var(--font-body);
   font-weight: 300;
   line-height: var(--lh-body);
   color: var(--gold);
+}
+
+/* Lantern-light gradient as a fixed compositing layer — avoids the
+   forced full-page repaint that background-attachment:fixed causes on
+   every scroll frame in Chrome for Android. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image:
+    radial-gradient(ellipse 110% 75% at 50% 20%, #301d08 0%, transparent 60%),
+    radial-gradient(ellipse 55% 50% at 15% 100%, #1a1006 0%, transparent 55%),
+    radial-gradient(ellipse 55% 50% at 85% 100%, #1a1006 0%, transparent 55%);
+  pointer-events: none;
 }
 
 img {
