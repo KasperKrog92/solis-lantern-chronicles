@@ -15,8 +15,19 @@ const LOOP_OUT_S = 10; // stop this many seconds before the file ends
 
 // intendedKey: what should be playing regardless of enabled state
 // active: what is currently playing
-let intendedKey = null;
-let active      = null; // { key, howl, loopTimer }
+let intendedKey        = null;
+let active             = null; // { key, howl, loopTimer }
+let pausedByVisibility = false;
+
+function scheduleLoop(howl, delayMs) {
+  if (active?.howl !== howl) return;
+  const fullLoopMs = (howl.duration() - LOOP_IN_S - LOOP_OUT_S) * 1000;
+  active.loopTimer = setTimeout(() => {
+    if (active?.howl !== howl) return;
+    howl.seek(LOOP_IN_S);
+    scheduleLoop(howl, fullLoopMs);
+  }, delayMs ?? fullLoopMs);
+}
 
 function startTrack(key) {
   const howl = new Howl({ src: TRACKS[key], loop: false, volume: 0 });
@@ -24,24 +35,30 @@ function startTrack(key) {
 
   howl.once('load', () => {
     if (active?.howl !== howl) return;
-
-    const loopDurationMs = (howl.duration() - LOOP_IN_S - LOOP_OUT_S) * 1000;
-
-    function scheduleLoop() {
-      if (active?.howl !== howl) return;
-      active.loopTimer = setTimeout(() => {
-        if (active?.howl !== howl) return;
-        howl.seek(LOOP_IN_S);
-        scheduleLoop();
-      }, loopDurationMs);
-    }
-
     const id = howl.play();
     howl.seek(LOOP_IN_S, id);
     howl.fade(0, getAmbienceVolume(), FADE_MS, id);
-    scheduleLoop();
+    scheduleLoop(howl);
   });
 }
+
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'hidden') {
+    if (active) {
+      clearTimeout(active.loopTimer);
+      active.howl.pause();
+      pausedByVisibility = true;
+    }
+  } else if (pausedByVisibility) {
+    pausedByVisibility = false;
+    if (active && isAmbienceSoundEnabled()) {
+      const howl = active.howl;
+      const remainingMs = Math.max(0, (howl.duration() - LOOP_OUT_S - howl.seek()) * 1000);
+      howl.play();
+      scheduleLoop(howl, remainingMs);
+    }
+  }
+});
 
 export function updateAmbienceVolume(v) {
   if (active) active.howl.volume(v);
