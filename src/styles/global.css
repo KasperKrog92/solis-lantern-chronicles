@@ -572,59 +572,6 @@ main.has-fullscreen-hero {
   pointer-events: none;
 }
 
-.hero__wall {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  overflow: hidden;
-}
-
-.hero__wall::before {
-  content: '';
-  position: absolute;
-  top: 0; bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 1px;
-  background: linear-gradient(to bottom,
-    transparent 0%,
-    rgba(200, 168, 75, 0.04) 20%,
-    rgba(200, 168, 75, 0.08) 50%,
-    rgba(200, 168, 75, 0.04) 80%,
-    transparent 100%);
-}
-
-.hero__wall-lines {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 8%;
-  pointer-events: none;
-}
-
-.hero__wall-line {
-  width: 1px;
-  background: linear-gradient(to bottom,
-    transparent 0%,
-    rgba(200, 168, 75, 0.05) 30%,
-    rgba(200, 168, 75, 0.09) 60%,
-    transparent 100%);
-}
-
-.hero__wall-cap {
-  position: absolute;
-  top: 15%;
-  left: 10%; right: 10%;
-  height: 1px;
-  background: linear-gradient(to right,
-    transparent,
-    rgba(200, 168, 75, 0.08) 20%,
-    rgba(200, 168, 75, 0.12) 50%,
-    rgba(200, 168, 75, 0.08) 80%,
-    transparent);
-  pointer-events: none;
-}
 
 .hero__content {
   position: relative;
