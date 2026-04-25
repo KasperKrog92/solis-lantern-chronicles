@@ -55,6 +55,14 @@ If the transformation runs on `#pt-source` first, the modified HTML is baked int
 
 `wrapWordsInSpans()` skips: `.dice-reveal`, `.post-roll-content`, `.drop-cap`, `.lore-tooltip`, `.note-tooltip`. Any new component with hidden-until-interaction text must be added here — unwrapped hidden words cause silent pauses in the reveal sequence.
 
+### Word reveal animation
+
+`.word` spans use `opacity: 0 → 1` (not `clip-path`). The opacity approach was chosen deliberately:
+- `clip-path` required `display: inline-block`, which treats each word as an atomic box and **prevents CSS hyphenation**. The opacity fade uses default `display: inline`, so words break across lines normally.
+- Do not switch back to `clip-path` — the reflow when spans are later cleaned up would be jarring because the text layout changes as hyphenation re-engages.
+
+After reveal completes, `cleanupWordSpans(container)` runs 150 ms later (time for the 0.18s transition to finish). It clears `opacity` and sets `transition: none` on all `.word` spans, removing the compositor tracking overhead that makes scrolling laggy on mobile with 300+ word spans on-screen. The spans themselves stay in the DOM (removing them would also cause a text reflow).
+
 ### Page numbering convention
 - **Page 0** — dedicated title page (empty content, shows title/session/date). Never counted.
 - **Pages 1..N** — content pages, shown as "1 / N" etc. in the running header.
@@ -125,7 +133,7 @@ Three layers: master toggle → individual sound toggles → per-sound volume sl
 - **Writing sound** (`writing-sound.js`): sample-based (`public/sounds/writing-sign.ogg`), not synthesised. Filter chain: LPF 4000 Hz → presence +4 dB at 1500 Hz → warmth +4 dB at 400 Hz. Playback rate 0.80–0.90×. Strokes: 180–300 ms random clips. Swoosh fires at `wordEls.length - 6` on pages ≥ 15 words. `AudioContext` is NOT created on page load — created lazily after first user gesture to avoid Chrome warnings.
 - **Dice sound**: handled by `@3d-dice/dice-box-threejs`; pass `volume: 0–100` in config. Files `dicehit_wood1–12.mp3` are mono; surface files converted to mono via ffmpeg to prevent positional panning.
 - **Ambience** (`ambience.js`): Howler.js, three tracks: `tavern`, `night-wall`, `graveyard`. Crossfades over 4 seconds.
-- **Text reveal timing**: duration `Math.min(6000, Math.max(1800, wordCount * 110))` ms; writing sound fires every ~240 ms of reveal.
+- **Text reveal timing**: duration `Math.min(6000, Math.max(1800, wordCount * 110))` ms; writing sound fires every ~240 ms of reveal. Post-roll reveal (`revealPostRoll`) uses the same formula — do not reduce it to a faster multiplier.
 - **`settings.js` pattern**: `SOUND_TOGGLES` and `VOLUME_SLIDERS` config arrays drive both `applySettings()` and `initSettingsToggles()`. To add a new sound type, add one entry to each array.
 
 **Do not apply EQ or filter chains to dice hit/surface sounds.** Two attempts were made and both reverted ("too shrill", "not good"). If dice sounds need adjustment, tune physics params (`strength`, `gravity_multiplier`) or volume instead.
@@ -139,6 +147,8 @@ Three layers: master toggle → individual sound toggles → per-sound volume sl
 - On page render: JS module pre-fetched (`diceBoxCtorPromise = import(...)`) but no `new DiceBoxCtor()` or `initialize()`.
 - On first click: overlay created with inline `width`/`height`, made active, then `ensureOverlayBox()` initializes the renderer.
 - On subsequent clicks: `overlayBox` already exists; only `updateConfig({ sounds: ... })` is called.
+
+**After each roll**, once the overlay fades out, it is set to `display: none` (not just `opacity: 0`). A WebGL canvas always holds a GPU compositing layer even when invisible — `display: none` removes it from the render tree entirely, eliminating the dormant GPU overhead during scrolling.
 
 **Asset path:** `import.meta.env.BASE_URL + 'assets/dice-box/'` — assets live in `public/assets/dice-box/`.
 
@@ -189,6 +199,18 @@ The master campaign document lives in Google Drive and can be read directly via 
 - **Tool:** `mcp__claude_ai_Google_Drive__read_file_content` with the file ID above
 
 When asked to sync the website from the campaign doc, read this file and compare against `src/content/` to update characters, NPCs, lore, and chapters.
+
+## Mobile performance decisions
+
+Several non-obvious choices exist to keep scroll smooth on mobile. Do not revert them without understanding the cost.
+
+**No `backdrop-filter` on `.site-header`** — `backdrop-filter: blur()` on a `position: fixed` element forces the GPU to recomposite the entire page behind the header on every scroll frame. The header has `background-color: rgba(24,14,6,0.90)` which is opaque enough without blur.
+
+**Background gradient via `body::before { position: fixed; z-index: -1 }`** — The lantern-light gradient used to live on `body { background-attachment: fixed }`. On Chrome for Android, `background-attachment: fixed` causes a forced full-page repaint on every scroll frame; lag scales with page height. The pseudo-element approach makes the gradient a single GPU compositing layer that never repaints during scroll. The base dark colour lives on `html { background-color }` (propagates to the canvas/viewport); `body` has no `background-color` so the pseudo-element shows through.
+
+**`touch-action: pan-y` on `.page-surface` + passive `touchmove`** — The touchmove listener was registered `{ passive: false }` so it could call `e.preventDefault()` to block scroll during horizontal page-swipes. This forced the browser to freeze the scroll thread on every touch frame waiting for JS. `touch-action: pan-y` tells the browser it owns vertical scroll natively; `e.preventDefault()` is no longer needed so the listener is now passive.
+
+**`cleanupWordSpans()` after text reveal** — See word reveal animation notes above.
 
 ## Conventions / learned rules
 

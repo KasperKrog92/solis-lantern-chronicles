@@ -853,7 +853,7 @@ function revealPostRoll(container) {
       if (wordEls.length >= 10 && isWritingSoundEnabled() && i === swooshIdx) playWritingFinishSound();
       if (i === wordEls.length - 1) {
         isRevealing = false;
-        setTimeout(() => unwrapWordSpans(container), 150);
+        setTimeout(() => cleanupWordSpans(container), 150);
       }
     }, i * delay);
     revealTimers.push(id);
@@ -868,13 +868,16 @@ function cancelReveal() {
   isRevealing  = false;
 }
 
-// After a reveal finishes, replace every .word span with a plain text node.
-// During reveal, each span carries clip-path + transition which forces the
-// browser to treat every word as a separate paint surface. On a 300-word page
-// that makes scrolling noticeably laggy on mobile. Plain text nodes have none
-// of that overhead.
-function unwrapWordSpans(container) {
-  container.querySelectorAll('.word').forEach(span => span.replaceWith(span.textContent));
+// After a reveal finishes, strip opacity and transition from every .word span.
+// During reveal each span tracks an opacity transition which the browser keeps
+// as a compositor bookkeeping entry. On a 300-word page that's hundreds of
+// entries and makes scroll laggy on mobile. Clearing them leaves plain inline
+// spans with no paint overhead.
+function cleanupWordSpans(container) {
+  container.querySelectorAll('.word').forEach(span => {
+    span.style.opacity   = '';
+    span.style.transition = 'none';
+  });
 }
 
 function finishReveal() {
@@ -891,7 +894,7 @@ function finishReveal() {
   pageEl.querySelectorAll('.char:not(.revealed)').forEach(el => el.classList.add('revealed'));
   pageEl.querySelectorAll('.dice-reveal').forEach(el => { el.style.visibility = ''; });
   document.dispatchEvent(new CustomEvent('page-turner:text-revealed'));
-  setTimeout(() => unwrapWordSpans(pageEl), 150);
+  setTimeout(() => cleanupWordSpans(pageEl), 150);
 }
 
 function revealByChar(container, wordEls, diceRevealTriggers) {
@@ -1042,7 +1045,7 @@ function revealText(container) {
       if (i === wordEls.length - 1) {
         isRevealing = false;
         document.dispatchEvent(new CustomEvent('page-turner:text-revealed'));
-        setTimeout(() => unwrapWordSpans(container), 150);
+        setTimeout(() => cleanupWordSpans(container), 150);
       }
     }, i * delay);
 

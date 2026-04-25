@@ -68,7 +68,6 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background-color: var(--bg);
   font-family: var(--font-body);
   font-weight: 300;
   line-height: var(--lh-body);
@@ -77,11 +76,14 @@ body {
 
 /* Lantern-light gradient as a fixed compositing layer — avoids the
    forced full-page repaint that background-attachment:fixed causes on
-   every scroll frame in Chrome for Android. */
+   every scroll frame in Chrome for Android. The dark base comes from
+   html { background-color } above; body has no background so this
+   pseudo-element shows through at z-index:-1. */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
+  z-index: -1;
   background-image:
     radial-gradient(ellipse 110% 75% at 50% 20%, #301d08 0%, transparent 60%),
     radial-gradient(ellipse 55% 50% at 15% 100%, #1a1006 0%, transparent 55%),
@@ -1294,30 +1296,24 @@ main.has-fullscreen-hero {
   display: none;
 }
 
-/* Word-by-word reveal animation — left-to-right clip wipe per word */
+/* Word-by-word reveal animation — opacity fade per word */
 .word {
-  display: inline-block;
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 0.1s ease-out;
+  opacity: 0;
+  transition: opacity 0.18s ease-out;
 }
 
 .word.revealed {
-  clip-path: inset(0 0% 0 0);
+  opacity: 1;
 }
 
-/* Per-character reveal (≤10-word pages) — word spans become plain wrappers */
-.char-reveal .word {
-  clip-path: none;
-}
-
+/* Per-character reveal (≤10-word pages) */
 .char {
-  display: inline-block;
-  clip-path: inset(0 100% 0 0);
-  transition: clip-path 0.08s ease-out;
+  opacity: 0;
+  transition: opacity 0.12s ease-out;
 }
 
 .char.revealed {
-  clip-path: inset(0 0% 0 0);
+  opacity: 1;
 }
 
 /* Page footer: navigation */
