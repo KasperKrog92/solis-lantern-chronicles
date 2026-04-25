@@ -65,7 +65,8 @@
       "Bash(curl -sv \"https://api.anthropic.com/v1/design/h/T02RBilEKDeLkiXARRmmmw\")",
       "Read(//c/Users/kaspe/OneDrive/Webprojekter/**)",
       "Bash(grep -r \"console\\\\|warn\" src/scripts/)",
-      "Bash(pkill -f \"astro dev\")"
+      "Bash(pkill -f \"astro dev\")",
+      "Bash(grep -E \"\\\\.\\(js|ts\\)$\")"
     ]
   }
 }

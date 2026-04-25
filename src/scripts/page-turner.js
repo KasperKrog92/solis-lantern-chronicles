@@ -728,6 +728,7 @@ function initDiceReveals(pageEl) {
       overlayEl.style.height = `${vpBottom - vpTop}px`;
       overlayEl.style.left   = `${window.scrollX + rect.left}px`;
       overlayEl.style.width  = `${rect.width}px`;
+      overlayEl.style.display = '';
       overlayEl.classList.add('active');
 
       try {
@@ -738,11 +739,13 @@ function initDiceReveals(pageEl) {
         overlayEl.classList.remove('active');
         // Wait for the overlay to fully fade before revealing the equation
         await new Promise(r => setTimeout(r, OVERLAY_FADE_MS));
+        overlayEl.style.display = 'none';
         settleInline();
       } catch (error) {
         console.error('3D dice roll failed, falling back to static reveal.', error);
-        if (overlayEl) overlayEl.classList.remove('active');
+        if (overlayEl) { overlayEl.classList.remove('active'); }
         await new Promise(r => setTimeout(r, OVERLAY_FADE_MS));
+        if (overlayEl) overlayEl.style.display = 'none';
         settleInline();
       }
 
@@ -1259,10 +1262,9 @@ function bindNavigation() {
         prepareParchment(ghostEl, true);
       }
 
-      e.preventDefault();
       track.style.transition = 'none';
       track.style.transform  = `translateX(${dx}px)`;
-    }, { passive: false });
+    }, { passive: true });
 
     function onTouchEnd(e) {
       if (!touchDragging) return;

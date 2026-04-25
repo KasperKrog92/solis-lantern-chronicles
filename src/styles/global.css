@@ -124,8 +124,6 @@ button {
   right: 0;
   z-index: 100;
   background-color: rgba(24, 14, 6, 0.90);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(200, 168, 75, 0.18);
 }
 
@@ -275,6 +273,7 @@ main.has-fullscreen-hero {
      and randomised on each page turn by parchment.js. */
   color: var(--ink);
   overflow: visible;
+  touch-action: pan-y;
   /* Directional borders: lit top/left edge (light from above), dark
      right/bottom edge (self-shadow) — visible against any background. */
   border-top:    1px solid rgba(245, 215, 135, 0.55);
