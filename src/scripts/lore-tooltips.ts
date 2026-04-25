@@ -1,3 +1,25 @@
+// For inline position:relative elements, `left: 50%` is unreliable — it's
+// calculated against the element's containing-block width, which for a
+// multi-word link wrapping across lines gives a nonsensical result.
+// Instead we pin the tooltip using the cursor's viewport X, then clamp.
+export function positionTooltip(link: HTMLElement, clientX: number) {
+  const tooltip = link.querySelector<HTMLElement>('.lore-tooltip');
+  if (!tooltip) return;
+
+  const pad      = 8;
+  const vw       = window.innerWidth;
+  const tooltipW = tooltip.offsetWidth;
+  const linkLeft = link.getBoundingClientRect().left;
+
+  // Ideal: centre tooltip on cursor, clamped within viewport
+  const idealLeft   = clientX - tooltipW / 2;
+  const clampedLeft = Math.max(pad, Math.min(idealLeft, vw - tooltipW - pad));
+
+  // `left` is relative to the inline element's own left edge (left:0 = linkLeft)
+  tooltip.style.left      = `${clampedLeft - linkLeft}px`;
+  tooltip.style.transform = 'none';
+}
+
 export function clampTooltip(link: HTMLElement) {
   const tooltip = link.querySelector<HTMLElement>('.lore-tooltip');
   if (!tooltip) return;
@@ -24,11 +46,11 @@ export function initLoreTooltips() {
     const tooltip = link.querySelector<HTMLElement>('.lore-tooltip');
     if (!tooltip) return;
 
-    link.addEventListener('mouseenter', () => {
+    link.addEventListener('mouseenter', e => {
       const rect = link.getBoundingClientRect();
       if (rect.top < 140) link.classList.add('tooltip-below');
       else link.classList.remove('tooltip-below');
-      clampTooltip(link);
+      positionTooltip(link, e.clientX);
     });
 
     link.addEventListener('click', e => {
@@ -39,7 +61,7 @@ export function initLoreTooltips() {
       if (linkRect.top < 140) link.classList.add('tooltip-below');
       else link.classList.remove('tooltip-below');
       link.classList.toggle('tooltip-open');
-      if (opening) clampTooltip(link);
+      if (opening) positionTooltip(link, e.clientX);
     });
   });
 }

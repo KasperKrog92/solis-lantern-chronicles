@@ -111,24 +111,38 @@ const { gm = false } = Astro.props;
 </style>
 
 <script>
+  function positionNoteTooltip(marker: HTMLElement, clientX: number) {
+    const tooltip = marker.querySelector<HTMLElement>('.note-tooltip');
+    if (!tooltip) return;
+    const pad      = 8;
+    const vw       = window.innerWidth;
+    const tooltipW = tooltip.offsetWidth;
+    const markerLeft = marker.getBoundingClientRect().left;
+    const idealLeft   = clientX - tooltipW / 2;
+    const clampedLeft = Math.max(pad, Math.min(idealLeft, vw - tooltipW - pad));
+    tooltip.style.left      = `${clampedLeft - markerLeft}px`;
+    tooltip.style.transform = 'none';
+  }
+
   function initNoteTooltips() {
     const markers = document.querySelectorAll<HTMLElement>('.note-marker');
 
     markers.forEach(marker => {
-      // Smart positioning
-      marker.addEventListener('mouseenter', () => {
+      marker.addEventListener('mouseenter', e => {
         const rect = marker.getBoundingClientRect();
         if (rect.top < 120) {
           marker.classList.add('tooltip-below');
         } else {
           marker.classList.remove('tooltip-below');
         }
+        positionNoteTooltip(marker, e.clientX);
       });
 
-      // Tap toggle
       marker.addEventListener('click', e => {
         e.stopPropagation();
+        const opening = !marker.classList.contains('tooltip-open');
         marker.classList.toggle('tooltip-open');
+        if (opening) positionNoteTooltip(marker, e.clientX);
       });
     });
 
