@@ -64,8 +64,8 @@ If the transformation runs on `#pt-source` first, the modified HTML is baked int
 After reveal completes, `cleanupWordSpans(container)` runs 150 ms later (time for the 0.18s transition to finish). It clears `opacity` and sets `transition: none` on all `.word` spans, removing the compositor tracking overhead that makes scrolling laggy on mobile with 300+ word spans on-screen. The spans themselves stay in the DOM (removing them would also cause a text reflow).
 
 ### Page numbering convention
-- **Page 0** — dedicated title page (empty content, shows title/session/date). Never counted.
-- **Pages 1..N** — content pages, shown as "1 / N" etc. in the running header.
+- **Page 0** — dedicated title page (empty content, shows title + date only — no session label). Never counted.
+- **Pages 1..N** — content pages, shown as "1 / N" etc. in the running header. Running header shows title only (no session label).
 - So "page 2 of the chapter" = second `---` block = `pages[2]` in JS.
 
 ### Navigation
@@ -96,11 +96,22 @@ Current colors:
 - `querc` — `oklch(52% 0.11 148)`
 - `tom-evenwood` — `oklch(54% 0.11 48)`
 
+## Chapter prose typography
+
+`.pt-page-content` uses book-style typesetting:
+- **Paragraph indent instead of spacing:** `p + p { text-indent: 1.5em }` with `margin-bottom: 0` on all `p`. The `p + p` selector naturally handles first paragraphs after block elements (DiceReveal, figures, `.post-roll-content`) — they follow a non-`p` element so they don't get the indent.
+- **Line height:** `1.6` (overrides the global `--lh-body: 1.8` — only chapter prose is tightened).
+- **OpenType features:** `font-feature-settings: "onum" 1, "liga" 1, "clig" 1` + `font-variant-numeric: oldstyle-nums` + `font-variant-ligatures: common-ligatures` + `text-rendering: optimizeLegibility`.
+- **`text-wrap: pretty`** on `p` — prevents orphaned single words on the last line.
+
+**Critical: `text-indent` is an inherited CSS property.** Block-level descendants inside `.pt-page-content` inherit it. The `.lore-tooltip` sets `text-indent: 0` to cancel this. Any new block-level component added inside the prose area must do the same if it shouldn't be indented.
+
 ## Lore tooltip system
 `src/components/Lore.astro` — inline tooltip for characters, NPCs, and lore entries.
 - Uses `<style is:global>` — required so JS-injected spans from `character-mentions.ts` inherit the same styles. If styles are ever moved back to scoped, JS-injected tooltips will break.
 - Character entries: colored text (`color: <accent>`), no underline
 - NPC/lore entries: dotted underline, no color
+- `.lore-tooltip` resets `text-indent: 0` to prevent inheriting the `p + p` book indent from the parent paragraph.
 
 **In chapter MDX: do not add `<Lore>` tags for player characters.** Their names are auto-wrapped by `character-mentions.ts`. Only use `<Lore>` for NPCs and lore entries.
 

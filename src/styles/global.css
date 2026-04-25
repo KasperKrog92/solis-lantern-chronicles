@@ -353,16 +353,21 @@ main.has-fullscreen-hero {
   font-family: var(--font-body);
   font-weight: 300;
   font-size: var(--size-body);
-  line-height: var(--lh-body);
+  line-height: 1.6;
   color: var(--ink);
   text-align: justify;
   hyphens: auto;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "onum" 1, "liga" 1, "clig" 1;
+  font-variant-numeric: oldstyle-nums;
+  font-variant-ligatures: common-ligatures;
 }
 .pt-page-content p {
-  margin-bottom: 1.3em;
-}
-.pt-page-content p:last-child {
   margin-bottom: 0;
+  text-wrap: pretty;
+}
+.pt-page-content p + p {
+  text-indent: 1.5em;
 }
 .pt-page-content em {
   font-style: italic;
@@ -1211,18 +1216,23 @@ main.has-fullscreen-hero {
   font-family: var(--font-body);
   font-weight: 300;
   font-size: var(--size-body);
-  line-height: var(--lh-body);
+  line-height: 1.6;
   color: var(--ink);
   text-align: justify;
   hyphens: auto;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "onum" 1, "liga" 1, "clig" 1;
+  font-variant-numeric: oldstyle-nums;
+  font-variant-ligatures: common-ligatures;
 }
 
 .pt-page-content p {
-  margin-bottom: 1.3em;
+  margin-bottom: 0;
+  text-wrap: pretty;
 }
 
-.pt-page-content p:last-child {
-  margin-bottom: 0;
+.pt-page-content p + p {
+  text-indent: 1.5em;
 }
 
 .pt-page-content em {
