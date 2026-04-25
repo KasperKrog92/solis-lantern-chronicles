@@ -838,9 +838,9 @@ function revealPostRoll(container) {
   const wordCount = wordEls.length;
   if (wordCount === 0) return;
 
-  const totalMs    = Math.min(2600, Math.max(800, wordCount * 55));
+  const totalMs    = Math.min(6000, Math.max(1800, wordCount * 110));
   const delay      = totalMs / wordCount;
-  const soundEvery = Math.max(1, Math.round(130 / delay));
+  const soundEvery = Math.max(1, Math.round(240 / delay));
   let soundBeat    = 0;
 
   isRevealing = true;
