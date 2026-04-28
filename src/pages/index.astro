@@ -17,21 +17,6 @@ const latest = allChapters
   .filter(c => !c.data.draft)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())[0];
 
-function extractOpening(body: string): string {
-  // Drop import lines
-  const noImports = body.replace(/^import .+$/gm, '');
-  // Take only up to the first --- page break
-  const firstBlock = noImports.split(/\n---(\n|$)/)[0];
-  // Strip self-closing JSX tags (<Ambience .../> etc.)
-  const noSelfClose = firstBlock.replace(/<[A-Z][^>]*\/>/g, '');
-  // Strip JSX tags but keep inner text (<Lore slug="...">text</Lore> → text)
-  const noTags = noSelfClose.replace(/<[A-Z][^>]*>([\s\S]*?)<\/[A-Z][^>]*>/g, '$1');
-  const text = noTags.replace(/\s+/g, ' ').trim();
-  // Keep only the first 3 sentences
-  const sentences = text.match(/[^.!?]+[.!?]+/g) ?? [text];
-  return sentences.slice(0, 2).join(' ').trim();
-}
-
 // Character map for chips
 const characters = await getCollection('characters');
 const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
@@ -81,7 +66,7 @@ const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
             <span class="spotlight__divider-ornament">✦</span>
             <div class="spotlight__divider-line"></div>
           </div>
-          <p class="spotlight__excerpt">{extractOpening(latest.body ?? '')}</p>
+          <p class="spotlight__excerpt">{latest.data.summary}</p>
           <div class="spotlight__chars">
             {latest.data.characters_present.map(slug => (
               <CharacterChip slug={slug} name={charMap[slug]?.name ?? slug} />
@@ -102,11 +87,6 @@ const charMap = Object.fromEntries(characters.map(c => [c.id, c.data]));
 </BaseLayout>
 
 
-<script>
-  import { randomiseParchment } from '../scripts/parchment.js';
-  const card = document.querySelector('.spotlight__card') as HTMLElement | null;
-  if (card) randomiseParchment(card);
-</script>
 
 <style>
   .about {
