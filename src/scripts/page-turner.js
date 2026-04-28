@@ -1191,19 +1191,20 @@ function bindNavigation() {
       const rect  = surface.getBoundingClientRect();
       const ratio = (e.clientX - rect.left) / rect.width;
 
-      if (ratio > 0.6)      navigate(1);
-      else if (ratio < 0.4) navigate(-1);
+      if (ratio > 0.70)      navigate(1);
+      else if (ratio < 0.30) navigate(-1);
+      else if (isRevealing && isGradualEnabled()) finishReveal();
     });
 
     surface.addEventListener('mousemove', e => {
       const rect  = surface.getBoundingClientRect();
       const ratio = (e.clientX - rect.left) / rect.width;
-      if (ratio > 0.6) {
+      if (ratio > 0.70) {
         surface.style.cursor = CURSOR_RIGHT;
-      } else if (ratio < 0.4) {
+      } else if (ratio < 0.30) {
         surface.style.cursor = CURSOR_LEFT;
       } else {
-        surface.style.cursor = '';
+        surface.style.cursor = (isRevealing && isGradualEnabled()) ? 'pointer' : '';
       }
     });
 
