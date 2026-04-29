@@ -5,7 +5,7 @@ race: "Forest Gnome"
 class_name: "Bard, College of Glamour"
 status: "active"
 summary: "Gnome bard, several centuries old, has outlived nearly everyone she's ever known. The thread that drew the party together."
-short_bio: "A centuries-old gnome bard who has settled in Brinegate, carrying more stories than most people have had years, and the quiet certainty that the next one will matter."
+short_bio: "A centuries-old gnome bard who has settled in Brinegate, carrying more stories than most people have had years, and the certainty that the next one will matter."
 ---
 
 Wynn does not discuss exactly how old she is, and the few people who have pressed her on the subject have found the conversation redirected with a fluency that suggests long practice. What is apparent is that she has been in Brinegate for several decades, that she arrived from somewhere far enough away that the details have grown abstract, and that in that time she has accumulated an informal archive of stories, written, spoken, remembered, that takes up most of two rooms in the apartment above the The Last Soun Inn where she works most mornings and evenings.

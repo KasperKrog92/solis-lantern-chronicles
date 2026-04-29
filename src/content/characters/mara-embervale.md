@@ -5,7 +5,7 @@ race: "Tiefling"
 class_name: "Paladin, Oath of Vengeance"
 status: "active"
 summary: "Tiefling paladin, came to Brinegate looking for her mother and sister, both of whom have gone silent."
-short_bio: "A red-skinned tiefling paladin who came to Brinegate searching for her missing mother and older sister — and found, in the shadow of the Wall, something else worth protecting."
+short_bio: "A red-skinned tiefling paladin who came to Brinegate searching for her missing mother and older sister."
 ---
 
 Mara arrived in Brinegate three months ago, following a trail that had gone cold twice already. Her mother, Alicent Embervale, is a Head Researcher of Leviathan Biology stationed in the Outer Tier city of Jakata, or was, until her letters stopped arriving without warning or explanation. When Mara's older sister Elody went to find her, Elody too went silent. Her last letter said only that she would soon be arriving in Brinegate. She never did.

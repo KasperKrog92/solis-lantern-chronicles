@@ -5,7 +5,7 @@ race: "Human"
 class_name: "Artificer, Armorer"
 status: "active"
 summary: "Human artificer, arrived in Brinegate following an urgent letter from a former apprentice asking for help building something unusual."
-short_bio: "A craftsman and semi-retired mentor who arrived in Brinegate against the tide of the wet season, following an urgent letter from a former apprentice — and walked into something much larger than a commission."
+short_bio: "A craftsman and semi-retired mentor who arrived in Brinegate against the tide of the wet season, following an urgent letter from a former apprentice, and walked into something much larger than a commission."
 ---
 
 Tom is a craftsman and semi-retired mentor in his late 40s with a long career behind him. He has spent decades teaching magical engineering and working with adventuring parties and military outfits, building and maintaining the kind of gear that keeps people alive in places where things go wrong. He is not a soldier and has never pretended to be, but he understands what soldiers need, and that has made him quietly indispensable to more than a few people over the years.

@@ -5,7 +5,7 @@ race: "Wood Elf"
 class_name: "Druid, Circle of the Moon"
 status: "active"
 summary: "Wood elf druid, came to Brinegate searching for answers about her homeland and a researcher who left her village without explanation."
-short_bio: "A wood elf druid (they/them) raised in an isolated tribal village, drawn to Brinegate by questions about a spreading sickness at home — and the researcher who first showed them there was more world to see."
+short_bio: "A wood elf druid (they/them) raised in an isolated tribal village, drawn to Brinegate by questions about a spreading sickness at home, and the researcher who first showed them there was more world to see."
 ---
 
 Querc grew up in an indigenous tribe deep in the forests of the Middle Tier, largely removed from the Empire's civilization. Their world changed when Tristan Bas, a linguist anthropologist, came to live with the tribe for several months to study their language and oral traditions. He befriended Querc, told them about the wider world, and left something unresolved between them. Feelings that seemed mutual but were never spoken aloud before he returned to his research.
