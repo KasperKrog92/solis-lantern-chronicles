@@ -366,6 +366,9 @@ main.has-fullscreen-hero {
   margin-bottom: 0;
   text-wrap: pretty;
 }
+.pt-page-content.pt-short-page p {
+  text-align: left;
+}
 .pt-page-content p + p {
   text-indent: 1.5em;
 }
@@ -489,6 +492,74 @@ main.has-fullscreen-hero {
 
 .sound-group__menu[hidden] {
   display: none;
+}
+
+.text-group {
+  position: relative;
+  display: inline-flex;
+}
+
+.text-group__main {
+  border-right: none;
+}
+
+.text-group__caret {
+  padding: 0.28rem 0.45rem;
+  border-left: none;
+  font-size: 0.75rem;
+  line-height: 1;
+}
+
+.text-group__caret[aria-expanded="true"] {
+  color: var(--gold);
+  border-color: rgba(200, 168, 75, 0.6);
+}
+
+.text-group__menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  background: rgba(24, 14, 6, 0.97);
+  border: 1px solid rgba(200, 168, 75, 0.25);
+  padding: 0.5rem;
+  z-index: 50;
+}
+
+.text-group__menu[hidden] {
+  display: none;
+}
+
+.go-to-row {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+}
+
+.go-to-input {
+  width: 6.5rem;
+  background: transparent;
+  border: 1px solid rgba(200, 168, 75, 0.35);
+  color: var(--parchment, #f5e9c8);
+  font-family: var(--font-sc);
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+  padding: 0.28rem 0.5rem;
+  outline: none;
+  -moz-appearance: textfield;
+}
+
+.go-to-input::-webkit-inner-spin-button,
+.go-to-input::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+}
+
+.go-to-input:focus {
+  border-color: rgba(200, 168, 75, 0.6);
+}
+
+.go-to-input::placeholder {
+  color: rgba(245, 233, 200, 0.35);
+  font-size: 0.8rem;
 }
 
 .sound-row {
@@ -1188,6 +1259,9 @@ main.has-fullscreen-hero {
 .pt-page-content p {
   margin-bottom: 0;
   text-wrap: pretty;
+}
+.pt-page-content.pt-short-page p {
+  text-align: left;
 }
 
 .pt-page-content p + p {

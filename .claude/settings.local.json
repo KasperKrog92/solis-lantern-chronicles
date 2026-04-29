@@ -68,7 +68,11 @@
       "Bash(pkill -f \"astro dev\")",
       "Bash(grep -E \"\\\\.\\(js|ts\\)$\")",
       "Bash(git add *)",
-      "Bash(git commit -m ' *)"
+      "Bash(git commit -m ' *)",
+      "Bash(grep -E \"\\\\.\\(astro|tsx|jsx\\)$\")",
+      "Bash(grep -c \"^---$\" \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/src/content/chapters/session-00.mdx\")",
+      "Bash(python3)",
+      "Bash(node)"
     ]
   }
 }

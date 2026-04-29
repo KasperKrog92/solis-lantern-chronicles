@@ -129,6 +129,23 @@ export function initSettingsToggles() {
     });
   }
 
+  const textCaret = document.querySelector('.text-group__caret');
+  const textMenu  = document.getElementById('text-submenu');
+  if (textCaret && textMenu) {
+    textCaret.addEventListener('click', () => {
+      const open = !textMenu.hidden;
+      textMenu.hidden = open;
+      textCaret.setAttribute('aria-expanded', String(!open));
+    });
+
+    document.addEventListener('click', e => {
+      if (!textMenu.hidden && !textCaret.closest('.text-group').contains(e.target)) {
+        textMenu.hidden = true;
+        textCaret.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   for (const { btnId, key } of SOUND_TOGGLES) {
     document.getElementById(btnId)?.addEventListener('click', () => {
       toggleEnabled(key);

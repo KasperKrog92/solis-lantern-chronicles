@@ -301,6 +301,31 @@ export function initPageTurner() {
     if (!isGradualEnabled()) finishReveal();
   });
 
+  // Go-to-page (inside the text-group submenu)
+  const goToInput = document.getElementById('go-to-input');
+  const goToForm  = document.getElementById('go-to-form');
+
+  if (goToInput) {
+    goToInput.max = String(pages.length - 1);
+    goToInput.placeholder = `1 – ${pages.length - 1}`;
+  }
+
+  if (goToForm && goToInput) {
+    goToForm.addEventListener('submit', e => {
+      e.preventDefault();
+      const val = parseInt(goToInput.value, 10);
+      if (isNaN(val)) return;
+      const clamped = Math.max(1, Math.min(val, pages.length - 1));
+      goToInput.value = '';
+      const textMenu  = document.getElementById('text-submenu');
+      const textCaret = document.querySelector('.text-group__caret');
+      if (textMenu)  textMenu.hidden = true;
+      if (textCaret) textCaret.setAttribute('aria-expanded', 'false');
+      const delta = clamped - currentPage;
+      if (delta !== 0) navigate(delta);
+    });
+  }
+
   // Volume sliders — apply changes in real time.
   document.getElementById('writing-sound-volume')?.addEventListener('input', e => {
     setWritingSoundVolume(parseFloat(e.target.value));
@@ -415,6 +440,9 @@ function renderPage(index, skipReveal = false, skipParchment = false) {
 
   const fromHeight = parseFloat(surface.style.height) || getSurfaceHeight(surface);
   animateStageHeight(fromHeight, nextHeight);
+
+  const wordCount = (pageEl.textContent || '').trim().split(/\s+/).filter(Boolean).length;
+  pageEl.classList.toggle('pt-short-page', wordCount < 10);
 
   document.dispatchEvent(new CustomEvent('page-turner:page-changed'));
 }

@@ -51,12 +51,32 @@ const characterData = allCharacters.map(c => ({
     <div class="chapter-controls">
       <a href={resolveHref('/chronicle')} class="chapter-controls__back">← Chronicle</a>
       <div class="chapter-controls__toggles">
-        <button
-          id="toggle-gradual"
-          class="toggle-btn"
-          aria-pressed="true"
-          title="Toggle word-by-word text reveal"
-        >Gradual</button>
+        <div class="text-group">
+          <button
+            id="toggle-gradual"
+            class="toggle-btn text-group__main"
+            aria-pressed="true"
+            title="Toggle word-by-word text reveal"
+          >Gradual</button><button
+            class="toggle-btn text-group__caret"
+            aria-expanded="false"
+            aria-controls="text-submenu"
+            title="Text settings"
+          >▾</button>
+          <div id="text-submenu" class="text-group__menu" hidden>
+            <form id="go-to-form" class="go-to-row" novalidate>
+              <input
+                type="number"
+                id="go-to-input"
+                class="go-to-input"
+                min="1"
+                placeholder="Page #"
+                aria-label="Go to page number"
+              >
+              <button type="submit" class="toggle-btn">Go</button>
+            </form>
+          </div>
+        </div>
         <div class="sound-group">
           <button
             id="toggle-sound"
