@@ -17,7 +17,10 @@ function getAudioContext() {
 }
 
 function getFilePath() {
-  return `${import.meta.env.BASE_URL.replace(/\/$/, '')}/sounds/writing-sign.ogg`;
+  const base = import.meta.env.BASE_URL.replace(/\/$/, '');
+  const audio = new Audio();
+  const canOgg = audio.canPlayType('audio/ogg; codecs="vorbis"') !== '';
+  return `${base}/sounds/writing-sign.${canOgg ? 'ogg' : 'mp3'}`;
 }
 
 // Start fetching the file bytes — no AudioContext required yet

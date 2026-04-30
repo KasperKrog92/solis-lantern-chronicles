@@ -72,7 +72,8 @@
       "Bash(grep -E \"\\\\.\\(astro|tsx|jsx\\)$\")",
       "Bash(grep -c \"^---$\" \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/src/content/chapters/session-00.mdx\")",
       "Bash(python3)",
-      "Bash(node)"
+      "Bash(node)",
+      "Bash(ffmpeg -i \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/writing-sign.ogg\" -codec:a libmp3lame -qscale:a 2 \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/writing-sign.mp3\")"
     ]
   }
 }
