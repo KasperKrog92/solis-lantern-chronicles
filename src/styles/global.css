@@ -45,6 +45,7 @@
   --size-body:          1.5rem;
   --size-ui:            1.1rem;
   --lh-body:            1.8;
+  --reader-font-scale:  1;
 }
 
 /* ============================================================
@@ -352,7 +353,7 @@ main.has-fullscreen-hero {
 .pt-page-content {
   font-family: var(--font-body);
   font-weight: 300;
-  font-size: var(--size-body);
+  font-size: calc(var(--size-body) * var(--reader-font-scale));
   line-height: 1.6;
   color: var(--ink);
   text-align: justify;
@@ -503,6 +504,11 @@ main.has-fullscreen-hero {
   border-right: none;
 }
 
+.text-group__main[aria-expanded="true"] {
+  color: var(--gold);
+  border-color: rgba(200, 168, 75, 0.6);
+}
+
 .text-group__caret {
   padding: 0.28rem 0.45rem;
   border-left: none;
@@ -518,11 +524,38 @@ main.has-fullscreen-hero {
 .text-group__menu {
   position: absolute;
   top: calc(100% + 0.35rem);
-  right: 0;
+  left: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
   background: rgba(24, 14, 6, 0.97);
   border: 1px solid rgba(200, 168, 75, 0.25);
   padding: 0.5rem;
   z-index: 50;
+  width: max-content;
+}
+
+.text-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.text-row .toggle-btn {
+  width: 100%;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.font-size-row {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.font-size-btn {
+  flex: 1;
+  text-align: center;
+  letter-spacing: 0;
 }
 
 .text-group__menu[hidden] {
@@ -536,7 +569,8 @@ main.has-fullscreen-hero {
 }
 
 .go-to-input {
-  width: 6.5rem;
+  flex: 1;
+  min-width: 0;
   background: transparent;
   border: 1px solid rgba(200, 168, 75, 0.35);
   color: var(--parchment, #f5e9c8);
@@ -1245,7 +1279,7 @@ main.has-fullscreen-hero {
 .pt-page-content {
   font-family: var(--font-body);
   font-weight: 300;
-  font-size: var(--size-body);
+  font-size: calc(var(--size-body) * var(--reader-font-scale));
   line-height: 1.6;
   color: var(--ink);
   text-align: justify;

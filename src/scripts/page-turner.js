@@ -20,7 +20,7 @@
  * the page before rolling if they choose.
  */
 
-import { isGradualEnabled, isSoundEnabled, isWritingSoundEnabled, isDiceSoundEnabled, getWritingSoundVolume, getDiceSoundVolume, getAmbienceVolume, initSettingsToggles } from './settings.js';
+import { isGradualEnabled, isSaveProgressEnabled, isSoundEnabled, isWritingSoundEnabled, isDiceSoundEnabled, getWritingSoundVolume, getDiceSoundVolume, getAmbienceVolume, initSettingsToggles } from './settings.js';
 import { playWritingSound, playWritingFinishSound, preloadWritingSound, unlockAudioContext, setWritingSoundVolume } from './writing-sound.js';
 import { setAmbience, stopAmbience, applyAmbienceEnabled, updateAmbienceVolume } from './ambience.js';
 import { randomiseParchment } from './parchment.js';
@@ -268,6 +268,22 @@ function pushHash(index) {
   history.pushState(null, '', `#page-${index}`);
 }
 
+// ── Reading progress ────────────────────────────────────────────────────────
+
+function progressKey() {
+  return `reading-progress:${location.pathname}`;
+}
+
+function saveProgress(index) {
+  if (index > 0 && isSaveProgressEnabled()) localStorage.setItem(progressKey(), String(index));
+}
+
+function loadProgress() {
+  const val = localStorage.getItem(progressKey());
+  const n   = parseInt(val, 10);
+  return isNaN(n) ? 0 : n;
+}
+
 // ── Entry point ────────────────────────────────────────────────────────────
 
 export function initPageTurner() {
@@ -280,17 +296,29 @@ export function initPageTurner() {
   if (pages.length === 0) return;
   ambienceMap = buildAmbienceMap(pages);
 
-  // Start on whichever page the URL hash requests, then normalise the hash
-  // (so that a bare URL without a hash still gets #page-0 written in, which
-  // means the back button can return here from a deeper page).
-  const initialPage = parseHashPage();
+  // Resolve the starting page:
+  //   1. If the URL carries a #page-N hash (direct link, browser history), honour it.
+  //   2. Otherwise check localStorage for saved progress and resume there.
+  //   3. Fall back to page 0 (title page).
+  const hasHash = /^#page-\d+$/.test(location.hash);
+  const navType = performance.getEntriesByType('navigation')[0]?.type;
+
+  let initialPage;
+  let isReturning = navType === 'back_forward';
+
+  if (hasHash) {
+    initialPage = parseHashPage();
+  } else {
+    const saved = isSaveProgressEnabled() ? loadProgress() : 0;
+    if (saved > 0 && saved < pages.length) {
+      initialPage  = saved;
+      isReturning  = true; // skip reveal, reader is resuming
+    } else {
+      initialPage = 0;
+    }
+  }
+
   replaceHash(initialPage);
-
-  // If the user arrived via browser back/forward (e.g. returning from a lore
-  // page), skip the gradual reveal — the page should feel like they never left.
-  const navType     = performance.getEntriesByType('navigation')[0]?.type;
-  const isReturning = navType === 'back_forward';
-
   showPage(initialPage, isReturning);
   bindNavigation();
   initSettingsToggles();
@@ -307,7 +335,7 @@ export function initPageTurner() {
 
   if (goToInput) {
     goToInput.max = String(pages.length - 1);
-    goToInput.placeholder = `1 – ${pages.length - 1}`;
+    goToInput.placeholder = `Page 1 – ${pages.length - 1}`;
   }
 
   if (goToForm && goToInput) {
@@ -318,9 +346,11 @@ export function initPageTurner() {
       const clamped = Math.max(1, Math.min(val, pages.length - 1));
       goToInput.value = '';
       const textMenu  = document.getElementById('text-submenu');
+      const textMain  = document.querySelector('.text-group__main');
       const textCaret = document.querySelector('.text-group__caret');
       if (textMenu)  textMenu.hidden = true;
-      if (textCaret) textCaret.setAttribute('aria-expanded', 'false');
+      textMain?.setAttribute('aria-expanded', 'false');
+      textCaret?.setAttribute('aria-expanded', 'false');
       const delta = clamped - currentPage;
       if (delta !== 0) navigate(delta);
     });
@@ -1189,6 +1219,7 @@ function navigate(direction) {
     scrollToSurface('auto');
   }
   pushHash(next);
+  saveProgress(next);
 }
 
 let _animateTurn = null;
@@ -1342,6 +1373,7 @@ function bindNavigation() {
           renderPage(nextIdx, false, true);
           copyParchmentBackground(ghostSurface);
           pushHash(nextIdx);
+          saveProgress(nextIdx);
 
           requestAnimationFrame(() => {
             surface.style.visibility = '';

@@ -9,7 +9,6 @@
  */
 import BaseLayout from './BaseLayout.astro';
 import PageTurner from '../components/PageTurner.astro';
-import GmNotesToggle from '../components/GmNotesToggle.astro';
 import { getCollection } from 'astro:content';
 import { CHARACTER_COLORS } from '../lib/characterColors';
 
@@ -44,6 +43,12 @@ const characterData = allCharacters.map(c => ({
     {Array.from({ length: 12 }, (_, i) => (
       <link rel="prefetch" href={`${SITE_BASE}assets/dice-box/sounds/dicehit/dicehit_wood${i + 1}.mp3`} as="fetch" crossorigin="anonymous" />
     ))}
+    <script is:inline>
+      (function () {
+        var s = parseFloat(localStorage.getItem('reader-font-scale'));
+        if (!isNaN(s) && s !== 1) document.documentElement.style.setProperty('--reader-font-scale', s);
+      })();
+    </script>
   </Fragment>
   <div class="chapter-reader">
 
@@ -53,17 +58,38 @@ const characterData = allCharacters.map(c => ({
       <div class="chapter-controls__toggles">
         <div class="text-group">
           <button
-            id="toggle-gradual"
             class="toggle-btn text-group__main"
-            aria-pressed="true"
-            title="Toggle word-by-word text reveal"
-          >Gradual</button><button
+            aria-expanded="false"
+            aria-controls="text-submenu"
+            title="Text settings"
+          >Text</button><button
             class="toggle-btn text-group__caret"
             aria-expanded="false"
             aria-controls="text-submenu"
             title="Text settings"
           >▾</button>
           <div id="text-submenu" class="text-group__menu" hidden>
+            <div class="text-row">
+              <button
+                id="toggle-gradual"
+                class="toggle-btn"
+                aria-pressed="true"
+                title="Toggle word-by-word text reveal"
+              >Gradual</button>
+            </div>
+            <div class="text-row">
+              <button
+                id="toggle-save-progress"
+                class="toggle-btn"
+                aria-pressed="true"
+                title="Save reading position between visits"
+              >Save progress</button>
+            </div>
+            <div class="font-size-row">
+              <button id="font-size-decrease" class="toggle-btn font-size-btn" aria-label="Decrease font size">−</button>
+              <button id="font-size-reset"    class="toggle-btn font-size-btn" aria-label="Reset font size">A</button>
+              <button id="font-size-increase" class="toggle-btn font-size-btn" aria-label="Increase font size">+</button>
+            </div>
             <form id="go-to-form" class="go-to-row" novalidate>
               <input
                 type="number"
@@ -104,7 +130,6 @@ const characterData = allCharacters.map(c => ({
             </div>
           </div>
         </div>
-        <GmNotesToggle hasNotes={!!gmNotes} />
       </div>
     </div>
 

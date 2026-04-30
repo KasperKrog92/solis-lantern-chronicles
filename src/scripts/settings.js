@@ -11,7 +11,14 @@
  *   'dice-sound-volume'     — float 0–1, default 0.8
  *   'ambience-volume'       — float 0–1, default 0.15
  *   'gm-notes'              — 'true' to show; anything else (or absent) = hidden
+ *   'save-progress'         — 'false' to disable; anything else (or absent) = enabled
+ *   'reader-font-scale'     — float 0.85–1.30, default 1.0
  */
+
+const FONT_SCALE_MIN     = 0.85;
+const FONT_SCALE_MAX     = 1.30;
+const FONT_SCALE_STEP    = 0.05;
+const FONT_SCALE_DEFAULT = 1.0;
 
 // ── Private helpers ────────────────────────────────────────────────────────
 
@@ -30,7 +37,12 @@ function getVolume(key, defaultVal) {
 
 // ── Toggle state ───────────────────────────────────────────────────────────
 
-export function isGradualEnabled()       { return isEnabled('gradual-text'); }
+export function isGradualEnabled()        { return isEnabled('gradual-text'); }
+export function isSaveProgressEnabled()  { return isEnabled('save-progress'); }
+export function getFontScale() {
+  const v = parseFloat(localStorage.getItem('reader-font-scale'));
+  return isNaN(v) ? FONT_SCALE_DEFAULT : Math.max(FONT_SCALE_MIN, Math.min(FONT_SCALE_MAX, v));
+}
 export function isSoundEnabled()         { return isEnabled('sound'); }
 export function isWritingSoundEnabled()  { return isSoundEnabled() && isEnabled('writing-sound'); }
 export function isDiceSoundEnabled()     { return isSoundEnabled() && isEnabled('dice-sound'); }
@@ -57,6 +69,17 @@ const VOLUME_SLIDERS = [
   { sliderId: 'ambience-volume',      get: getAmbienceVolume },
 ];
 
+function applyFontScale() {
+  const scale = getFontScale();
+  document.documentElement.style.setProperty('--reader-font-scale', scale);
+  const decBtn   = document.getElementById('font-size-decrease');
+  const resetBtn = document.getElementById('font-size-reset');
+  const incBtn   = document.getElementById('font-size-increase');
+  if (decBtn)   decBtn.disabled   = scale <= FONT_SCALE_MIN;
+  if (incBtn)   incBtn.disabled   = scale >= FONT_SCALE_MAX;
+  if (resetBtn) resetBtn.setAttribute('aria-pressed', String(scale === FONT_SCALE_DEFAULT));
+}
+
 /** Apply the current settings state to all toggle buttons and panels in the DOM. */
 export function applySettings() {
   const gradualBtn = document.getElementById('toggle-gradual');
@@ -65,6 +88,11 @@ export function applySettings() {
     gradualBtn.setAttribute('aria-pressed', String(on));
     gradualBtn.textContent = on ? 'Gradual' : 'Instant';
   }
+
+  document.getElementById('toggle-save-progress')
+    ?.setAttribute('aria-pressed', String(isSaveProgressEnabled()));
+
+  applyFontScale();
 
   const masterOn = isSoundEnabled();
 
@@ -107,6 +135,28 @@ export function initSettingsToggles() {
     applySettings();
   });
 
+  document.getElementById('toggle-save-progress')?.addEventListener('click', () => {
+    toggleEnabled('save-progress');
+    applySettings();
+  });
+
+  document.getElementById('font-size-decrease')?.addEventListener('click', () => {
+    const next = Math.round((getFontScale() - FONT_SCALE_STEP) * 100) / 100;
+    localStorage.setItem('reader-font-scale', Math.max(FONT_SCALE_MIN, next));
+    applyFontScale();
+  });
+
+  document.getElementById('font-size-reset')?.addEventListener('click', () => {
+    localStorage.setItem('reader-font-scale', FONT_SCALE_DEFAULT);
+    applyFontScale();
+  });
+
+  document.getElementById('font-size-increase')?.addEventListener('click', () => {
+    const next = Math.round((getFontScale() + FONT_SCALE_STEP) * 100) / 100;
+    localStorage.setItem('reader-font-scale', Math.min(FONT_SCALE_MAX, next));
+    applyFontScale();
+  });
+
   document.getElementById('toggle-sound')?.addEventListener('click', () => {
     toggleEnabled('sound');
     applySettings();
@@ -129,19 +179,26 @@ export function initSettingsToggles() {
     });
   }
 
+  const textMain  = document.querySelector('.text-group__main');
   const textCaret = document.querySelector('.text-group__caret');
   const textMenu  = document.getElementById('text-submenu');
-  if (textCaret && textMenu) {
-    textCaret.addEventListener('click', () => {
+  if (textMenu) {
+    function toggleTextMenu() {
       const open = !textMenu.hidden;
       textMenu.hidden = open;
-      textCaret.setAttribute('aria-expanded', String(!open));
-    });
+      const expanded = String(!open);
+      textMain?.setAttribute('aria-expanded', expanded);
+      textCaret?.setAttribute('aria-expanded', expanded);
+    }
+
+    textMain?.addEventListener('click', toggleTextMenu);
+    textCaret?.addEventListener('click', toggleTextMenu);
 
     document.addEventListener('click', e => {
-      if (!textMenu.hidden && !textCaret.closest('.text-group').contains(e.target)) {
+      if (!textMenu.hidden && !textMain?.closest('.text-group').contains(e.target)) {
         textMenu.hidden = true;
-        textCaret.setAttribute('aria-expanded', 'false');
+        textMain?.setAttribute('aria-expanded', 'false');
+        textCaret?.setAttribute('aria-expanded', 'false');
       }
     });
   }
