@@ -73,7 +73,12 @@
       "Bash(grep -c \"^---$\" \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/src/content/chapters/session-00.mdx\")",
       "Bash(python3)",
       "Bash(node)",
-      "Bash(ffmpeg -i \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/writing-sign.ogg\" -codec:a libmp3lame -qscale:a 2 \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/writing-sign.mp3\")"
+      "Bash(ffmpeg -i \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/writing-sign.ogg\" -codec:a libmp3lame -qscale:a 2 \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/writing-sign.mp3\")",
+      "Bash(ffmpeg -i \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-forest-camp.wav\" -codec:a libmp3lame -qscale:a 2 \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-forest-camp.mp3\")",
+      "Bash(ffmpeg -i \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-forest-camp.wav\" -codec:a libopus -b:a 96k \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-forest-camp.webm\")",
+      "Bash(ffmpeg -i \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-dream.mp3\" -codec:a libopus -b:a 96k \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-dream.webm\")",
+      "Bash(ffmpeg -i \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-spirit.wav\" -codec:a libmp3lame -qscale:a 2 \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-spirit.mp3\")",
+      "Bash(ffmpeg -i \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-spirit.wav\" -codec:a libopus -b:a 96k \"c:/Users/kaspe/OneDrive/Webprojekter/solis-lantern-chronicles/public/sounds/ambience-spirit.webm\")"
     ]
   }
 }

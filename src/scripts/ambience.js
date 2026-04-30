@@ -4,9 +4,12 @@ import { isAmbienceSoundEnabled, getAmbienceVolume } from './settings.js';
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 const TRACKS = {
-  'tavern':     [`${BASE}/sounds/ambience-tavern.webm`,     `${BASE}/sounds/ambience-tavern.mp3`],
-  'night-wall': [`${BASE}/sounds/ambience-night-wall.webm`, `${BASE}/sounds/ambience-night-wall.mp3`],
-  'graveyard':  [`${BASE}/sounds/ambience-graveyard.webm`,  `${BASE}/sounds/ambience-graveyard.mp3`],
+  'tavern':       [`${BASE}/sounds/ambience-tavern.webm`,       `${BASE}/sounds/ambience-tavern.mp3`],
+  'night-wall':   [`${BASE}/sounds/ambience-night-wall.webm`,   `${BASE}/sounds/ambience-night-wall.mp3`],
+  'graveyard':    [`${BASE}/sounds/ambience-graveyard.webm`,    `${BASE}/sounds/ambience-graveyard.mp3`],
+  'forest-camp':  [`${BASE}/sounds/ambience-forest-camp.webm`,  `${BASE}/sounds/ambience-forest-camp.mp3`],
+  'dream':        [`${BASE}/sounds/ambience-dream.webm`,        `${BASE}/sounds/ambience-dream.mp3`],
+  'spirit':       [`${BASE}/sounds/ambience-spirit.webm`,       `${BASE}/sounds/ambience-spirit.mp3`],
 };
 
 const FADE_MS    = 4000;
