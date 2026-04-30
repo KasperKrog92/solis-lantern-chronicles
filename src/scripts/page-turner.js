@@ -20,7 +20,7 @@
  * the page before rolling if they choose.
  */
 
-import { isGradualEnabled, isSaveProgressEnabled, isSoundEnabled, isWritingSoundEnabled, isDiceSoundEnabled, getWritingSoundVolume, getDiceSoundVolume, getAmbienceVolume, initSettingsToggles } from './settings.js';
+import { isGradualEnabled, isSaveProgressEnabled, getRevealSpeed, isSoundEnabled, isWritingSoundEnabled, isDiceSoundEnabled, getWritingSoundVolume, getDiceSoundVolume, getAmbienceVolume, initSettingsToggles } from './settings.js';
 import { playWritingSound, playWritingFinishSound, preloadWritingSound, unlockAudioContext, setWritingSoundVolume } from './writing-sound.js';
 import { setAmbience, stopAmbience, applyAmbienceEnabled, updateAmbienceVolume } from './ambience.js';
 import { randomiseParchment } from './parchment.js';
@@ -896,7 +896,7 @@ function revealPostRoll(container) {
   const wordCount = wordEls.length;
   if (wordCount === 0) return;
 
-  const totalMs    = Math.min(6000, Math.max(1800, wordCount * 110));
+  const totalMs    = Math.min(6000, Math.max(1800, wordCount * 110)) / getRevealSpeed();
   const delay      = totalMs / wordCount;
   const soundEvery = Math.max(1, Math.round(240 / delay));
   let soundBeat    = 0;
@@ -993,7 +993,7 @@ function revealByChar(container, wordEls, diceRevealTriggers) {
   }));
 
   const charCount  = charEls.length;
-  const charDelay  = Math.max(60, Math.max(2000, wordEls.length * 110) / charCount);
+  const charDelay  = Math.max(60, Math.max(2000, wordEls.length * 110) / charCount / getRevealSpeed());
   const soundEvery = Math.max(1, Math.round(240 / charDelay));
   let soundBeat    = 0;
 
@@ -1066,7 +1066,7 @@ function revealText(container) {
     return;
   }
 
-  const totalMs    = Math.min(6000, Math.max(1800, wordCount * 110));
+  const totalMs    = Math.min(6000, Math.max(1800, wordCount * 110)) / getRevealSpeed();
   const delay      = totalMs / wordCount;
   // Fire the writing sound every ~180ms regardless of how many words are on
   // the page — soundEvery is how many word-reveals that works out to.

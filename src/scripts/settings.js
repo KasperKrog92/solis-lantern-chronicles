@@ -13,12 +13,18 @@
  *   'gm-notes'              — 'true' to show; anything else (or absent) = hidden
  *   'save-progress'         — 'false' to disable; anything else (or absent) = enabled
  *   'reader-font-scale'     — float 0.85–1.30, default 1.0
+ *   'reader-reveal-speed'   — float 0.5–2.0, default 1.0 (higher = faster)
  */
 
 const FONT_SCALE_MIN     = 0.85;
 const FONT_SCALE_MAX     = 1.30;
 const FONT_SCALE_STEP    = 0.05;
 const FONT_SCALE_DEFAULT = 1.0;
+
+const REVEAL_SPEED_MIN     = 0.5;
+const REVEAL_SPEED_MAX     = 2.0;
+const REVEAL_SPEED_STEP    = 0.25;
+const REVEAL_SPEED_DEFAULT = 1.0;
 
 // ── Private helpers ────────────────────────────────────────────────────────
 
@@ -42,6 +48,11 @@ export function isSaveProgressEnabled()  { return isEnabled('save-progress'); }
 export function getFontScale() {
   const v = parseFloat(localStorage.getItem('reader-font-scale'));
   return isNaN(v) ? FONT_SCALE_DEFAULT : Math.max(FONT_SCALE_MIN, Math.min(FONT_SCALE_MAX, v));
+}
+
+export function getRevealSpeed() {
+  const v = parseFloat(localStorage.getItem('reader-reveal-speed'));
+  return isNaN(v) ? REVEAL_SPEED_DEFAULT : Math.max(REVEAL_SPEED_MIN, Math.min(REVEAL_SPEED_MAX, v));
 }
 export function isSoundEnabled()         { return isEnabled('sound'); }
 export function isWritingSoundEnabled()  { return isSoundEnabled() && isEnabled('writing-sound'); }
@@ -69,15 +80,27 @@ const VOLUME_SLIDERS = [
   { sliderId: 'ambience-volume',      get: getAmbienceVolume },
 ];
 
+function applyRevealSpeed() {
+  const speed     = getRevealSpeed();
+  const atDefault = Math.abs(speed - REVEAL_SPEED_DEFAULT) < 0.001;
+  const decBtn    = document.getElementById('reveal-speed-decrease');
+  const resetBtn  = document.getElementById('reveal-speed-reset');
+  const incBtn    = document.getElementById('reveal-speed-increase');
+  if (decBtn)   { decBtn.disabled = speed <= REVEAL_SPEED_MIN; decBtn.setAttribute('aria-pressed', String(!atDefault && speed < REVEAL_SPEED_DEFAULT)); }
+  if (incBtn)   { incBtn.disabled = speed >= REVEAL_SPEED_MAX; incBtn.setAttribute('aria-pressed', String(!atDefault && speed > REVEAL_SPEED_DEFAULT)); }
+  if (resetBtn) { resetBtn.setAttribute('aria-pressed', String(atDefault)); resetBtn.textContent = atDefault ? '1×' : `${speed}×`; }
+}
+
 function applyFontScale() {
-  const scale = getFontScale();
+  const scale     = getFontScale();
+  const atDefault = Math.abs(scale - FONT_SCALE_DEFAULT) < 0.001;
   document.documentElement.style.setProperty('--reader-font-scale', scale);
   const decBtn   = document.getElementById('font-size-decrease');
   const resetBtn = document.getElementById('font-size-reset');
   const incBtn   = document.getElementById('font-size-increase');
-  if (decBtn)   decBtn.disabled   = scale <= FONT_SCALE_MIN;
-  if (incBtn)   incBtn.disabled   = scale >= FONT_SCALE_MAX;
-  if (resetBtn) resetBtn.setAttribute('aria-pressed', String(scale === FONT_SCALE_DEFAULT));
+  if (decBtn)   { decBtn.disabled = scale <= FONT_SCALE_MIN; decBtn.setAttribute('aria-pressed', String(!atDefault && scale < FONT_SCALE_DEFAULT)); }
+  if (incBtn)   { incBtn.disabled = scale >= FONT_SCALE_MAX; incBtn.setAttribute('aria-pressed', String(!atDefault && scale > FONT_SCALE_DEFAULT)); }
+  if (resetBtn) { resetBtn.setAttribute('aria-pressed', String(atDefault)); resetBtn.textContent = atDefault ? 'A' : `${Math.round(scale * 100)}%`; }
 }
 
 /** Apply the current settings state to all toggle buttons and panels in the DOM. */
@@ -93,6 +116,7 @@ export function applySettings() {
     ?.setAttribute('aria-pressed', String(isSaveProgressEnabled()));
 
   applyFontScale();
+  applyRevealSpeed();
 
   const masterOn = isSoundEnabled();
 
@@ -138,6 +162,23 @@ export function initSettingsToggles() {
   document.getElementById('toggle-save-progress')?.addEventListener('click', () => {
     toggleEnabled('save-progress');
     applySettings();
+  });
+
+  document.getElementById('reveal-speed-decrease')?.addEventListener('click', () => {
+    const next = Math.round((getRevealSpeed() - REVEAL_SPEED_STEP) * 100) / 100;
+    localStorage.setItem('reader-reveal-speed', Math.max(REVEAL_SPEED_MIN, next));
+    applyRevealSpeed();
+  });
+
+  document.getElementById('reveal-speed-reset')?.addEventListener('click', () => {
+    localStorage.setItem('reader-reveal-speed', REVEAL_SPEED_DEFAULT);
+    applyRevealSpeed();
+  });
+
+  document.getElementById('reveal-speed-increase')?.addEventListener('click', () => {
+    const next = Math.round((getRevealSpeed() + REVEAL_SPEED_STEP) * 100) / 100;
+    localStorage.setItem('reader-reveal-speed', Math.min(REVEAL_SPEED_MAX, next));
+    applyRevealSpeed();
   });
 
   document.getElementById('font-size-decrease')?.addEventListener('click', () => {
