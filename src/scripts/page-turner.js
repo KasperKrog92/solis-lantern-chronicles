@@ -271,11 +271,11 @@ function pushHash(index) {
 // ── Reading progress ────────────────────────────────────────────────────────
 
 function progressKey() {
-  return `reading-progress:${location.pathname}`;
+  return `reading-progress:${location.pathname.replace(/\/$/, '')}`;
 }
 
 function completionKey() {
-  return `chapter-completed:${location.pathname}`;
+  return `chapter-completed:${location.pathname.replace(/\/$/, '')}`;
 }
 
 function saveProgress(index) {
