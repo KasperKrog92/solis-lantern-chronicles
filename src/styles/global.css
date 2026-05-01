@@ -2929,6 +2929,86 @@ main.has-fullscreen-hero {
 /* ── HIGH-CONTRAST PREFERENCE ────────────────────────────────────────── */
 /* For users who have enabled "increase contrast" in their OS settings.   */
 
+/* ── Navigation shortcut hints panel ─────────────────────────────────────── */
+
+.pt-shortcuts {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 300;
+  background-color: #2e200c;
+  border-left:   3px solid var(--gold-dim);
+  border-top:    1px solid rgba(200, 168, 75, 0.08);
+  border-right:  1px solid rgba(200, 168, 75, 0.06);
+  border-bottom: 1px solid rgba(200, 168, 75, 0.06);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+  padding: 1.4rem 1.8rem;
+  width: min(420px, calc(100vw - 2rem));
+}
+
+.pt-shortcuts__heading {
+  font-family: var(--font-sc);
+  font-size: 0.78rem;
+  letter-spacing: 0.32em;
+  color: var(--gold-dim);
+  margin: 0 0 0.9rem;
+}
+
+.pt-shortcuts__list {
+  margin: 0;
+  padding: 0;
+}
+
+.pt-shortcuts__row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0 1.2rem;
+  align-items: baseline;
+  padding: 0.45rem 0;
+  border-top: 1px solid rgba(200, 168, 75, 0.06);
+}
+
+.pt-shortcuts__row:first-child {
+  border-top: none;
+  padding-top: 0;
+}
+
+.pt-shortcuts__row:last-child {
+  padding-bottom: 0;
+}
+
+.pt-shortcuts__row dt {
+  font-family: var(--font-sc);
+  font-size: 0.80rem;
+  letter-spacing: 0.1em;
+  color: var(--gold);
+  white-space: nowrap;
+}
+
+.pt-shortcuts__row dd {
+  margin: 0;
+  font-size: 0.87rem;
+  color: rgba(200, 168, 75, 0.55);
+  line-height: 1.4;
+  text-align: right;
+}
+
+.pt-shortcuts__dismiss {
+  margin: 1rem 0 0;
+  font-family: var(--font-sc);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  color: rgba(200, 168, 75, 0.30);
+  text-align: right;
+}
+
+.pt-shortcuts__dismiss kbd {
+  font-family: var(--font-sc);
+  font-size: inherit;
+  color: rgba(200, 168, 75, 0.45);
+}
+
 @media (prefers-contrast: more) {
   :root {
     --bg:       #2a1d0a;

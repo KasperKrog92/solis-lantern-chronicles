@@ -1244,6 +1244,37 @@ function bindNavigation() {
     if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
     if (e.key === 'ArrowRight') navigate(1);
     if (e.key === 'ArrowLeft')  navigate(-1);
+    if (e.key === '?') toggleShortcuts();
+  });
+
+  // Shortcut hints panel
+  const shortcutsEl  = document.getElementById('pt-shortcuts');
+  const shortcutsBtn = document.getElementById('pt-shortcuts-btn');
+
+  function toggleShortcuts() {
+    if (!shortcutsEl) return;
+    const nowOpen = shortcutsEl.hidden;
+    shortcutsEl.hidden = !nowOpen;
+    shortcutsBtn?.setAttribute('aria-expanded', String(nowOpen));
+  }
+
+  function closeShortcuts() {
+    if (!shortcutsEl || shortcutsEl.hidden) return;
+    shortcutsEl.hidden = true;
+    shortcutsBtn?.setAttribute('aria-expanded', 'false');
+  }
+
+  shortcutsBtn?.addEventListener('click', e => {
+    e.stopPropagation();
+    toggleShortcuts();
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeShortcuts();
+  });
+
+  document.addEventListener('click', e => {
+    if (!shortcutsEl?.hidden && !shortcutsEl.contains(e.target)) closeShortcuts();
   });
 
   // Buttons

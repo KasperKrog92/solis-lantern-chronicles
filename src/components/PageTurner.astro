@@ -14,7 +14,6 @@ interface Props {
 
 const { title, session, date } = Astro.props;
 
-const sessionLabel = `Session ${String(session).padStart(2, '0')}`;
 const formattedDate = date.toLocaleDateString('en-GB', {
   day: 'numeric',
   month: 'long',
@@ -68,5 +67,29 @@ const formattedDate = date.toLocaleDateString('en-GB', {
     <button id="pt-prev" class="pt-nav-btn" aria-label="Previous page">← Prev</button>
     <span id="pt-counter" class="pt-counter" aria-live="polite">1 / 1</span>
     <button id="pt-next" class="pt-nav-btn" aria-label="Next page">Next →</button>
+  </div>
+
+  <!-- Navigation shortcut hints — toggled by the ? button or ? key -->
+  <div id="pt-shortcuts" class="pt-shortcuts" hidden role="dialog" aria-label="Navigation shortcuts">
+    <p class="pt-shortcuts__heading">Navigation</p>
+    <dl class="pt-shortcuts__list">
+      <div class="pt-shortcuts__row">
+        <dt>Arrow keys</dt>
+        <dd>← / → — previous / next page</dd>
+      </div>
+      <div class="pt-shortcuts__row">
+        <dt>Click left / right</dt>
+        <dd>Turn the page</dd>
+      </div>
+      <div class="pt-shortcuts__row">
+        <dt>Click middle</dt>
+        <dd>Instant text reveal</dd>
+      </div>
+      <div class="pt-shortcuts__row">
+        <dt>Swipe</dt>
+        <dd>Left / right to turn pages</dd>
+      </div>
+    </dl>
+    <p class="pt-shortcuts__dismiss">Press <kbd>?</kbd> or <kbd>Esc</kbd> to close</p>
   </div>
 </div>
