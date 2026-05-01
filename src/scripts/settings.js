@@ -10,6 +10,7 @@
  *   'writing-sound-volume'  — float 0–1, default 0.6
  *   'dice-sound-volume'     — float 0–1, default 0.8
  *   'ambience-volume'       — float 0–1, default 0.15
+ *   'character-colors'      — 'false' to disable; anything else (or absent) = enabled
  *   'gm-notes'              — 'true' to show; anything else (or absent) = hidden
  *   'save-progress'         — 'false' to disable; anything else (or absent) = enabled
  *   'reader-font-scale'     — float 0.85–1.30, default 1.0
@@ -43,8 +44,9 @@ function getVolume(key, defaultVal) {
 
 // ── Toggle state ───────────────────────────────────────────────────────────
 
-export function isGradualEnabled()        { return isEnabled('gradual-text'); }
-export function isSaveProgressEnabled()  { return isEnabled('save-progress'); }
+export function isGradualEnabled()           { return isEnabled('gradual-text'); }
+export function isSaveProgressEnabled()     { return isEnabled('save-progress'); }
+export function isCharacterColorsEnabled()  { return isEnabled('character-colors'); }
 export function getFontScale() {
   const v = parseFloat(localStorage.getItem('reader-font-scale'));
   return isNaN(v) ? FONT_SCALE_DEFAULT : Math.max(FONT_SCALE_MIN, Math.min(FONT_SCALE_MAX, v));
@@ -115,6 +117,11 @@ export function applySettings() {
   document.getElementById('toggle-save-progress')
     ?.setAttribute('aria-pressed', String(isSaveProgressEnabled()));
 
+  const charColorsOn = isCharacterColorsEnabled();
+  document.getElementById('toggle-character-colors')
+    ?.setAttribute('aria-pressed', String(charColorsOn));
+  document.documentElement.classList.toggle('no-character-colors', !charColorsOn);
+
   applyFontScale();
   applyRevealSpeed();
 
@@ -161,6 +168,11 @@ export function initSettingsToggles() {
 
   document.getElementById('toggle-save-progress')?.addEventListener('click', () => {
     toggleEnabled('save-progress');
+    applySettings();
+  });
+
+  document.getElementById('toggle-character-colors')?.addEventListener('click', () => {
+    toggleEnabled('character-colors');
     applySettings();
   });
 
