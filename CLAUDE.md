@@ -105,7 +105,7 @@ The resume banner (`#resume-banner`) is populated with the first in-progress car
 
 ## Reader controls
 
-The controls bar in `ChapterLayout.astro` has two groups: **Text** and **Sound**.
+The controls bar in `ChapterLayout.astro` has three groups: **Text**, **Sound**, and a **?** (shortcuts) button.
 
 ### Text submenu (`.text-group`)
 Opened by clicking `.text-group__main` (the "Text" button) or `.text-group__caret` (▾). Both buttons carry `aria-expanded` and `aria-controls="text-submenu"`. Closing on outside click is handled in `settings.js`.
@@ -121,6 +121,13 @@ Current rows, in order:
 | `#go-to-form` input + "Go" | — | — | Jump to page number |
 
 All "default on" keys use the pattern `isEnabled(key)` — absent or any value other than `'false'` = enabled.
+
+### Shortcut hints panel (`#pt-shortcuts`)
+A `?` button sits in `.chapter-controls__toggles` (outside the page surface). Clicking it, or pressing `?` (not when an input is focused), toggles a `position: fixed` centered panel listing navigation controls. Dismissed by `?` again, `Escape`, or click outside.
+
+- HTML lives in `PageTurner.astro`, inside `#pt-container` after the nav footer, hidden via the `hidden` attribute.
+- JS wired in `bindNavigation()` in `page-turner.js` — `toggleShortcuts` / `closeShortcuts` function declarations (hoisted, so referenced safely in the earlier keydown listener).
+- Styled as `.pt-shortcuts` in `global.css` — same `#2e200c` background, gold border, and `box-shadow` as `.chapter-card`; `dt` labels in `var(--font-sc)` with `white-space: nowrap`; `dd` descriptions right-aligned.
 
 ### Character name colours toggle
 Implemented via a CSS class rather than re-processing the baked page HTML:
