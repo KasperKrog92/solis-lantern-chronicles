@@ -80,9 +80,34 @@ After reveal completes, `cleanupWordSpans(container)` runs 150 ms later (time fo
 | `src/scripts/page-turner.js` | Pagination engine; exports `initPageTurner()` |
 | `src/scripts/lore-tooltips.ts` | Shared tooltip init; exports `initLoreTooltips()`, `clampTooltip()`. Uses `data-lore-init` guard against double-init. |
 | `src/scripts/character-mentions.ts` | Auto-wraps character names in `#pt-source` with lore-link spans before page-turner reads it |
-| `src/scripts/settings.js` | localStorage toggles: `gradual-text`, `sound`, `gm-notes` |
+| `src/scripts/settings.js` | localStorage toggles for all reader preferences; see keys listed below |
 | `src/scripts/sketch-reveal.js` | Canvas ink-stroke reveal for `[data-sketch-reveal]` figures |
 | `src/scripts/writing-sound.js` | Web Audio API writing sound |
+
+## Reader controls
+
+The controls bar in `ChapterLayout.astro` has two groups: **Text** and **Sound**.
+
+### Text submenu (`.text-group`)
+Opened by clicking `.text-group__main` (the "Text" button) or `.text-group__caret` (▾). Both buttons carry `aria-expanded` and `aria-controls="text-submenu"`. Closing on outside click is handled in `settings.js`.
+
+Current rows, in order:
+| Button id | localStorage key | Default | Behaviour |
+|---|---|---|---|
+| `toggle-gradual` | `gradual-text` | on | Word-by-word text reveal |
+| `toggle-save-progress` | `save-progress` | on | Persist page position |
+| `toggle-character-colors` | `character-colors` | on | Character name colour tinting |
+| `font-size-decrease/reset/increase` | `reader-font-scale` | `1.0` | 0.85–1.30 in 0.05 steps |
+| `reveal-speed-decrease/reset/increase` | `reader-reveal-speed` | `1.0` | 0.5–2.0 in 0.25 steps |
+| `#go-to-form` input + "Go" | — | — | Jump to page number |
+
+All "default on" keys use the pattern `isEnabled(key)` — absent or any value other than `'false'` = enabled.
+
+### Character name colours toggle
+Implemented via a CSS class rather than re-processing the baked page HTML:
+- `applySettings()` toggles `no-character-colors` on `<html>` and syncs `aria-pressed`
+- `Lore.astro` (global styles): `.no-character-colors .lore-link--character { color: inherit !important; opacity: 1; }`
+- The `opacity: 1` override is required because `.lore-link` has `opacity: 0.8` at rest in `global.css` (intentional fading for NPC/lore links). Without resetting it, disabled character names appear slightly lighter than surrounding prose.
 
 ## Character color system
 Single source of truth: `src/lib/characterColors.ts` (OKLch format).
