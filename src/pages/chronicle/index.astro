@@ -39,6 +39,13 @@ function resolveHref(href: string) {
       </div>
     </div>
 
+    <div id="resume-banner" class="resume-banner" hidden>
+      <span class="resume-banner__label">Continue Reading</span>
+      <span class="resume-banner__title"></span>
+      <span class="resume-banner__page"></span>
+      <a class="resume-banner__link" href="">Resume →</a>
+    </div>
+
     <div class="chapter-list-wrap">
       {chapters.length === 0 ? (
         <p style="color: rgba(200,168,75,0.45); font-style: italic;">
@@ -47,7 +54,7 @@ function resolveHref(href: string) {
       ) : (
         <ul class="chapter-list">
           {chapters.map(chapter => (
-            <li class="chapter-card">
+            <li class="chapter-card" data-chapter-path={resolveHref(`/chronicle/${chapter.id}`)}>
               <p class="chapter-card__session">
                 Session {String(chapter.data.session).padStart(2, '0')}
                 {chapter.data.draft && <span class="chapter-card__draft">[draft]</span>}
@@ -71,13 +78,88 @@ function resolveHref(href: string) {
                   <CharacterChip slug={slug} name={charMap[slug]?.name ?? slug} />
                 ))}
               </div>
-              <a href={resolveHref(`/chronicle/${chapter.id}`)} class="chapter-card__read-link">Read this session →</a>
+              <span class="chapter-card__status" hidden>✓ Read</span>
+              <div class="chapter-card__links">
+                <a href={resolveHref(`/chronicle/${chapter.id}`)} class="chapter-card__read-link">Read this session →</a>
+                <a href={resolveHref(`/chronicle/${chapter.id}`) + '#page-0'} class="chapter-card__restart-link" hidden>From beginning</a>
+              </div>
             </li>
           ))}
         </ul>
       )}
     </div>
 
+    <p class="chronicle-reset">
+      <button id="reset-progress-btn" class="chronicle-reset__btn">Reset reading history</button>
+    </p>
+
   </div>
 </BaseLayout>
+
+<script>
+  const cards = document.querySelectorAll<HTMLElement>('.chapter-card[data-chapter-path]');
+  let resumeCandidate: { path: string; title: string; page: number } | null = null;
+
+  for (const card of cards) {
+    const path = card.dataset.chapterPath!;
+    const completed  = localStorage.getItem(`chapter-completed:${path}`) === 'true';
+    const savedPage  = parseInt(localStorage.getItem(`reading-progress:${path}`) ?? '', 10);
+    const inProgress = !completed && savedPage > 0;
+
+    const readLink    = card.querySelector<HTMLAnchorElement>('.chapter-card__read-link')!;
+    const restartLink = card.querySelector<HTMLAnchorElement>('.chapter-card__restart-link')!;
+    const statusEl    = card.querySelector<HTMLElement>('.chapter-card__status')!;
+
+    if (completed) {
+      card.classList.add('chapter-card--read');
+      readLink.href        = `${path}#page-0`;
+      readLink.textContent = 'Re-read →';
+      statusEl.hidden      = false;
+    } else if (inProgress) {
+      card.classList.add('chapter-card--in-progress');
+      readLink.href        = `${path}#page-${savedPage}`;
+      readLink.textContent = 'Continue reading →';
+      restartLink.hidden   = false;
+      if (!resumeCandidate) {
+        const title = card.querySelector('.chapter-card__title')?.textContent ?? '';
+        resumeCandidate = { path, title, page: savedPage };
+      }
+    }
+  }
+
+  if (resumeCandidate) {
+    const banner  = document.getElementById('resume-banner')!;
+    banner.querySelector('.resume-banner__title')!.textContent  = resumeCandidate.title;
+    banner.querySelector('.resume-banner__page')!.textContent   = `Page ${resumeCandidate.page}`;
+    const link = banner.querySelector<HTMLAnchorElement>('.resume-banner__link')!;
+    link.href = `${resumeCandidate.path}#page-${resumeCandidate.page}`;
+    banner.hidden = false;
+  }
+
+  const resetBtn = document.getElementById('reset-progress-btn') as HTMLButtonElement;
+  let resetArmed = false;
+  let resetTimeout: ReturnType<typeof setTimeout>;
+
+  resetBtn.addEventListener('click', () => {
+    if (resetArmed) {
+      clearTimeout(resetTimeout);
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const key = localStorage.key(i)!;
+        if (key.startsWith('reading-progress:') || key.startsWith('chapter-completed:')) {
+          localStorage.removeItem(key);
+        }
+      }
+      location.reload();
+    } else {
+      resetArmed = true;
+      resetBtn.textContent = 'Click again to confirm';
+      resetBtn.classList.add('chronicle-reset__btn--armed');
+      resetTimeout = setTimeout(() => {
+        resetArmed = false;
+        resetBtn.textContent = 'Reset reading history';
+        resetBtn.classList.remove('chronicle-reset__btn--armed');
+      }, 3000);
+    }
+  });
+</script>
 

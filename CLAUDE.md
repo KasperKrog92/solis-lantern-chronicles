@@ -84,6 +84,25 @@ After reveal completes, `cleanupWordSpans(container)` runs 150 ms later (time fo
 | `src/scripts/sketch-reveal.js` | Canvas ink-stroke reveal for `[data-sketch-reveal]` figures |
 | `src/scripts/writing-sound.js` | Web Audio API writing sound |
 
+## Chronicle index — reading progress
+
+The chronicle index has no server-side knowledge of reading state; a client `<script>` in `chronicle/index.astro` reads localStorage on load and mutates the DOM.
+
+**localStorage keys read:**
+- `reading-progress:{pathname}` — page index saved by page-turner.js; absent or `NaN` = not started
+- `chapter-completed:{pathname}` — `'true'` when last page reached; written by `trackCompletion()` in page-turner.js
+
+`trackCompletion()` is called in three places in page-turner.js: button/key navigation (`navigate()`), swipe commit, and initial `showPage()` on load. It is **not** gated on `save-progress` — completing a chapter is always recorded.
+
+**Card states applied by the script:**
+- **Completed** — `.chapter-card--read` class; link text "Re-read →"; href `{path}#page-0`; `✓ Read` badge shown
+- **In-progress** — `.chapter-card--in-progress` class; link text "Continue reading →"; href `{path}#page-N`; "From beginning" secondary link shown
+- **Not started** — no changes
+
+The resume banner (`#resume-banner`) is populated with the first in-progress card found while iterating the list (chapters are ordered newest-first, so this is the most recent in-progress session).
+
+**Reset button** — `#reset-progress-btn` uses a two-click arm/confirm pattern with a 3-second timeout. On confirm it removes all `reading-progress:` and `chapter-completed:` keys from localStorage and calls `location.reload()`.
+
 ## Reader controls
 
 The controls bar in `ChapterLayout.astro` has two groups: **Text** and **Sound**.
@@ -247,6 +266,10 @@ Several non-obvious choices exist to keep scroll smooth on mobile. Do not revert
 **`touch-action: pan-y` on `.page-surface` + passive `touchmove`** — The touchmove listener was registered `{ passive: false }` so it could call `e.preventDefault()` to block scroll during horizontal page-swipes. This forced the browser to freeze the scroll thread on every touch frame waiting for JS. `touch-action: pan-y` tells the browser it owns vertical scroll natively; `e.preventDefault()` is no longer needed so the listener is now passive.
 
 **`cleanupWordSpans()` after text reveal** — See word reveal animation notes above.
+
+## CSS reset notes
+
+**`[hidden] { display: none !important }`** is in the reset. This is required because author stylesheet `display: flex/grid` rules beat the UA stylesheet's `[hidden] { display: none }`, making `hidden` silently ineffective on any element with an explicit display value. Without this rule, a `<div hidden>` with `display: flex` set in CSS will still render. All JS toggling of visibility via `.hidden = true/false` relies on this being present.
 
 ## Conventions / learned rules
 

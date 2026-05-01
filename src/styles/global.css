@@ -58,6 +58,8 @@
   padding: 0;
 }
 
+[hidden] { display: none !important; }
+
 html {
   background-color: var(--bg);
   color-scheme: dark;
@@ -1094,6 +1096,138 @@ main.has-fullscreen-hero {
 }
 
 .chapter-card__read-link:hover {
+  color: var(--gold);
+  border-color: rgba(200, 168, 75, 0.5);
+}
+
+.chapter-card__links {
+  display: flex;
+  align-items: baseline;
+  gap: 1.4rem;
+}
+
+.chapter-card__restart-link {
+  position: relative;
+  z-index: 2;
+  font-family: var(--font-sc);
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  color: rgba(200, 168, 75, 0.32);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(200, 168, 75, 0.12);
+  padding-bottom: 1px;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.chapter-card__restart-link:hover {
+  color: rgba(200, 168, 75, 0.6);
+  border-color: rgba(200, 168, 75, 0.3);
+}
+
+.chronicle-reset {
+  max-width: 720px;
+  margin: 2.4rem auto 0;
+  text-align: right;
+}
+
+.chronicle-reset__btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  font-family: var(--font-sc);
+  font-size: 0.78rem;
+  letter-spacing: 0.18em;
+  color: rgba(200, 168, 75, 0.22);
+  transition: color 0.2s;
+}
+
+.chronicle-reset__btn:hover {
+  color: rgba(200, 168, 75, 0.45);
+}
+
+.chronicle-reset__btn--armed {
+  color: rgba(200, 168, 75, 0.55);
+}
+
+.chapter-card__status {
+  position: absolute;
+  top: 1.8rem;
+  right: 2.2rem;
+  font-family: var(--font-sc);
+  font-size: 0.78rem;
+  letter-spacing: 0.22em;
+  color: rgba(200, 168, 75, 0.32);
+}
+
+.chapter-card--read {
+  border-left-color: rgba(200, 168, 75, 0.22);
+}
+
+.chapter-card--read:hover {
+  border-left-color: rgba(200, 168, 75, 0.45);
+}
+
+.chapter-card--in-progress {
+  border-left-color: var(--gold);
+}
+
+/* ── Resume banner ───────────────────────────────────────────────────────── */
+
+.resume-banner {
+  max-width: 720px;
+  margin: 0 auto 1.6rem;
+  background-color: #2e200c;
+  border-left:   3px solid var(--gold);
+  border-top:    1px solid rgba(200, 168, 75, 0.14);
+  border-right:  1px solid rgba(200, 168, 75, 0.08);
+  border-bottom: 1px solid rgba(200, 168, 75, 0.08);
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
+  padding: 1.1rem 2.2rem;
+  display: flex;
+  align-items: baseline;
+  gap: 0.9rem 1.4rem;
+  flex-wrap: wrap;
+}
+
+.resume-banner__label {
+  font-family: var(--font-sc);
+  font-size: 0.82rem;
+  letter-spacing: 0.28em;
+  color: rgba(200, 168, 75, 0.4);
+  flex-shrink: 0;
+}
+
+.resume-banner__title {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--gold);
+  flex: 1;
+  min-width: 0;
+}
+
+.resume-banner__page {
+  font-family: var(--font-sc);
+  font-size: 0.8rem;
+  letter-spacing: 0.16em;
+  color: rgba(200, 168, 75, 0.35);
+  flex-shrink: 0;
+}
+
+.resume-banner__link {
+  font-family: var(--font-sc);
+  font-size: 0.85rem;
+  letter-spacing: 0.22em;
+  color: rgba(200, 168, 75, 0.55);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(200, 168, 75, 0.22);
+  padding-bottom: 1px;
+  transition: color 0.2s, border-color 0.2s;
+  flex-shrink: 0;
+}
+
+.resume-banner__link:hover {
   color: var(--gold);
   border-color: rgba(200, 168, 75, 0.5);
 }

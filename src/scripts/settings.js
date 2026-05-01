@@ -13,6 +13,8 @@
  *   'character-colors'      — 'false' to disable; anything else (or absent) = enabled
  *   'gm-notes'              — 'true' to show; anything else (or absent) = hidden
  *   'save-progress'         — 'false' to disable; anything else (or absent) = enabled
+ *   'reading-progress:{pathname}' — page index (integer), set by page-turner.js
+ *   'chapter-completed:{pathname}' — 'true' when last page reached, set by page-turner.js
  *   'reader-font-scale'     — float 0.85–1.30, default 1.0
  *   'reader-reveal-speed'   — float 0.5–2.0, default 1.0 (higher = faster)
  */

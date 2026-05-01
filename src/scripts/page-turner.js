@@ -274,8 +274,16 @@ function progressKey() {
   return `reading-progress:${location.pathname}`;
 }
 
+function completionKey() {
+  return `chapter-completed:${location.pathname}`;
+}
+
 function saveProgress(index) {
   if (index > 0 && isSaveProgressEnabled()) localStorage.setItem(progressKey(), String(index));
+}
+
+function trackCompletion(index) {
+  if (index === pages.length - 1) localStorage.setItem(completionKey(), 'true');
 }
 
 function loadProgress() {
@@ -320,6 +328,7 @@ export function initPageTurner() {
 
   replaceHash(initialPage);
   showPage(initialPage, isReturning);
+  trackCompletion(initialPage);
   bindNavigation();
   initSettingsToggles();
 
@@ -1220,6 +1229,7 @@ function navigate(direction) {
   }
   pushHash(next);
   saveProgress(next);
+  trackCompletion(next);
 }
 
 let _animateTurn = null;
@@ -1374,6 +1384,7 @@ function bindNavigation() {
           copyParchmentBackground(ghostSurface);
           pushHash(nextIdx);
           saveProgress(nextIdx);
+          trackCompletion(nextIdx);
 
           requestAnimationFrame(() => {
             surface.style.visibility = '';
