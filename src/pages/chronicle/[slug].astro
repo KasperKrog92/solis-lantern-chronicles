@@ -21,6 +21,7 @@ const { Content } = await render(chapter);
   session={chapter.data.session}
   date={chapter.data.date}
   gmNotes={chapter.data.gmNotes}
+  description={chapter.data.summary}
 >
   <Content components={{ Lore, Note }} />
 </ChapterLayout>

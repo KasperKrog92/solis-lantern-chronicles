@@ -16,5 +16,8 @@
     "@astrojs/mdx": "^5.0.3",
     "astro": "^6.1.6",
     "howler": "^2.2.4"
+  },
+  "devDependencies": {
+    "@astrojs/sitemap": "^3.7.2"
   }
 }

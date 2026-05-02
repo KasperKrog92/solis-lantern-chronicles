@@ -7,12 +7,16 @@ interface Props {
   title?: string;
   description?: string;
   fullscreenHero?: boolean;
+  ogType?: string;
+  ogImage?: string;
 }
 
 const {
   title = 'Solis Lantern Chronicles',
   description = 'A chronicle of an ongoing homebrew TTRPG campaign.',
   fullscreenHero = false,
+  ogType = 'website',
+  ogImage,
 } = Astro.props;
 
 const pathname = cleanPath(new URL(Astro.request.url).pathname);
@@ -29,6 +33,19 @@ function isActive(href: string) {
   const resolved = resolveHref(href);
   return pathname === resolved || pathname.startsWith(`${resolved}/`);
 }
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site).href;
+const pageTitle = title === 'Solis Lantern Chronicles' ? title : `${title} — Solis Lantern Chronicles`;
+const siteOrigin = (Astro.site?.href ?? '/').replace(/\/$/, '');
+const ogImageURL = ogImage ?? (siteOrigin + resolveHref('/og-social-card.png'));
+const siteRoot = siteOrigin + SITE_BASE;
+
+const websiteSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'Solis Lantern Chronicles',
+  url: siteRoot,
+});
 ---
 
 <!doctype html>
@@ -37,6 +54,12 @@ function isActive(href: string) {
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalURL} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:image" content={ogImageURL} />
     <link rel="icon" type="image/png" sizes="32x32" href={resolveHref('/favicon.png')} />
     <!-- Typography: IM Fell English (display) + Crimson Pro (body) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -45,7 +68,8 @@ function isActive(href: string) {
       href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=IM+Fell+English+SC&family=Crimson+Pro:ital,wght@0,300;0,400;1,300;1,400&display=swap"
       rel="stylesheet"
     />
-    <title>{title === 'Solis Lantern Chronicles' ? title : `${title} — Solis Lantern Chronicles`}</title>
+    <title>{pageTitle}</title>
+    <script type="application/ld+json" is:inline set:html={websiteSchema} />
     <slot name="head" />
   </head>
   <body>

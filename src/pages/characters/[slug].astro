@@ -39,7 +39,7 @@ const portraitModules = import.meta.glob<{ default: ImageMetadata }>(
 const portrait = portraitModules[`/src/content/characters/${character.id}.png`]?.default;
 ---
 
-<BaseLayout title={character.data.name}>
+<BaseLayout title={character.data.name} description={character.data.summary ?? character.data.short_bio}>
   <div class="detail-page" style={`--char-accent: ${accentColor}`}>
     <div class="page-wrap">
 

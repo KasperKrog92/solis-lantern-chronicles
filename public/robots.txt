@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://KasperKrog92.github.io/solis-lantern-chronicles/sitemap-index.xml

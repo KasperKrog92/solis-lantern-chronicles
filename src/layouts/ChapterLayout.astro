@@ -17,9 +17,20 @@ interface Props {
   session: number;
   date: Date;
   gmNotes?: string;
+  description?: string;
 }
 
-const { title, session, date, gmNotes } = Astro.props;
+const { title, session, date, gmNotes, description } = Astro.props;
+
+const articleSchema = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: title,
+  ...(description ? { description } : {}),
+  datePublished: date.toISOString(),
+  author: { '@type': 'Organization', name: 'Solis Lantern Chronicles' },
+  url: new URL(Astro.url.pathname, Astro.site).href,
+});
 
 const SITE_BASE = '/solis-lantern-chronicles/';
 function resolveHref(href: string) {
@@ -38,7 +49,7 @@ const characterData = allCharacters.map(c => ({
 
 ---
 
-<BaseLayout title={title}>
+<BaseLayout title={title} description={description} ogType="article">
   <Fragment slot="head">
     {Array.from({ length: 12 }, (_, i) => (
       <link rel="prefetch" href={`${SITE_BASE}assets/dice-box/sounds/dicehit/dicehit_wood${i + 1}.mp3`} as="fetch" crossorigin="anonymous" />
@@ -49,6 +60,7 @@ const characterData = allCharacters.map(c => ({
         if (!isNaN(s) && s !== 1) document.documentElement.style.setProperty('--reader-font-scale', s);
       })();
     </script>
+    <script type="application/ld+json" is:inline set:html={articleSchema} />
   </Fragment>
   <div class="chapter-reader">
 
