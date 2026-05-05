@@ -2855,7 +2855,7 @@ main.has-fullscreen-hero {
   }
 
   .pt-page-content {
-    font-size: 1rem;
+    font-size: calc(1rem * var(--reader-font-scale));
   }
 
   .pt-footer {
