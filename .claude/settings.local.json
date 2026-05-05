@@ -85,7 +85,8 @@
       "Bash(powershell -Command \"Get-ChildItem dist -Recurse -Name | Select-Object -First 20\")",
       "Bash(node -e \"console.log\\('node ok'\\)\")",
       "Bash(ffmpeg -i \"c:\\\\Users\\\\kaspe\\\\OneDrive\\\\Webprojekter\\\\solis-lantern-chronicles\\\\public\\\\og-social-card.png\" -vf scale=1200:630 -compression_level 9 \"c:\\\\Users\\\\kaspe\\\\OneDrive\\\\Webprojekter\\\\solis-lantern-chronicles\\\\public\\\\og-social-card-resized.png\")",
-      "Bash(ffmpeg -i \"c:\\\\Users\\\\kaspe\\\\OneDrive\\\\Webprojekter\\\\solis-lantern-chronicles\\\\public\\\\og-social-card.png\" -vf scale=1200:630 -q:v 3 -update 1 \"c:\\\\Users\\\\kaspe\\\\OneDrive\\\\Webprojekter\\\\solis-lantern-chronicles\\\\public\\\\og-social-card.jpg\")"
+      "Bash(ffmpeg -i \"c:\\\\Users\\\\kaspe\\\\OneDrive\\\\Webprojekter\\\\solis-lantern-chronicles\\\\public\\\\og-social-card.png\" -vf scale=1200:630 -q:v 3 -update 1 \"c:\\\\Users\\\\kaspe\\\\OneDrive\\\\Webprojekter\\\\solis-lantern-chronicles\\\\public\\\\og-social-card.jpg\")",
+      "Bash(git push *)"
     ]
   }
 }
