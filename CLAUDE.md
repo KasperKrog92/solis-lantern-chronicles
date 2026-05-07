@@ -6,7 +6,8 @@ TTRPG campaign chronicle website. Astro 6 static site, vanilla JS, GitHub Pages.
 - Astro 6 (static, no SSR)
 - Vanilla JS ES modules bundled by Vite
 - Fonts: IM Fell English (display), Crimson Pro 300 (body prose)
-- Base path: `/solis-lantern-chronicles` (configured in astro.config.mjs)
+- Hosted at `https://solis.gamestormers.dk` (custom subdomain via GitHub Pages CNAME)
+- No base subpath — `base` is omitted from `astro.config.mjs`, so `import.meta.env.BASE_URL` = `/`
 
 ## Content collections
 Config at `src/content.config.ts` (NOT `src/content/config.ts` — old Astro 4/5 location).
@@ -30,6 +31,7 @@ Keep image schema fields as `z.string().optional()` or omit them.
 - `src/assets/lantern-logo-new.png` — nav + hero logo
 - `src/assets/sketches/*.png` — pen-sketch illustrations used in chapter MDX
 - `src/content/characters/*.png` — character portraits, co-located with content files, named by character id
+- `public/favicon.png` — has a warm amber glow baked in; `scripts/add-favicon-glow.mjs` regenerates it from scratch if the base icon is replaced (uses `sharp`, no extra install needed)
 
 ## Reading experience architecture
 
@@ -175,6 +177,20 @@ All index/listing pages use `.world-header` with three parts:
 Do not add a ghost entry count element (`world-header__count`) — removed as unnecessary decoration.
 
 Outer container: `.world-page-wrap` (max-width 1140px) for most pages; `.chronicle-page` for the Chronicle index.
+
+## Internal link pattern
+
+Every page/layout that renders links uses this two-liner at the top of the frontmatter:
+
+```ts
+const SITE_BASE = import.meta.env.BASE_URL;
+function resolveHref(href: string) {
+  const target = href === '/' ? SITE_BASE : href.replace(/^\/+/, '');
+  return new URL(target, `https://example.com${SITE_BASE}`).pathname;
+}
+```
+
+Always use `resolveHref('/some/path')` for internal `href` values — never hardcode paths. This was previously a hardcoded string `/solis-lantern-chronicles/`; it was migrated to `import.meta.env.BASE_URL` when moving to the custom domain.
 
 ## Vite / dev patterns
 Dynamic `import()` calls are not always auto-discovered by Vite. Add large dynamically imported packages to `vite.optimizeDeps.include` in `astro.config.mjs`.
