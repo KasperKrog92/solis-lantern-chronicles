@@ -5,8 +5,7 @@ import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
-  site: 'https://KasperKrog92.github.io',
-  base: '/solis-lantern-chronicles',
+  site: 'https://solis.gamestormers.dk',
   integrations: [mdx(), sitemap()],
   vite: {
     optimizeDeps: {

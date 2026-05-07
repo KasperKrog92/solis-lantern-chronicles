@@ -4,7 +4,7 @@ import { getCollection } from 'astro:content';
 
 const loreEntries = await getCollection('lore');
 
-const SITE_BASE = '/solis-lantern-chronicles/';
+const SITE_BASE = import.meta.env.BASE_URL;
 function resolveHref(href: string) {
   const target = href === '/' ? SITE_BASE : href.replace(/^\/+/, '');
   return new URL(target, `https://example.com${SITE_BASE}`).pathname;
